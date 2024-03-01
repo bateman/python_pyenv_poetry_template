@@ -1,0 +1,38 @@
+name: release
+'on':
+  push:
+    tags:
+      - '*'
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Poetry
+        uses: Gr1N/setup-poetry@v8
+      - name: Build package
+        run: make build
+      - name: Retrieve tag
+        id: tag
+        run: 'echo "version=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_OUTPUT'
+      - name: Retrieve repo name
+        id: reponame
+        run: >-
+          echo "name=$(echo ${{ github.repository }} | cut -d '/' -f 2)" >>
+          $GITHUB_OUTPUT
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: '${{ secrets.RELEASE_TOKEN }}'
+        with:
+          name: 'TPscanner-cli ver. ${{ steps.tag.outputs.version }}'
+          generate_release_notes: null
+          files: >
+            "./dist/${{ steps.reponame.outputs.name }}-${{ steps.tag.outputs.version }}.tar.gz"
