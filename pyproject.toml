@@ -1,0 +1,61 @@
+[tool.poetry]
+name = "python_pyenv_poetry_template"
+version = "0.1.0"
+description = "A short description of the project"
+authors = [ "Fabio Calefato <fcalefato@gmail.com>",]
+readme = "README.md"
+repository = "https://github.com/bateman/python_pyenv_poetry_template"
+license = "MIT"
+
+[build-system]
+requires = [ "poetry-core",]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+rich = "*"
+pretty-errors = "*"
+tomlkit = "*"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "*"
+mypy = "*"
+bandit = "*"
+pre-commit = "*"
+
+[tool.poetry.group.test.dependencies]
+pytest = "*"
+pytest-cov = "*"
+
+[tool.poetry.group.docs.dependencies]
+mkdocs = "*"
+mkdocstrings = "*"
+mkdocs-autorefs = "*"
+mkdocstrings-python = "*"
+
+[tool.mypy]
+ignore_missing_imports = true
+
+[tool.bandit]
+skips = [ "B104", "B610", "B611", "B702", "B703",]
+exclude_dirs = [ "tests/",]
+
+[tool.ruff]
+fix = true
+line-length = 88
+indent-width = 4
+
+[tool.ruff.lint]
+fixable = ["ALL"]
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+extend-select = [ "I", "D",]
+ignore = [ "D211", "D213", ]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.pytest.ini_options]
+addopts = [ "--cov-fail-under=5", "--cov-report=term-missing", "--cov=python_pyenv_poetry_template",]
