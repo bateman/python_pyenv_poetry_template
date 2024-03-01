@@ -32,7 +32,7 @@ jobs:
         env:
           GITHUB_TOKEN: '${{ secrets.RELEASE_TOKEN }}'
         with:
-          name: 'TPscanner-cli ver. ${{ steps.tag.outputs.version }}'
+          name: 'P3 template ver. ${{ steps.tag.outputs.version }}'
           generate_release_notes: null
           files: >
             "./dist/${{ steps.reponame.outputs.name }}-${{ steps.tag.outputs.version }}.tar.gz"
