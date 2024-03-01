@@ -16,6 +16,7 @@ PROJECT_VERSION ?= $(shell poetry version -s 2>/dev/null || echo 0.1.0)
 PROJECT_LICENSE ?= MIT
 PYTHON_VERSION ?= 3.12.1
 PYENV_VIRTUALENV_NAME ?= venv-$(PROJECT_NAME)
+PRECOMMIT_CONF := .pre-commit-config.yaml
 
 # Stamp files
 INSTALL_STAMP := .install.stamp
@@ -27,14 +28,12 @@ BUILD_STAMP := .build.stamp
 DOCS_STAMP := .docs.stamp
 STAMP_FILES := $(wildcard .*.stamp)
 
-# Src files
+# Dirs
 SRC := $(PROJECT_NAME)
 TESTS := tests/
-
-# Dirs
-BUILD_DIR := dist/
-DOCS_DIR := docs/
-CACHE_DIRS := $(wildcard .*_cache)
+BUILD := dist/
+DOCS := docs/
+CACHE := $(wildcard .*_cache)
 
 # Colors
 
@@ -77,7 +76,7 @@ info: ## Show development box info
 clean:  ## Clean the project
 	@echo -e "$(ORANGE)\nCleaning the project...$(RESET)"
 	@find . -type d -name "__pycache__" | xargs rm -rf {};
-	@rm -rf $(STAMP_FILES) $(CACHE_DIRS) $(BUILD_DIR) $(DOCS_DIR) .coverage
+	@rm -rf $(STAMP_FILES) $(CACHE) $(BUILD) $(DOCS) .coverage
 	@echo -e "$(GREEN)Project cleaned.$(RESET)"
 
 .PHONY: reset
@@ -135,6 +134,8 @@ poetry/update: poetry/install  ## Update Poetry
 
 #-- Project
 
+project/all: project/install project/build project/docs  ## Install, build and generate the documentation
+
 project/install: poetry/install $(INSTALL_STAMP) ## Install the project for development
 $(INSTALL_STAMP): pyproject.toml
 	@if [ ! -f .python-version ]; then \
@@ -147,7 +148,7 @@ $(INSTALL_STAMP): pyproject.toml
 		if [ ! -f $(INIT_STAMP) ]; then \
 			echo -e "$(CYAN)\nInitializing the project dependencies [v$(PROJECT_VERSION)]...$(RESET)"; \
 			python .toml.py --name $(PROJECT_NAME) --ver $(PROJECT_VERSION) --desc $(PROJECT_DESCRIPTION) --repo $(PROJECT_REPO)  --lic $(PROJECT_LICENSE) ; \
-			mkdir -p $(SRC) $(TESTS) || true ; \
+			mkdir -p $(SRC) $(TESTS) $(DOCS) || true ; \
 			touch $(SRC)/__init__.py $(SRC)/main.py ; \
 			echo -e "$(GREEN)Project initialized.$(RESET)"; \
 			touch $(INIT_STAMP); \
@@ -186,12 +187,12 @@ $(EXPORT_STAMP): pyproject.toml
 project/build: $(BUILD_STAMP)  ## Build the project as a package
 $(BUILD_STAMP): pyproject.toml
 	@echo -e "$(CYAN)\nBuilding the project...$(RESET)"
-	@rm -rf $(BUILD_DIR)
+	@rm -rf $(BUILD)
 	@$(POETRY) build
 	@touch $(BUILD_STAMP)
 	@echo -e "$(GREEN)Project built.$(RESET)"
 
-project/docs: $(DOCS_STAMP) export ## Generate the project documentation
+project/docs: $(DOCS_STAMP) project/export ## Generate the project documentation
 $(DOCS_STAMP): requirements-docs.txt mkdocs.yml
 	@echo -e "$(CYAN)\nGenerating the project documentation...$(RESET)"
 	@$(POETRY) run mkdocs build
@@ -243,7 +244,7 @@ release/push: project/install  ## Push the release
 #-- Check
 
 .PHONY: check/precommit
-check/precommit: $(INSTALL_STAMP)  ## Run the pre-commit checks
+check/precommit: $(INSTALL_STAMP) $(PRECOMMIT_CONF)  ## Run the pre-commit checks
 	@echo -e "$(CYAN)\nRunning the pre-commit checks...$(RESET)"
 	@$(POETRY) run pre-commit run --all-files
 	@echo -e "$(GREEN)Pre-commit checks completed.$(RESET)"
