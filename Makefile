@@ -235,9 +235,10 @@ release/major: project/install  ## Tag a new major version release
 
 .PHONY: release/push
 release/push: project/install  ## Push the release
-	@echo -e "$(CYAN)\nPushing the release...$(RESET)"
-	@git push --tags
-	@echo -e "$(GREEN)Release v$(shell poetry version -s) pushed.$(RESET)"
+	@$(eval TAG=$(shell git describe --tags --abbrev=0))
+	@echo -e "$(CYAN)\nPushing release v$(TAG)...$(RESET)"
+	@git push origin $(TAG)
+	@echo -e "$(GREEN)Release v$(TAG) pushed.$(RESET)"
 
 #-- Check
 
