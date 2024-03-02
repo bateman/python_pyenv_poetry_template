@@ -26,7 +26,7 @@ DOCKER := $(shell command -v docker 2> /dev/null)
 DOCKER_VERSION := $(shell if [ -n "$(DOCKER)" ]; then $(DOCKER) --version 2> /dev/null; fi)
 DOCKER_FILE := Dockerfile
 DOCKER_COMPOSE := $(shell if [ -n "$(DOCKER)" ]; then command -v docker-compose 2> /dev/null || echo "$(DOCKER) compose"; fi)
-DOCKER_COMPOSE_VERSION := $(shell if [ -n "$(DOCKER_COMPOSE)" ]; then $(DOCKER_COMPOSE) --version 2> /dev/null; fi )
+DOCKER_COMPOSE_VERSION := $(shell if [ -n "$(DOCKER_COMPOSE)" ]; then $(DOCKER_COMPOSE) version 2> /dev/null; fi )
 DOCKER_COMPOSE_FILE := docker-compose.yml
 
 # Stamp files
@@ -292,7 +292,7 @@ dep/docker:
 
 .PHONY: dep/docker-compose
 dep/docker-compose:
-	@which $(DOCKER_COMPOSE) > /dev/null || (echo -e "$(RED)Docker Compose not found.$(RESET)" && exit 1)
+	@if [ -z "$(DOCKER_COMPOSE)" ]; then echo -e"$(RED)Docker Compose not found.$(RESET)" && exit 1; fi
 
 .PHONY: docker/build $(INSTALL_STAMP)
 docker/build: dep/docker dep/docker-compose  ## Build the Docker image
