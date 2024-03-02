@@ -98,13 +98,21 @@ DOCKER_IMAGE_NAME=p3t
 > [!WARNING]
 > The `PROJECT_NAME` var will be converted to lowercase and whitespaces replaced by `_`. This value will be the name of your python module.
 
-## Build
+## Development
 
-Run `make project/build` for building the project as a python package. The `*.tar.gz` and `*.whl` will be in the `BUILD` directory (by default `dist/`).
+The project uses the following development libraries:
+* `ruff`: for code linting and formatting.
+* `mypy`: for static type-checking.
+* `bandit`: for security analysis.
+* `pre-commit`: for automating all the checks above before committing.
 
 ## Update
 
 Run `make project/update` to update all the dependencies using `poetry`.
+
+## Build
+
+Run `make project/build` for building the project as a python package. The `*.tar.gz` and `*.whl` will be in the `BUILD` directory (by default `dist/`).
 
 ## Documentation
 
@@ -136,14 +144,6 @@ Contributions are welcome! Follow these steps:
 3. Make your changes and commit: `git commit -m 'Add feature'`
 4. Push to the branch: `git push origin feature-name`
 5. Submit a pull request.
-
-### Development guidelines
-
-The project uses the following development libraries:
-* `ruff`: for code linting and formatting.
-* `mypy`: for static type-checking.
-* `bandit`: for security analysis.
-* `pre-commit`: for automating all the checks above before committing.
 
 ## License
 
