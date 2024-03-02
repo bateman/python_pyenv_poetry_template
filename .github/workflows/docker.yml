@@ -19,10 +19,6 @@ jobs:
         python-version: '3.12.1'
     - name: Install Poetry
       uses: Gr1N/setup-poetry@v8
-    - name: Install package
-      run: |
-        make project/production
-        make project/export
     - name: Retrieve repo name
       id: reponame
       run: >-
