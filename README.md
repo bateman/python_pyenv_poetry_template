@@ -32,7 +32,6 @@ Run
  run/project          Run the project
  run/tests            Run the tests
 Release
- dep/git              Check if git is installed
  release/patch        Tag a new patch version release
  release/minor        Tag a new minor version release
  release/major        Tag a new major version release
@@ -120,6 +119,9 @@ The documenation files will be stored in the `DOCS` directory (by default `docs/
 * To run the project: `make run/project`.
 * To run the tests: `make run/tests`.
 
+> [!NOTE]
+> Tests are executed using `pytest`. Test coverage is calculated using the plugin `pytest-cov`.
+
 ## Docker
 
 * To build the Docker container: `make docker/build`
@@ -134,6 +136,14 @@ Contributions are welcome! Follow these steps:
 3. Make your changes and commit: `git commit -m 'Add feature'`
 4. Push to the branch: `git push origin feature-name`
 5. Submit a pull request.
+
+## Guidelines
+
+The project uses the following development libraries:
+* `ruff`: for code linting and formatting
+* `mypy`: for static type-checking
+* `bandit`: for security analysis
+* `pre-commit`: for automating all the checks above before committing
 
 ## License
 
