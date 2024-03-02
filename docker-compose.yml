@@ -1,10 +1,12 @@
 version: '3.5'
 
 services:
-  python_pyenv_poetry_template:
-    image: python_pyenv_poetry_template:latest
-    build: .
-    container_name: python_pyenv_poetry_template
+  python_pyenv_poetry_template:  ## Change this to your project name
+    image: ${DOCKER_IMAGE_NAME}:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ${DOCKER_CONTAINER_NAME}
     restart: unless-stopped
     networks:
       - app-network
