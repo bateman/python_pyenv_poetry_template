@@ -2,6 +2,15 @@
 
 A template repository for Python projects using pyenv and Poetry.
 
+<div align="center">
+<img src="https://img.shields.io/github/v/release/bateman/python_pyenv_poetry_template?style=flat-square
+" title="release">
+<img src="https://img.shields.io/github/languages/top/bateman/python_pyenv_poetry_template?style=flat-square
+" title="language">
+<img src="https://img.shields.io/github/license/bateman/python_pyenv_poetry_template?style=flat-square
+" title="license">
+</div>
+
 ## Makefile
 
 The project relies heavily on `make`, which is used to run *all* commands. Run `make` to see the list of the available targets.
