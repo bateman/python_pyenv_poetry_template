@@ -24,6 +24,7 @@ DOCKER_IMAGE_NAME ?= $(PROJECT_NAME)
 DOCKER_CONTAINER_NAME ?= $(PROJECT_NAME)
 
 # Executables
+MAKE_VERSION := $(shell make --version | head -n 1 2> /dev/null)
 POETRY := $(shell command -v poetry 2> /dev/null)
 PYENV := $(shell command -v pyenv 2> /dev/null)
 PYENV_ROOT := $(shell pyenv root)
@@ -74,6 +75,8 @@ help:  ## Show this help message
 info: ## Show development box info
 	@echo -e "$(MAGENTA)\nSystem info:$(RESET)"
 	@echo -e "  $(CYAN)OS:$(RESET) $(shell uname -s)"
+	@echo -e "  $(CYAN)Shell:$(RESET) $(SHELL) - $(shell $(SHELL) --version | head -n 1)"
+	@echo -e "  $(CYAN)Make:$(RESET) $(MAKE_VERSION)"
 	@echo -e "  $(CYAN)Git:$(RESET) $(GIT_VERSION)"
 	@echo -e "$(MAGENTA)Project info:$(RESET)"
 	@echo -e "  $(CYAN)Project name:$(RESET) $(PROJECT_NAME)"
