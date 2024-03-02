@@ -137,7 +137,7 @@ Contributions are welcome! Follow these steps:
 4. Push to the branch: `git push origin feature-name`
 5. Submit a pull request.
 
-## Guidelines
+### Development guidelines
 
 The project uses the following development libraries:
 * `ruff`: for code linting and formatting
