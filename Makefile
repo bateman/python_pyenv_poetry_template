@@ -246,7 +246,7 @@ run/tests: $(INSTALL_STAMP)  ## Run the tests
 #-- Release
 
 .PHONY: dep/git
-dep/git:  ## Check if git is installed
+dep/git:
 	@which $(GIT) > /dev/null || (echo -e "$(RED)Git not found.$(RESET)" && exit 1)
 
 .PHONY: release/patch
