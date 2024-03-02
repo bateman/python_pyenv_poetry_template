@@ -90,7 +90,7 @@ DOCKER_CONTAINER_NAME=p3t
 DOCKER_IMAGE_NAME=p3t
 ```
 6. Create the virtual environment, run `make virtualenv`.
-7. To complete the installation, run `make project/install`.
+7. To complete the installation for development purposes, run `make project/install` -- this will install all development dependencies. Otherwise, for production purposes only, run `make project/production`.
 
 > [!NOTE]
 > The installation step will install some 'default' dependencies, such as `rich` and `pretty-errors`, but also dev-dependecies, such as `ruff` and `pytest`.
@@ -99,9 +99,32 @@ DOCKER_IMAGE_NAME=p3t
 > [!WARNING]
 > The `PROJECT_NAME` var will be converted to lowercase and whitespaces replaced by `_`. This value will be the name of your python module.
 
-## Usage
+## Build
 
-Explain how to use your project. Provide examples, code snippets, or screenshots.
+Run `make project/build` for building the project as a python package. The `*.tar.gz` and `*.whl` will be in the `BUILD` directory (by default `dist/`).
+
+## Update
+
+Run `make project/update` to update all the dependencies using `poetry`.
+
+## Documentation
+
+Run `make project/docs` for building the project documentation using `mkdocstrings`. The documentation will be generated from your project files' comments in doctring format.
+The documenation files will be stored in the `DOCS` directory (by default `docs/`).
+
+> [!NOTE]
+> You will have to edit the files `mkdocs.yml` and `.readthedocs.yml` to adapt it to your project's specifics.
+
+## Execution
+
+* To run the project: `make run/project`.
+* To run the tests: `make run/tests`.
+
+## Docker
+
+* To build the Docker container: `make docker/build`
+* To start the Dokcer container and run the application: `make docker/run`
+* To build and run: `make docker/all`
 
 ## Contributing
 
