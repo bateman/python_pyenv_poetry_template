@@ -112,7 +112,7 @@ The project uses the following development libraries:
 
 > [!NOTE]
 > To manually run code formatting and linting, run `make check/format` and `make check/lint`, respectively.
-> To execut all the checks, stage your changes, then run `make check/precommit`.
+> To execute all the checks, stage your changes, then run `make check/precommit`.
 
 
 ## Update
