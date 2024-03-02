@@ -21,11 +21,10 @@ System
  help                 Show this help message
  info                 Show development box info
  clean                Clean the project - removes all cache dirs and stamp files
- reset                Reset the project - cleans plus removes the virtual enviroment)
+ reset                Reset the project - cleans plus removes the virtual enviroment
  python               Check if python is installed - install it if not
  virtualenv           Check if virtualenv exists - create and activate it if not
- poetry/install       Check if Poetry is installed - install it if not
- poetry/update        Update Poetry
+ update        Update Poetry
 Project
  project/all          Install, build and generate the documentation
  project/install      Install the project for development
@@ -86,7 +85,7 @@ Dokcer info:
   Docker image name: p3t
   Docker container name: p3t
 ```
-4. If any of the needed tools is missing, it will be marked as '*not installed*'. Install them and re-run `make info` to ensure the tools are now correctly installed and in your PATH. 
+4. If any of the needed tools is missing, it will be marked as '*not installed*'. Install them and re-run `make info` to ensure the tools are now correctly installed and in your PATH.
 5. Update the project variables values by editing the file `makefile.env`. The file content should look like this:
 ```bash
 PROJECT_DESCRIPTION='Override default values of project variables in makefile.env'
@@ -94,12 +93,12 @@ PROJECT_NAME=Python Pyenv Poetry template
 DOCKER_CONTAINER_NAME=p3t
 DOCKER_IMAGE_NAME=p3t
 ```
-6. To create the virtual environment, run `make virtualenv`.
+6. To create the virtual environment, run `make virtualenv`. Note that this will also check for the requested python version; if not available, it will use `pyenv` to install it.
 7. To complete the installation for development purposes, run `make project/install` -- this will install all development dependencies. Otherwise, for production purposes only, run `make project/production`.
 
 > [!NOTE]
 > The installation step will install some 'default' dependencies, such as `rich` and `pretty-errors`, but also dev-dependecies, such as `ruff` and `pytest`.
-> Edit the `pyproject.toml` to add/remove dependencies before running `make install`. Otherwise, you can add and remove dependencies later using `poetry add` and `poetry remove` commands. 
+> Edit the `pyproject.toml` to add/remove dependencies before running `make install`. Otherwise, you can add and remove dependencies later using `poetry add` and `poetry remove` commands.
 
 > [!WARNING]
 > The `PROJECT_NAME` var will be converted to lowercase and whitespaces will be replaced by `_`. This value will be the name of your project module.
