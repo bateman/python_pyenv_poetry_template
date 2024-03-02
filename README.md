@@ -86,23 +86,23 @@ Dokcer info:
   Docker image name: p3t
   Docker container name: p3t
 ```
-4. If some needed tool is missing, it will be marked as '*not installed*'. Install them and re-run `make info`.
-5. Update the project variables values  by editing the file `makefile.env`. The file content should look like this:
+4. If any of the needed tools is missing, it will be marked as '*not installed*'. Install them and re-run `make info` to ensure the tools are now correctly installed and in your PATH. 
+5. Update the project variables values by editing the file `makefile.env`. The file content should look like this:
 ```bash
 PROJECT_DESCRIPTION='Override default values of project variables in makefile.env'
 PROJECT_NAME=Python Pyenv Poetry template
 DOCKER_CONTAINER_NAME=p3t
 DOCKER_IMAGE_NAME=p3t
 ```
-6. Create the virtual environment, run `make virtualenv`.
+6. To create the virtual environment, run `make virtualenv`.
 7. To complete the installation for development purposes, run `make project/install` -- this will install all development dependencies. Otherwise, for production purposes only, run `make project/production`.
 
 > [!NOTE]
 > The installation step will install some 'default' dependencies, such as `rich` and `pretty-errors`, but also dev-dependecies, such as `ruff` and `pytest`.
-> Edit the `pyproject.toml` to add/remove dependencies before running `make install`.
+> Edit the `pyproject.toml` to add/remove dependencies before running `make install`. Otherwise, you can add and remove dependencies later using `poetry add` and `poetry remove` commands. 
 
 > [!WARNING]
-> The `PROJECT_NAME` var will be converted to lowercase and whitespaces replaced by `_`. This value will be the name of your python module.
+> The `PROJECT_NAME` var will be converted to lowercase and whitespaces will be replaced by `_`. This value will be the name of your project module.
 
 ## Development
 
@@ -123,7 +123,8 @@ Run `make project/update` to update all the dependencies using `poetry`.
 
 ## Build
 
-Run `make project/build` for building the project as a python package. The `*.tar.gz` and `*.whl` will be in the `BUILD` directory (by default `dist/`).
+Run `make project/build` for building the project as a python package.
+The `*.tar.gz` and `*.whl` will be placed in the `BUILD` directory (by default `dist/`).
 
 ## Documentation
 
@@ -131,7 +132,7 @@ Run `make project/docs` for building the project documentation using `mkdocstrin
 The documenation files will be stored in the `DOCS` directory (by default `docs/`).
 
 > [!NOTE]
-> You will have to edit the files `mkdocs.yml` and `.readthedocs.yml` to adapt it to your project's specifics.
+> You will have to edit the files `mkdocs.yml` and `.readthedocs.yml` to adapt them to your project's specifics.
 
 ## Execution
 
