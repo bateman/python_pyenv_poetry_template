@@ -7,14 +7,20 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 
 # Project variables -- change as needed before running make install
-PROJECT_NAME ?= $(shell basename $(CURDIR) | tr '[:upper:]' '[:lower:]' | tr ' ' '_' | tr '-' '_')
+# override the defaults by setting the variables in a makefile.env file
+-include makefile.env
+PROJECT_NAME ?= $(shell basename $(CURDIR))
+PROJECT_NAME := $(shell echo $(PROJECT_NAME) | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
 PROJECT_REPO ?= $(shell url=$$(git config --get remote.origin.url); echo $${url%.git})
 PROJECT_VERSION ?= $(shell poetry version -s 2>/dev/null || echo 0.1.0)
 PROJECT_DESCRIPTION ?= 'A short description of the project'
 PROJECT_LICENSE ?= MIT
 PYTHON_VERSION ?= 3.12.1
-PYENV_VIRTUALENV_NAME ?= venv-$(PROJECT_NAME)
+PYENV_VIRTUALENV_NAME ?= venv-$(shell echo "$(PROJECT_NAME)")
 PRECOMMIT_CONF := .pre-commit-config.yaml
+DOCKER_COMPOSE_FILE ?= docker-compose.yml
+DOCKER_IMAGE_NAME ?= $(PROJECT_NAME)
+DOCKER_CONTAINER_NAME ?= $(PROJECT_NAME)
 
 # Executables
 POETRY := $(shell command -v poetry 2> /dev/null)
@@ -27,7 +33,6 @@ DOCKER_VERSION := $(shell if [ -n "$(DOCKER)" ]; then $(DOCKER) --version 2> /de
 DOCKER_FILE := Dockerfile
 DOCKER_COMPOSE := $(shell if [ -n "$(DOCKER)" ]; then command -v docker-compose 2> /dev/null || echo "$(DOCKER) compose"; fi)
 DOCKER_COMPOSE_VERSION := $(shell if [ -n "$(DOCKER_COMPOSE)" ]; then $(DOCKER_COMPOSE) version 2> /dev/null; fi )
-DOCKER_COMPOSE_FILE := docker-compose.yml
 
 # Stamp files
 INSTALL_STAMP := .install.stamp
@@ -41,9 +46,9 @@ STAMP_FILES := $(wildcard .*.stamp)
 
 # Dirs
 SRC := $(PROJECT_NAME)
-TESTS := tests/
-BUILD := dist/
-DOCS := docs/
+TESTS := tests
+BUILD := dist
+DOCS := docs
 CACHE := $(wildcard .*_cache)
 
 # Colors
@@ -60,7 +65,7 @@ CYAN := \033[0;36m
 .PHONY: help
 help:  ## Show this help message
 	@echo -e "\nUsage: make [target]\n"
-	@grep -E '^[0-9a-zA-Z_-]+(/?[0-9a-zA-Z_-]*)*:.*?## .*$$|(^#--)' $(MAKEFILE_LIST) \
+	@grep -E '^[0-9a-zA-Z_-]+(/?[0-9a-zA-Z_-]*)*:.*?## .*$$|(^#--)' $(firstword $(MAKEFILE_LIST)) \
 	| awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m %-20s\033[0m %s\n", $$1, $$2}' \
 	| sed -e 's/\[36m #-- /\[35m/'
 
@@ -69,6 +74,19 @@ info: ## Show development box info
 	@echo -e "$(MAGENTA)\nSystem info:$(RESET)"
 	@echo -e "  $(CYAN)OS:$(RESET) $(shell uname -s)"
 	@echo -e "  $(CYAN)Git:$(RESET) $(GIT_VERSION)"
+	@echo -e "$(MAGENTA)Project info:$(RESET)"
+	@echo -e "  $(CYAN)Project name:$(RESET) $(PROJECT_NAME)"
+	@echo -e "  $(CYAN)Project directory:$(RESET) $(CURDIR)"
+	@echo -e "  $(CYAN)Project version:$(RESET) $(PROJECT_VERSION)"
+	@echo -e "  $(CYAN)Project license:$(RESET) $(PROJECT_LICENSE)"
+	@echo -e "  $(CYAN)Project description:$(RESET) $(PROJECT_DESCRIPTION)"
+	@echo -e "$(MAGENTA)Python info:$(RESET)"
+	@echo -e "  $(CYAN)Python version:$(RESET) $(PYTHON_VERSION)"
+	@echo -e "  $(CYAN)Pyenv version:$(RESET) $(shell $(PYENV) --version || echo "$(RED)not installed $(RESET)")"
+	@echo -e "  $(CYAN)Pyenv root:$(RESET) $(PYENV_ROOT)"
+	@echo -e "  $(CYAN)Pyenv virtualenv name:$(RESET) $(PYENV_VIRTUALENV_NAME)"
+	@echo -e "  $(CYAN)Poetry version:$(RESET) $(shell $(POETRY) --version || echo "$(RED)not installed $(RESET)")"
+	@echo -e "$(MAGENTA)Dokcer info:$(RESET)"
 	@if [ -n "$(DOCKER_VERSION)" ]; then \
 		echo -e "  $(CYAN)Docker:$(RESET) $(DOCKER_VERSION)"; \
 	else \
@@ -79,17 +97,8 @@ info: ## Show development box info
 	else \
 		echo -e "  $(CYAN)Docker Compose:$(RESET) $(RED)not installed $(RESET)"; \
 	fi
-	@echo -e "$(MAGENTA)Project info:$(RESET)"
-	@echo -e "  $(CYAN)Project name:$(RESET) $(PROJECT_NAME)"
-	@echo -e "  $(CYAN)Project version:$(RESET) $(PROJECT_VERSION)"
-	@echo -e "  $(CYAN)Project directory:$(RESET) $(CURDIR)"
-	@echo -e "$(MAGENTA)Python info:$(RESET)"
-	@echo -e "  $(CYAN)Python version:$(RESET) $(PYTHON_VERSION)"
-	@echo -e "  $(CYAN)Pyenv version:$(RESET) $(shell $(PYENV) --version || echo "$(RED)not installed $(RESET)")"
-	@echo -e "  $(CYAN)Pyenv root:$(RESET) $(PYENV_ROOT)"
-	@echo -e "  $(CYAN)Pyenv virtualenv name:$(RESET) $(PYENV_VIRTUALENV_NAME)"
-	@echo -e "  $(CYAN)Poetry version:$(RESET) $(shell $(POETRY) --version || echo "$(RED)not installed $(RESET)")"
-
+	@echo -e "  $(CYAN)Docker image name:$(RESET) $(DOCKER_IMAGE_NAME)"
+	@echo -e "  $(CYAN)Docker container name:$(RESET) $(DOCKER_CONTAINER_NAME)"
 
 .PHONY: clean
 clean:  ## Clean the project - removes all cache dirs and stamp files
@@ -167,7 +176,7 @@ $(INSTALL_STAMP): pyproject.toml
 		if [ ! -f $(INIT_STAMP) ]; then \
 			echo -e "$(CYAN)\nInitializing the project dependencies [v$(PROJECT_VERSION)]...$(RESET)"; \
 			python .toml.py --name $(PROJECT_NAME) --ver $(PROJECT_VERSION) --desc $(PROJECT_DESCRIPTION) --repo $(PROJECT_REPO)  --lic $(PROJECT_LICENSE) ; \
-			mkdir -p $(SRC) $(TESTS) $(DOCS) || true ; \
+			mkdir -p $(SRC) $(TESTS) $(DOCS) $(BUILD) || true ; \
 			touch $(SRC)/__init__.py $(SRC)/main.py ; \
 			echo -e "$(GREEN)Project initialized.$(RESET)"; \
 			touch $(INIT_STAMP); \
@@ -297,14 +306,17 @@ dep/docker-compose:
 .PHONY: docker/build $(INSTALL_STAMP)
 docker/build: dep/docker dep/docker-compose  ## Build the Docker image
 	@echo -e "$(CYAN)\nBuilding the Docker image...$(RESET)"
-	@$(DOCKER_COMPOSE) build
+	@DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME) DOCKER_CONTAINER_NAME=$(DOCKER_CONTAINER_NAME) $(DOCKER_COMPOSE) build
 	@echo -e "$(GREEN)Docker image built.$(RESET)"
 
 .PHONY: docker/run $(INSTALL_STAMP)
 docker/run: dep/docker dep/docker-compose  ## Run the Docker container
 	@echo -e "$(CYAN)\nRunning the Docker container...$(RESET)"
-	@$(DOCKER_COMPOSE) up
+	@DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME) DOCKER_CONTAINER_NAME=$(DOCKER_CONTAINER_NAME) $(DOCKER_COMPOSE) up
 	@echo -e "$(GREEN)Docker container running.$(RESET)"
+
+.PHONY: docker/all
+docker/all: docker/build docker/run  ## Build and run the Docker container
 
 .PHONY: docker/stop
 docker/stop: dep/docker dep/docker-compose  ## Stop the Docker container
@@ -319,7 +331,7 @@ docker/clean: dep/docker dep/docker-compose  ## Clean the Docker container
 	@echo -e "$(GREEN)Docker container cleaned.$(RESET)"
 
 .PHONY: docker/remove
-docker/remove: dep/docker dep/docker-compose  ## Remove the Docker image
+docker/remove: dep/docker dep/docker-compose  ## Clean the Docker container and remove the image
 	@echo -e "$(CYAN)\nRemoving the Docker image...$(RESET)"
 	@$(DOCKER_COMPOSE) down -v --rmi all
 	@echo -e "$(GREEN)Docker image removed.$(RESET)"
