@@ -42,4 +42,4 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         push: true
-        tags: ${{ steps.reponame.outputs.name }}:latest, ${{ steps.reponame.outputs.name }}:${{ steps.tag.outputs.version }}
+        tags: ${{ steps.reponame.outputs.name }}:latest
