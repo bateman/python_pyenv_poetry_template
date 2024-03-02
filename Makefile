@@ -92,14 +92,14 @@ info: ## Show development box info
 
 
 .PHONY: clean
-clean:  ## Clean the project
+clean:  ## Clean the project - removes all cache dirs and stamp files
 	@echo -e "$(ORANGE)\nCleaning the project...$(RESET)"
 	@find . -type d -name "__pycache__" | xargs rm -rf {};
 	@rm -rf $(STAMP_FILES) $(CACHE) $(BUILD) $(DOCS) .coverage
 	@echo -e "$(GREEN)Project cleaned.$(RESET)"
 
 .PHONY: reset
-reset:  ## Reset the project
+reset:  ## Reset the project - cleans plus removes the virtual enviroment)
 	@echo -e "$(RED)\nAre you sure you want to proceed with the reset (this involves wiping also the virual enviroment)? [y/N]: $(RESET)"
 	@read -r answer; \
 	if [ "$$answer" != "y" ]; then \
@@ -114,7 +114,7 @@ reset:  ## Reset the project
 		echo -e "$(GREEN)Project reset.$(RESET)" ; \
 	fi
 
-python:  ## Check if python is installed and install it if not
+python:  ## Check if python is installed - install it if not
 	@if ! $(PYENV) versions | grep $(PYTHON_VERSION) > /dev/null ; then \
 		echo -e "$(ORANGE)\nPython version $(PYTHON_VERSION) not installed. Installing it via pyenv...$(RESET)"; \
 		$(PYENV) install $(PYTHON_VERSION) || exit 1; \
@@ -134,7 +134,7 @@ virtualenv: python  ## Check if virtualenv exists - create and activate it if no
 	@$(PYENV) local $(PYENV_VIRTUALENV_NAME)
 	@echo -e "$(GREEN)Virtualenv activated.$(RESET)"
 
-poetry/install: python  ## Check if Poetry is installed and install it if not
+poetry/install: python  ## Check if Poetry is installed - install it if not
 	@if [ -z $(POETRY) ]; then \
 		echo -e "$(ORANGE)\nPoetry not found. Installing it...$(RESET)"; \
 		curl -sSL https://install.python-poetry.org | python3 -; \
@@ -317,3 +317,9 @@ docker/clean: dep/docker dep/docker-compose  ## Clean the Docker container
 	@echo -e "$(CYAN)\nCleaning the Docker container...$(RESET)"
 	@$(DOCKER_COMPOSE) down -v
 	@echo -e "$(GREEN)Docker container cleaned.$(RESET)"
+
+.PHONY: docker/remove
+docker/remove: dep/docker dep/docker-compose  ## Remove the Docker image
+	@echo -e "$(CYAN)\nRemoving the Docker image...$(RESET)"
+	@$(DOCKER_COMPOSE) down -v --rmi all
+	@echo -e "$(GREEN)Docker image removed.$(RESET)"
