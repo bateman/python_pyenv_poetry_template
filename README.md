@@ -2,6 +2,54 @@
 
 A template repository for Python projects using pyenv and Poetry.
 
+## Makefile
+
+The project relies heavily on `make`, which is used to run *all* commands. Run `make` to see the list of the available targets.
+
+```console
+$ make
+
+Usage: make [target]
+
+System
+ help                 Show this help message
+ info                 Show development box info
+ clean                Clean the project - removes all cache dirs and stamp files
+ reset                Reset the project - cleans plus removes the virtual enviroment)
+ python               Check if python is installed - install it if not
+ virtualenv           Check if virtualenv exists - create and activate it if not
+ poetry/install       Check if Poetry is installed - install it if not
+ poetry/update        Update Poetry
+Project
+ project/all          Install, build and generate the documentation
+ project/install      Install the project for development
+ project/update       Update the project
+ project/production   Install the project for production
+ project/export       Export the project's dependencies
+ project/build        Build the project as a package
+ project/docs         Generate the project documentation
+Run
+ run/project          Run the project
+ run/tests            Run the tests
+Release
+ dep/git              Check if git is installed
+ release/patch        Tag a new patch version release
+ release/minor        Tag a new minor version release
+ release/major        Tag a new major version release
+ release/push         Push the release
+Check
+ check/precommit      Run the pre-commit checks
+ check/format         Format the code
+ check/lint           Lint the code
+Docker
+ docker/build         Build the Docker image
+ docker/run           Run the Docker container
+ docker/all           Build and run the Docker container
+ docker/stop          Stop the Docker container
+ docker/clean         Clean the Docker container
+ docker/remove        Clean the Docker container and remove the image
+```
+
 ## Installation
 
 1. Clone the repository: `git clone https://github.com/bateman/python_pyenv_poetry_template.git`
@@ -41,7 +89,8 @@ PROJECT_NAME=Python Pyenv Poetry template
 DOCKER_CONTAINER_NAME=p3t
 DOCKER_IMAGE_NAME=p3t
 ```
-6. To complete the installation, run `make project/install`.
+6. Create the virtual environment, run `make virtualenv`.
+7. To complete the installation, run `make project/install`.
 
 > [!NOTE]
 > The installation step will install some 'default' dependencies, such as `rich` and `pretty-errors`, but also dev-dependecies, such as `ruff` and `pytest`.
