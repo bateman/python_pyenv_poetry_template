@@ -90,7 +90,7 @@ info: ## Show development box info
 	@echo -e "  $(CYAN)Pyenv root:$(RESET) $(PYENV_ROOT)"
 	@echo -e "  $(CYAN)Pyenv virtualenv name:$(RESET) $(PYENV_VIRTUALENV_NAME)"
 	@echo -e "  $(CYAN)Poetry version:$(RESET) $(shell $(POETRY) --version || echo "$(RED)not installed $(RESET)")"
-	@echo -e "$(MAGENTA)Dokcer info:$(RESET)"
+	@echo -e "$(MAGENTA)Docker info:$(RESET)"
 	@if [ -n "$(DOCKER_VERSION)" ]; then \
 		echo -e "  $(CYAN)Docker:$(RESET) $(DOCKER_VERSION)"; \
 	else \
@@ -136,7 +136,7 @@ python:  ## Check if python is installed - install it if not
 		echo -e "$(CYAN)\nPython version $(PYTHON_VERSION) already installed.$(RESET)"; \
 	fi
 
-virtualenv: python  ## Check if virtualenv exists - create and activate it if not
+virtualenv: python  ## Check if virtualenv exists and activate it - create it if not
 	@if ! $(PYENV) virtualenvs | grep $(PYENV_VIRTUALENV_NAME) > /dev/null ; then \
 		echo -e "$(ORANGE)\nLocal virtualenv not found. Creating it...$(RESET)"; \
 		$(PYENV) virtualenv $(PYTHON_VERSION) $(PYENV_VIRTUALENV_NAME) || exit 1; \
@@ -147,7 +147,7 @@ virtualenv: python  ## Check if virtualenv exists - create and activate it if no
 	@$(PYENV) local $(PYENV_VIRTUALENV_NAME)
 	@echo -e "$(GREEN)Virtualenv activated.$(RESET)"
 
-dep/poetry: python
+dep/poetry: virtualenv
 	@if [ -z "$(POETRY)" ]; then echo -e "$(RED)Poetry not found.$(RESET)" && exit 1; fi
 
 .PHONY:
@@ -158,7 +158,7 @@ update: dep/poetry  ## Update Poetry
 
 #-- Project
 
-project/all: project/install project/build project/docs  ## Install, build and generate the documentation
+project/all: project/install project/build project/docs  ## Install and build the project, generate the documentation
 
 project/install: dep/poetry $(INSTALL_STAMP) ## Install the project for development
 $(INSTALL_STAMP): pyproject.toml
@@ -226,7 +226,7 @@ $(DOCS_STAMP): requirements-docs.txt mkdocs.yml
 #-- Run
 
 .PHONY: run/project
-run/project: python $(INSTALL_STAMP)  ## Run the project
+run/project: virtualenv $(INSTALL_STAMP)  ## Run the project
 	@python -m $(SRC)
 
 .PHONY: run/tests
@@ -242,28 +242,28 @@ dep/git:
 	@if [ -z "$(GIT)" ]; then echo -e "$(RED)Git not found.$(RESET)" && exit 1; fi
 
 .PHONY: release/patch
-release/patch: dep/git project/install  ## Tag a new patch version release
+release/patch: dep/git $(INSTALL_STAMP)  ## Tag a new patch version release
 	@echo -e "$(CYAN)\nReleasing a new patch version...$(RESET)"
 	@$(POETRY) version patch
 	@$(GIT) tag -a v$(shell poetry version -s) -m "Release v$(shell poetry version -s)"
 	@echo -e "$(GREEN)New patch version released.$(RESET)"
 
 .PHONY: release/minor
-release/minor: dep/git project/install  ## Tag a new minor version release
+release/minor: dep/git $(INSTALL_STAMP)  ## Tag a new minor version release
 	@echo -e "$(CYAN)\nReleasing a new minor version...$(RESET)"
 	@$(POETRY) version minor
 	@$(GIT) tag -a v$(shell poetry version -s) -m "Release v$(shell poetry version -s)"
 	@echo -e "$(GREEN)New minor version released.$(RESET)"
 
 .PHONY: release/major
-release/major: dep/git project/install  ## Tag a new major version release
+release/major: dep/git $(INSTALL_STAMP)  ## Tag a new major version release
 	@echo -e "$(CYAN)\nReleasing a new major version...$(RESET)"
 	@$(POETRY) version major
 	@$(GIT) tag -a v$(shell poetry version -s) -m "Release v$(shell poetry version -s)"
 	@echo -e "$(GREEN)New major version released.$(RESET)"
 
 .PHONY: release/push
-release/push: dep/git project/install  ## Push the release
+release/push: dep/git $(INSTALL_STAMP)  ## Push the release
 	@$(eval TAG=$(shell git describe --tags --abbrev=0))
 	@echo -e "$(CYAN)\nPushing release v$(TAG)...$(RESET)"
 	@$(GIT) push origin $(TAG)
@@ -300,13 +300,13 @@ dep/docker-compose:
 	@if [ -z "$(DOCKER_COMPOSE)" ]; then echo -e"$(RED)Docker Compose not found.$(RESET)" && exit 1; fi
 
 .PHONY: docker/build $(INSTALL_STAMP)
-docker/build: dep/docker dep/docker-compose project/deps-export  ## Build the Docker image
+docker/build: dep/docker dep/docker-compose $(DEPS_EXPORT_STAMP)  ## Build the Docker image
 	@echo -e "$(CYAN)\nBuilding the Docker image...$(RESET)"
 	@DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME) DOCKER_CONTAINER_NAME=$(DOCKER_CONTAINER_NAME) $(DOCKER_COMPOSE) build
 	@echo -e "$(GREEN)Docker image built.$(RESET)"
 
 .PHONY: docker/run $(INSTALL_STAMP)
-docker/run: dep/docker dep/docker-compose  docker/build  ## Run the Docker container
+docker/run: dep/docker dep/docker-compose docker/build  ## Run the Docker container
 	@echo -e "$(CYAN)\nRunning the Docker container...$(RESET)"
 	@DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME) DOCKER_CONTAINER_NAME=$(DOCKER_CONTAINER_NAME) $(DOCKER_COMPOSE) up
 	@echo -e "$(GREEN)Docker container running.$(RESET)"
