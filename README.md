@@ -79,7 +79,7 @@ Python info:
   Pyenv root: /Users/fabio/.pyenv
   Pyenv virtualenv name: venv-python_pyenv_poetry_template
   Poetry version: Poetry (version 1.8.1)
-Dokcer info:
+Docker info:
   Docker: Docker version 25.0.3, build 4debf41
   Docker Compose: Docker Compose version v2.24.6-desktop.1
   Docker image name: p3t
