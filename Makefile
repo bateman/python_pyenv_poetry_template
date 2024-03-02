@@ -112,7 +112,7 @@ clean:  ## Clean the project - removes all cache dirs and stamp files
 	@echo -e "$(GREEN)Project cleaned.$(RESET)"
 
 .PHONY: reset
-reset:  ## Reset the project - cleans plus removes the virtual enviroment)
+reset:  ## Reset the project - cleans plus removes the virtual enviroment
 	@echo -e "$(RED)\nAre you sure you want to proceed with the reset (this involves wiping also the virual enviroment)? [y/N]: $(RESET)"
 	@read -r answer; \
 	if [ "$$answer" != "y" ]; then \
@@ -147,19 +147,11 @@ virtualenv: python  ## Check if virtualenv exists - create and activate it if no
 	@$(PYENV) local $(PYENV_VIRTUALENV_NAME)
 	@echo -e "$(GREEN)Virtualenv activated.$(RESET)"
 
-poetry/install: python  ## Check if Poetry is installed - install it if not
-	@if [ -z $(POETRY) ]; then \
-		echo -e "$(ORANGE)\nPoetry not found. Installing it...$(RESET)"; \
-		curl -sSL https://install.python-poetry.org | python3 -; \
-		@$(POETRY) self add poetry-plugin-export; \
-		echo -e "$(GREEN)Poetry installed.$(RESET)"; \
-	else \
-		echo -e "$(CYAN)\n$(shell $(POETRY) --version) already installed.$(RESET)"; \
-	fi
-	@$(POETRY) check
+dep/poetry: python
+	@if [ -z "$(POETRY)" ]; then echo -e "$(RED)Poetry not found.$(RESET)" && exit 1; fi
 
 .PHONY:
-poetry/update: poetry/install  ## Update Poetry
+update: dep/poetry  ## Update Poetry
 	@echo -e "$(CYAN)\nUpgrading Poetry...$(RESET)"
 	@$(POETRY) self update
 	@echo -e "$(GREEN)Poetry upgraded.$(RESET)"
@@ -168,7 +160,7 @@ poetry/update: poetry/install  ## Update Poetry
 
 project/all: project/install project/build project/docs  ## Install, build and generate the documentation
 
-project/install: poetry/install $(INSTALL_STAMP) ## Install the project for development
+project/install: dep/poetry $(INSTALL_STAMP) ## Install the project for development
 $(INSTALL_STAMP): pyproject.toml
 	@if [ ! -f .python-version ]; then \
 		echo -e "$(RED)\nVirtual enviroment missing. Please run 'make virtualenv' first.$(RESET)"; \
@@ -191,7 +183,7 @@ $(INSTALL_STAMP): pyproject.toml
 		echo -e "$(GREEN)Project installed for development.$(RESET)"; \
 	fi
 
-project/update: $(UPDATE_STAMP)  ## Update the project
+project/update: dep/poetry $(UPDATE_STAMP)  ## Update the project
 $(UPDATE_STAMP): pyproject.toml
 	@echo -e "$(CYAN)\nUpdating the project...$(RESET)"
 	@$(POETRY) update
@@ -200,14 +192,14 @@ $(UPDATE_STAMP): pyproject.toml
 	@touch $(UPDATE_STAMP)
 	@echo -e "$(GREEN)Project updated.$(RESET)"
 
-project/production: $(PRODUCTION_STAMP)  ## Install the project for production
+project/production: dep/poetry $(PRODUCTION_STAMP)  ## Install the project for production
 $(PRODUCTION_STAMP): pyproject.toml
 	@echo -e "$(CYAN)\Install project for production...$(RESET)"
 	@$(POETRY) install --only main --no-interaction
 	@touch $(PRODUCTION_STAMP)
 	@echo -e "$(GREEN)Project installed for production.$(RESET)"
 
-project/deps-export: project/update $(DEPS_EXPORT_STAMP) ## Export the project's dependencies
+project/deps-export: dep/poetry project/update $(DEPS_EXPORT_STAMP) ## Export the project's dependencies
 $(DEPS_EXPORT_STAMP): pyproject.toml
 	@echo -e "$(CYAN)\nExporting the project...$(RESET)"
 	@$(POETRY) export -f requirements.txt --output requirements.txt --without-hashes --only main
@@ -216,7 +208,7 @@ $(DEPS_EXPORT_STAMP): pyproject.toml
 	@touch $(DEPS_EXPORT_STAMP)
 	@echo -e "$(GREEN)Project exported.$(RESET)"
 
-project/build: $(BUILD_STAMP)  ## Build the project as a package
+project/build: dep/poetry $(BUILD_STAMP)  ## Build the project as a package
 $(BUILD_STAMP): pyproject.toml
 	@echo -e "$(CYAN)\nBuilding the project...$(RESET)"
 	@rm -rf $(BUILD)
@@ -224,7 +216,7 @@ $(BUILD_STAMP): pyproject.toml
 	@touch $(BUILD_STAMP)
 	@echo -e "$(GREEN)Project built.$(RESET)"
 
-project/docs: $(DOCS_STAMP) project/deps-export ## Generate the project documentation
+project/docs: dep/poetry $(DOCS_STAMP) project/deps-export ## Generate the project documentation
 $(DOCS_STAMP): requirements-docs.txt mkdocs.yml
 	@echo -e "$(CYAN)\nGenerating the project documentation...$(RESET)"
 	@$(POETRY) run mkdocs build
@@ -234,11 +226,11 @@ $(DOCS_STAMP): requirements-docs.txt mkdocs.yml
 #-- Run
 
 .PHONY: run/project
-run/project: $(INSTALL_STAMP)  ## Run the project
+run/project: python $(INSTALL_STAMP)  ## Run the project
 	@python -m $(SRC)
 
 .PHONY: run/tests
-run/tests: $(INSTALL_STAMP)  ## Run the tests
+run/tests: dep/poetry $(INSTALL_STAMP)  ## Run the tests
 	@echo -e "$(CYAN)\nRunning the tests...$(RESET)"
 	@$(POETRY) run pytest $(TESTS)
 	@echo -e "$(GREEN)Tests passed.$(RESET)"
@@ -247,7 +239,7 @@ run/tests: $(INSTALL_STAMP)  ## Run the tests
 
 .PHONY: dep/git
 dep/git:
-	@which $(GIT) > /dev/null || (echo -e "$(RED)Git not found.$(RESET)" && exit 1)
+	@if [ -z "$(GIT)" ]; then echo -e "$(RED)Git not found.$(RESET)" && exit 1; fi
 
 .PHONY: release/patch
 release/patch: dep/git project/install  ## Tag a new patch version release
