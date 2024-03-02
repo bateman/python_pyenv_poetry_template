@@ -110,6 +110,11 @@ The project uses the following development libraries:
 * `bandit`: for security analysis.
 * `pre-commit`: for automating all the checks above before committing.
 
+> [!NOTE]
+> To manually run code formatting and linting, run `make check/format` and `make check/lint`, respectively.
+> To execut all the checks, stage your changes, then run `make check/precommit`.
+
+
 ## Update
 
 Run `make project/update` to update all the dependencies using `poetry`.
