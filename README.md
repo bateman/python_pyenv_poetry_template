@@ -57,8 +57,8 @@ Docker
 
 ## Installation
 
-1. Clone the repository: `git clone https://github.com/bateman/python_pyenv_poetry_template.git`
-2. Navigate to the project directory: `cd python_pyenv_poetry_template`
+1. Clone the repository: `git clone https://github.com/bateman/python_pyenv_poetry_template.git <your-project-name>`
+2. Navigate to the project directory: `cd <your-project-name>`
 3. Show the the status of your dev environment: `make show`. This will list the tools currently installed and the default project vars value, as in the example below.
 ```console
 $ make info
