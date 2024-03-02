@@ -163,5 +163,4 @@ cython_debug/
 #.idea/
 
 *.stamp
-requirements*.txt
 .python-version
