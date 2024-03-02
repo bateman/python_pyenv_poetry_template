@@ -12,22 +12,24 @@ $ make info
 
 System info:
   OS: Darwin
+  Shell: /bin/bash - GNU bash, version 3.2.57(1)-release (arm64-apple-darwin23)
+  Make: GNU Make 3.81
   Git: git version 2.39.3 (Apple Git-145)
 Project info:
   Project name: python_pyenv_poetry_template
-  Project directory: /Users/bateman/git/python_pyenv_poetry_template
+  Project directory: /Users/fabio/Dev/git/python_pyenv_poetry_template
   Project version: 0.1.0
   Project license: MIT
   Project description: 'Override default values of project variables in makefile.env'
 Python info:
   Python version: 3.12.1
   Pyenv version: pyenv 2.3.36
-  Pyenv root: /Users/bateman/.pyenv
+  Pyenv root: /Users/fabio/.pyenv
   Pyenv virtualenv name: venv-python_pyenv_poetry_template
   Poetry version: Poetry (version 1.8.1)
 Dokcer info:
-  Docker: not installed
-  Docker not installed
+  Docker: Docker version 25.0.3, build 4debf41
+  Docker Compose: Docker Compose version v2.24.6-desktop.1
   Docker image name: p3t
   Docker container name: p3t
 ```
