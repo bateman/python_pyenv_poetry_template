@@ -3,11 +3,11 @@
 A template repository for Python projects using pyenv and Poetry.
 
 <div align="center">
-<img src="https://img.shields.io/github/v/release/bateman/python_pyenv_poetry_template?style=flat-square
+<img src="https://img.shields.io/github/v/release/bateman/python_pyenv_poetry_template.svg?style=flat-square
 " title="release">
-<img src="https://img.shields.io/github/languages/top/bateman/python_pyenv_poetry_template?style=flat-square
+<img src="https://img.shields.io/github/languages/top/bateman/python_pyenv_poetry_template.svg?style=flat-square
 " title="language">
-<img src="https://img.shields.io/github/license/bateman/python_pyenv_poetry_template?style=flat-square
+<img src="https://img.shields.io/github/license/bateman/python_pyenv_poetry_template.svg?style=flat-square
 " title="license">
 </div>
 
