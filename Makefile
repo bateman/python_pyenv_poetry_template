@@ -10,6 +10,7 @@ MAKEFLAGS += --no-builtin-rules
 # override the defaults by setting the variables in a makefile.env file
 -include makefile.env
 PROJECT_NAME ?= $(shell basename $(CURDIR))
+# make sure the project name is lowercase and has no spaces
 PROJECT_NAME := $(shell echo $(PROJECT_NAME) | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
 PROJECT_REPO ?= $(shell url=$$(git config --get remote.origin.url); echo $${url%.git})
 PROJECT_VERSION ?= $(shell poetry version -s 2>/dev/null || echo 0.1.0)
