@@ -116,8 +116,8 @@ The documenation files will be stored in the `DOCS` directory (by default `docs/
 
 ## Execution
 
-* To run the project: `make run/project`.
-* To run the tests: `make run/tests`.
+* To run the project: `make run/project`
+* To run the tests: `make run/tests`
 
 > [!NOTE]
 > Tests are executed using `pytest`. Test coverage is calculated using the plugin `pytest-cov`.
@@ -140,10 +140,10 @@ Contributions are welcome! Follow these steps:
 ### Development guidelines
 
 The project uses the following development libraries:
-* `ruff`: for code linting and formatting
-* `mypy`: for static type-checking
-* `bandit`: for security analysis
-* `pre-commit`: for automating all the checks above before committing
+* `ruff`: for code linting and formatting.
+* `mypy`: for static type-checking.
+* `bandit`: for security analysis.
+* `pre-commit`: for automating all the checks above before committing.
 
 ## License
 
