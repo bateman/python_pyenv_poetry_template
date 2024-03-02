@@ -1,0 +1,14 @@
+version: '3.5'
+
+services:
+  python_pyenv_poetry_template:
+    image: python_pyenv_poetry_template:latest
+    build: .
+    container_name: python_pyenv_poetry_template
+    restart: unless-stopped
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
