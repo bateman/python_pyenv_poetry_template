@@ -41,7 +41,7 @@ INSTALL_STAMP := .install.stamp
 INIT_STAMP := .init.stamp
 UPDATE_STAMP := .update.stamp
 PRODUCTION_STAMP := .production.stamp
-EXPORT_STAMP := .export.stamp
+DEPS_EXPORT_STAMP := .deps-export.stamp
 BUILD_STAMP := .build.stamp
 DOCS_STAMP := .docs.stamp
 STAMP_FILES := $(wildcard .*.stamp)
@@ -68,7 +68,7 @@ CYAN := \033[0;36m
 help:  ## Show this help message
 	@echo -e "\nUsage: make [target]\n"
 	@grep -E '^[0-9a-zA-Z_-]+(/?[0-9a-zA-Z_-]*)*:.*?## .*$$|(^#--)' $(firstword $(MAKEFILE_LIST)) \
-	| awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m %-20s\033[0m %s\n", $$1, $$2}' \
+	| awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m %-21s\033[0m %s\n", $$1, $$2}' \
 	| sed -e 's/\[36m #-- /\[35m/'
 
 .PHONY: info
@@ -207,13 +207,13 @@ $(PRODUCTION_STAMP): pyproject.toml
 	@touch $(PRODUCTION_STAMP)
 	@echo -e "$(GREEN)Project installed for production.$(RESET)"
 
-project/export: project/update $(EXPORT_STAMP) ## Export the project's dependencies
-$(EXPORT_STAMP): pyproject.toml
+project/deps-export: project/update $(DEPS_EXPORT_STAMP) ## Export the project's dependencies
+$(DEPS_EXPORT_STAMP): pyproject.toml
 	@echo -e "$(CYAN)\nExporting the project...$(RESET)"
 	@$(POETRY) export -f requirements.txt --output requirements.txt --without-hashes --only main
 	@$(POETRY) export -f requirements.txt --output requirements-dev.txt --without-hashes --with dev --without docs
 	@$(POETRY) export -f requirements.txt --output requirements-docs.txt --without-hashes --only docs
-	@touch $(EXPORT_STAMP)
+	@touch $(DEPS_EXPORT_STAMP)
 	@echo -e "$(GREEN)Project exported.$(RESET)"
 
 project/build: $(BUILD_STAMP)  ## Build the project as a package
@@ -224,7 +224,7 @@ $(BUILD_STAMP): pyproject.toml
 	@touch $(BUILD_STAMP)
 	@echo -e "$(GREEN)Project built.$(RESET)"
 
-project/docs: $(DOCS_STAMP) project/export ## Generate the project documentation
+project/docs: $(DOCS_STAMP) project/deps-export ## Generate the project documentation
 $(DOCS_STAMP): requirements-docs.txt mkdocs.yml
 	@echo -e "$(CYAN)\nGenerating the project documentation...$(RESET)"
 	@$(POETRY) run mkdocs build
@@ -308,13 +308,13 @@ dep/docker-compose:
 	@if [ -z "$(DOCKER_COMPOSE)" ]; then echo -e"$(RED)Docker Compose not found.$(RESET)" && exit 1; fi
 
 .PHONY: docker/build $(INSTALL_STAMP)
-docker/build: dep/docker dep/docker-compose  ## Build the Docker image
+docker/build: dep/docker dep/docker-compose project/deps-export  ## Build the Docker image
 	@echo -e "$(CYAN)\nBuilding the Docker image...$(RESET)"
 	@DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME) DOCKER_CONTAINER_NAME=$(DOCKER_CONTAINER_NAME) $(DOCKER_COMPOSE) build
 	@echo -e "$(GREEN)Docker image built.$(RESET)"
 
 .PHONY: docker/run $(INSTALL_STAMP)
-docker/run: dep/docker dep/docker-compose  ## Run the Docker container
+docker/run: dep/docker dep/docker-compose  docker/build  ## Run the Docker container
 	@echo -e "$(CYAN)\nRunning the Docker container...$(RESET)"
 	@DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME) DOCKER_CONTAINER_NAME=$(DOCKER_CONTAINER_NAME) $(DOCKER_COMPOSE) up
 	@echo -e "$(GREEN)Docker container running.$(RESET)"
@@ -325,17 +325,17 @@ docker/all: docker/build docker/run  ## Build and run the Docker container
 .PHONY: docker/stop
 docker/stop: dep/docker dep/docker-compose  ## Stop the Docker container
 	@echo -e "$(CYAN)\nStopping the Docker container...$(RESET)"
-	@$(DOCKER_COMPOSE) down
+	@DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME) DOCKER_CONTAINER_NAME=$(DOCKER_CONTAINER_NAME) $(DOCKER_COMPOSE) down
 	@echo -e "$(GREEN)Docker container stopped.$(RESET)"
 
 .PHONY: docker/clean
 docker/clean: dep/docker dep/docker-compose  ## Clean the Docker container
 	@echo -e "$(CYAN)\nCleaning the Docker container...$(RESET)"
-	@$(DOCKER_COMPOSE) down -v
+	@DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME) DOCKER_CONTAINER_NAME=$(DOCKER_CONTAINER_NAME) $(DOCKER_COMPOSE) down -v
 	@echo -e "$(GREEN)Docker container cleaned.$(RESET)"
 
 .PHONY: docker/remove
 docker/remove: dep/docker dep/docker-compose  ## Clean the Docker container and remove the image
 	@echo -e "$(CYAN)\nRemoving the Docker image...$(RESET)"
-	@$(DOCKER_COMPOSE) down -v --rmi all
+	@DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME) DOCKER_CONTAINER_NAME=$(DOCKER_CONTAINER_NAME) $(DOCKER_COMPOSE) down -v --rmi all
 	@echo -e "$(GREEN)Docker image removed.$(RESET)"
