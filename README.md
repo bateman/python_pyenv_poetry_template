@@ -32,12 +32,21 @@ Dokcer info:
   Docker container name: p3t
 ```
 4. If some needed tool is missing, it will be marked as '*not installed*'. Install them and re-run `make info`.
-5. Update the project variables values  by editing the file `makefile.env`.
+5. Update the project variables values  by editing the file `makefile.env`. The file content should look like this:
+```bash
+PROJECT_DESCRIPTION='Override default values of project variables in makefile.env'
+PROJECT_NAME=Python Pyenv Poetry template
+DOCKER_CONTAINER_NAME=p3t
+DOCKER_IMAGE_NAME=p3t
+```
 6. To complete the installation, run `make project/install`.
 
 > [!NOTE]
 > The installation step will install some 'default' dependencies, such as `rich` and `pretty-errors`, but also dev-dependecies, such as `ruff` and `pytest`.
 > Edit the `pyproject.toml` to add/remove dependencies before running `make install`.
+
+> [!WARNING]
+> The `PROJECT_NAME` var will be converted to lowercase and whitespaces replaced by `_`. This value will be the name of your python module.
 
 ## Usage
 
