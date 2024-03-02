@@ -1,22 +1,33 @@
+# Shell config
 SHELL := /bin/bash
 .SHELLFLAGS := -eu -o pipefail -c
 
+# Make config
 MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 
-POETRY := $(shell command -v poetry 2> /dev/null)
-PYENV := $(shell command -v pyenv 2> /dev/null)
-PYENV_ROOT := $(shell pyenv root)
-
-# Project variables
+# Project variables -- change as needed before running make install
 PROJECT_NAME ?= $(shell basename $(CURDIR) | tr '[:upper:]' '[:lower:]' | tr ' ' '_' | tr '-' '_')
 PROJECT_REPO ?= $(shell url=$$(git config --get remote.origin.url); echo $${url%.git})
-PROJECT_DESCRIPTION ?= 'A short description of the project'
 PROJECT_VERSION ?= $(shell poetry version -s 2>/dev/null || echo 0.1.0)
+PROJECT_DESCRIPTION ?= 'A short description of the project'
 PROJECT_LICENSE ?= MIT
 PYTHON_VERSION ?= 3.12.1
 PYENV_VIRTUALENV_NAME ?= venv-$(PROJECT_NAME)
 PRECOMMIT_CONF := .pre-commit-config.yaml
+
+# Executables
+POETRY := $(shell command -v poetry 2> /dev/null)
+PYENV := $(shell command -v pyenv 2> /dev/null)
+PYENV_ROOT := $(shell pyenv root)
+GIT := $(shell command -v git 2> /dev/null)
+GIT_VERSION := $(shell $(GIT) --version 2> /dev/null || echo -e "\033[31mnot installed\033[0m")
+DOCKER := $(shell command -v docker 2> /dev/null)
+DOCKER_VERSION := $(shell if [ -n "$(DOCKER)" ]; then $(DOCKER) --version 2> /dev/null; fi)
+DOCKER_FILE := Dockerfile
+DOCKER_COMPOSE := $(shell if [ -n "$(DOCKER)" ]; then command -v docker-compose 2> /dev/null || echo "$(DOCKER) compose"; fi)
+DOCKER_COMPOSE_VERSION := $(shell if [ -n "$(DOCKER_COMPOSE)" ]; then $(DOCKER_COMPOSE) --version 2> /dev/null; fi )
+DOCKER_COMPOSE_FILE := docker-compose.yml
 
 # Stamp files
 INSTALL_STAMP := .install.stamp
@@ -36,7 +47,6 @@ DOCS := docs/
 CACHE := $(wildcard .*_cache)
 
 # Colors
-
 RESET := \033[0m
 RED := \033[0;31m
 GREEN := \033[0;32m
@@ -44,10 +54,9 @@ ORANGE := \033[0;33m
 MAGENTA := \033[0;35m
 CYAN := \033[0;36m
 
-.DEFAULT_GOAL := help
-
 #-- System
 
+.DEFAULT_GOAL := help
 .PHONY: help
 help:  ## Show this help message
 	@echo -e "\nUsage: make [target]\n"
@@ -59,17 +68,27 @@ help:  ## Show this help message
 info: ## Show development box info
 	@echo -e "$(MAGENTA)\nSystem info:$(RESET)"
 	@echo -e "  $(CYAN)OS:$(RESET) $(shell uname -s)"
-	@echo -e "  $(CYAN)Git:$(RESET) $(shell git --version || echo "$(RED)not installed $(RESET)")"
+	@echo -e "  $(CYAN)Git:$(RESET) $(GIT_VERSION)"
+	@if [ -n "$(DOCKER_VERSION)" ]; then \
+		echo -e "  $(CYAN)Docker:$(RESET) $(DOCKER_VERSION)"; \
+	else \
+		echo -e "  $(CYAN)Docker:$(RESET) $(RED)not installed $(RESET)"; \
+	fi
+	@if [ -n "$(DOCKER_COMPOSE_VERSION)" ]; then \
+		echo -e "  $(CYAN)Docker Compose:$(RESET) $(DOCKER_COMPOSE_VERSION)"; \
+	else \
+		echo -e "  $(CYAN)Docker Compose:$(RESET) $(RED)not installed $(RESET)"; \
+	fi
 	@echo -e "$(MAGENTA)Project info:$(RESET)"
 	@echo -e "  $(CYAN)Project name:$(RESET) $(PROJECT_NAME)"
 	@echo -e "  $(CYAN)Project version:$(RESET) $(PROJECT_VERSION)"
 	@echo -e "  $(CYAN)Project directory:$(RESET) $(CURDIR)"
 	@echo -e "$(MAGENTA)Python info:$(RESET)"
 	@echo -e "  $(CYAN)Python version:$(RESET) $(PYTHON_VERSION)"
-	@echo -e "  $(CYAN)Poetry version:$(RESET) $(shell $(POETRY) --version || echo "$(RED)not installed $(RESET)")"
 	@echo -e "  $(CYAN)Pyenv version:$(RESET) $(shell $(PYENV) --version || echo "$(RED)not installed $(RESET)")"
 	@echo -e "  $(CYAN)Pyenv root:$(RESET) $(PYENV_ROOT)"
 	@echo -e "  $(CYAN)Pyenv virtualenv name:$(RESET) $(PYENV_VIRTUALENV_NAME)"
+	@echo -e "  $(CYAN)Poetry version:$(RESET) $(shell $(POETRY) --version || echo "$(RED)not installed $(RESET)")"
 
 
 .PHONY: clean
@@ -213,32 +232,36 @@ run/tests: $(INSTALL_STAMP)  ## Run the tests
 
 #-- Release
 
+.PHONY: dep/git
+dep/git:  ## Check if git is installed
+	@which $(GIT) > /dev/null || (echo -e "$(RED)Git not found.$(RESET)" && exit 1)
+
 .PHONY: release/patch
-release/patch: project/install  ## Tag a new patch version release
+release/patch: dep/git project/install  ## Tag a new patch version release
 	@echo -e "$(CYAN)\nReleasing a new patch version...$(RESET)"
 	@$(POETRY) version patch
-	@git tag -a v$(shell poetry version -s) -m "Release v$(shell poetry version -s)"
+	@$(GIT) tag -a v$(shell poetry version -s) -m "Release v$(shell poetry version -s)"
 	@echo -e "$(GREEN)New patch version released.$(RESET)"
 
 .PHONY: release/minor
-release/minor: project/install  ## Tag a new minor version release
+release/minor: dep/git project/install  ## Tag a new minor version release
 	@echo -e "$(CYAN)\nReleasing a new minor version...$(RESET)"
 	@$(POETRY) version minor
-	@git tag -a v$(shell poetry version -s) -m "Release v$(shell poetry version -s)"
+	@$(GIT) tag -a v$(shell poetry version -s) -m "Release v$(shell poetry version -s)"
 	@echo -e "$(GREEN)New minor version released.$(RESET)"
 
 .PHONY: release/major
-release/major: project/install  ## Tag a new major version release
+release/major: dep/git project/install  ## Tag a new major version release
 	@echo -e "$(CYAN)\nReleasing a new major version...$(RESET)"
 	@$(POETRY) version major
-	@git tag -a v$(shell poetry version -s) -m "Release v$(shell poetry version -s)"
+	@$(GIT) tag -a v$(shell poetry version -s) -m "Release v$(shell poetry version -s)"
 	@echo -e "$(GREEN)New major version released.$(RESET)"
 
 .PHONY: release/push
-release/push: project/install  ## Push the release
+release/push: dep/git project/install  ## Push the release
 	@$(eval TAG=$(shell git describe --tags --abbrev=0))
 	@echo -e "$(CYAN)\nPushing release v$(TAG)...$(RESET)"
-	@git push origin $(TAG)
+	@$(GIT) push origin $(TAG)
 	@echo -e "$(GREEN)Release v$(TAG) pushed.$(RESET)"
 
 #-- Check
@@ -260,3 +283,37 @@ check/lint: $(INSTALL_STAMP)  ## Lint the code
 	@echo -e "$(CYAN)\nLinting the code...$(RESET)"
 	@ruff check $(SRC) $(TESTS)
 	@echo -e "$(GREEN)Code linted.$(RESET)"
+
+#-- Docker
+
+.PHONY: dep/docker
+dep/docker:
+	@if [ -z "$(DOCKER)" ]; then echo -e "$(RED)Docker not found.$(RESET)" && exit 1; fi
+
+.PHONY: dep/docker-compose
+dep/docker-compose:
+	@which $(DOCKER_COMPOSE) > /dev/null || (echo -e "$(RED)Docker Compose not found.$(RESET)" && exit 1)
+
+.PHONY: docker/build $(INSTALL_STAMP)
+docker/build: dep/docker dep/docker-compose  ## Build the Docker image
+	@echo -e "$(CYAN)\nBuilding the Docker image...$(RESET)"
+	@$(DOCKER_COMPOSE) build
+	@echo -e "$(GREEN)Docker image built.$(RESET)"
+
+.PHONY: docker/run $(INSTALL_STAMP)
+docker/run: dep/docker dep/docker-compose  ## Run the Docker container
+	@echo -e "$(CYAN)\nRunning the Docker container...$(RESET)"
+	@$(DOCKER_COMPOSE) up
+	@echo -e "$(GREEN)Docker container running.$(RESET)"
+
+.PHONY: docker/stop
+docker/stop: dep/docker dep/docker-compose  ## Stop the Docker container
+	@echo -e "$(CYAN)\nStopping the Docker container...$(RESET)"
+	@$(DOCKER_COMPOSE) down
+	@echo -e "$(GREEN)Docker container stopped.$(RESET)"
+
+.PHONY: docker/clean
+docker/clean: dep/docker dep/docker-compose  ## Clean the Docker container
+	@echo -e "$(CYAN)\nCleaning the Docker container...$(RESET)"
+	@$(DOCKER_COMPOSE) down -v
+	@echo -e "$(GREEN)Docker container cleaned.$(RESET)"
