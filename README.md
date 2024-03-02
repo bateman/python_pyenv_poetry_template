@@ -31,7 +31,7 @@ Project
  project/install      Install the project for development
  project/update       Update the project
  project/production   Install the project for production
- project/export       Export the project's dependencies
+ project/deps-export  Export the project's dependencies
  project/build        Build the project as a package
  project/docs         Generate the project documentation
 Run
