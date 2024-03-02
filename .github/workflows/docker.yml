@@ -30,7 +30,7 @@ jobs:
       id: tag
       run: |
         version=${GITHUB_REF/refs\/tags\//}
-        if [ -z "$version" ]; then
+        if [ "$version" == "refs/heads/main" ]; then
             version='latest'
         fi
         echo "version=$version" >> $GITHUB_OUTPUT
