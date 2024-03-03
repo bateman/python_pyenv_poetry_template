@@ -108,6 +108,28 @@ info: ## Show development environment info
 	@echo -e "  $(CYAN)Docker image name:$(RESET) $(DOCKER_IMAGE_NAME)"
 	@echo -e "  $(CYAN)Docker container name:$(RESET) $(DOCKER_CONTAINER_NAME)"
 
+# Dependencies
+
+.PHONY: dep/git
+dep/git:
+	@if [ -z "$(GIT)" ]; then echo -e "$(RED)Git not found.$(RESET)" && exit 1; fi
+
+.PHONY: dep/pyenv
+dep/pyenv:
+	@if [ -z "$(PYENV)" ]; then echo -e "$(RED)Pyenv not found.$(RESET)" && exit 1; fi
+
+.PHONY: dep/poetry
+dep/poetry: virtualenv
+	@if [ -z "$(POETRY)" ]; then echo -e "$(RED)Poetry not found.$(RESET)" && exit 1; fi
+
+.PHONY: dep/docker
+dep/docker:
+	@if [ -z "$(DOCKER)" ]; then echo -e "$(RED)Docker not found.$(RESET)" && exit 1; fi
+
+.PHONY: dep/docker-compose
+dep/docker-compose:
+	@if [ -z "$(DOCKER_COMPOSE)" ]; then echo -e"$(RED)Docker Compose not found.$(RESET)" && exit 1; fi
+
 #-- System
 
 .PHONY: clean
@@ -135,24 +157,19 @@ reset:  ## Reset the project - cleans plus removes the virtual enviroment
 	esac
 
 .PHONY: python
-python:  ## Check if python is installed - install it if not
+python: dep/pyenv  ## Check if python is installed - install it if not
 	@if ! $(PYENV) versions | grep $(PYTHON_VERSION) > /dev/null ; then \
-		$(eval PV=$(shell $(PYTHON) --version | cut -d ' ' -f 2)) \
-		echo -e "Python version found: $(PV)"; \
-		echo -e "Python version requested: $(PYTHON_VERSION)"; \
-		if [ "$(PV)" != "$(PYTHON_VERSION)" ]; then \
-			echo -e "$(ORANGE)Python version $(PYTHON_VERSION) not installed. Do you want to install it via pyenv? [y/N]: $(RESET)"; \
-			read -r answer; \
-			case $$answer in \
-				[Yy]* ) \
-					$(PYENV) install -s $(PYTHON_VERSION) || exit 1; \
-					echo -e "$(GREEN)Python version $(PYTHON_VERSION) installed.$(RESET)";; \
-				* ) \
-					echo -e "$(ORANGE)To install manually, run '$(PYENV) install $(PYTHON_VERSION)'.$(RESET)"; \
-					echo -e "$(ORANGE)Then, re-run 'make virtualenv'.$(RESET)"; \
-					exit 1 ;; \
-			esac \
-		fi \
+		echo -e "$(ORANGE)Python version $(PYTHON_VERSION) not installed. Do you want to install it via pyenv? [y/N]: $(RESET)"; \
+		read -r answer; \
+		case $$answer in \
+			[Yy]* ) \
+				$(PYENV) install -s $(PYTHON_VERSION) || exit 1; \
+				echo -e "$(GREEN)Python version $(PYTHON_VERSION) installed.$(RESET)";; \
+			* ) \
+				echo -e "$(ORANGE)To install manually, run '$(PYENV) install $(PYTHON_VERSION)'.$(RESET)"; \
+				echo -e "$(ORANGE)Then, re-run 'make virtualenv'.$(RESET)"; \
+				exit 1 ;; \
+		esac \
 	else \
 		echo -e "$(CYAN)\nPython version $(PYTHON_VERSION) available.$(RESET)"; \
 	fi
@@ -168,10 +185,6 @@ virtualenv: python  ## Check if virtualenv exists and activate it - create it if
 	fi
 	@$(PYENV) local $(PYENV_VIRTUALENV_NAME)
 	@echo -e "$(GREEN)Virtualenv activated.$(RESET)"
-
-.PHONY: dep/poetry
-dep/poetry: virtualenv
-	@if [ -z "$(POETRY)" ]; then echo -e "$(RED)Poetry not found.$(RESET)" && exit 1; fi
 
 .PHONY: update
 update: dep/poetry  ## Update Poetry
@@ -285,14 +298,6 @@ check/lint: $(INSTALL_STAMP)  ## Lint the code
 
 #-- Docker
 
-.PHONY: dep/docker
-dep/docker:
-	@if [ -z "$(DOCKER)" ]; then echo -e "$(RED)Docker not found.$(RESET)" && exit 1; fi
-
-.PHONY: dep/docker-compose
-dep/docker-compose:
-	@if [ -z "$(DOCKER_COMPOSE)" ]; then echo -e"$(RED)Docker Compose not found.$(RESET)" && exit 1; fi
-
 .PHONY: docker/build
 docker/build: dep/docker dep/docker-compose $(INSTALL_STAMP) $(DEPS_EXPORT_STAMP) $(DOCKER_BUILD_STAMP)  ## Build the Docker image
 $(DOCKER_BUILD_STAMP): $(DOCKER_FILE) $(DOCKER_COMPOSE_FILE)
@@ -330,12 +335,8 @@ docker/remove: dep/docker dep/docker-compose  ## Clean the Docker container and 
 
 #-- Tag
 
-.PHONY: dep/git
-dep/git:
-	@if [ -z "$(GIT)" ]; then echo -e "$(RED)Git not found.$(RESET)" && exit 1; fi
-
-.PHONY: dep/tag
-dep/tag: dep/git
+.PHONY: tag
+tag: dep/git
 	@$(eval TAG=$(shell $(GIT) describe --tags --abbrev=0))
 	@$(eval BEHIND_AHEAD=$(shell $(GIT) rev-list --left-right --count $(TAG)...origin/main))
 	@$(shell if [ "$(BEHIND_AHEAD)" = "0	0" ]; then echo "false" > $(RELEASE_STAMP); else echo "true" > $(RELEASE_STAMP); fi)
@@ -344,8 +345,8 @@ dep/tag: dep/git
 	@echo -e "  $(CYAN)Commits behind/ahead:$(RESET) $(shell echo ${BEHIND_AHEAD} | tr '[:space:]' '/' | sed 's/\/$$//')"
 	@echo -e "  $(CYAN)Needs release:$(RESET) $(shell cat $(RELEASE_STAMP))"
 
-.PHONY: dep/staging
-dep/staging: dep/git
+.PHONY: staging
+staging: dep/git
 	@if $(GIT) diff --cached --quiet; then \
 		echo "true" > $(STAGING_STAMP); \
 	else \
@@ -355,7 +356,7 @@ dep/staging: dep/git
 	echo -e "  $(CYAN)Staging area empty:$(RESET) $$(cat $(STAGING_STAMP))"
 
 .PHONY: tag/patch
-tag/patch: dep/tag dep/staging  ## Tag a new patch version release
+tag/patch: tag staging  ## Tag a new patch version release
 	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
 	if [ "$$NEEDS_RELEASE" = "true" ]; then \
 		$(eval TAG := $(shell $(GIT) describe --tags --abbrev=0)) \
@@ -368,7 +369,7 @@ tag/patch: dep/tag dep/staging  ## Tag a new patch version release
 	fi
 
 .PHONY: tag/minor
-tag/minor: dep/tag dep/staging  ## Tag a new minor version release
+tag/minor: tag staging  ## Tag a new minor version release
 	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
 	if [ "$$NEEDS_RELEASE" = "true" ]; then \
 		$(eval TAG := $(shell $(GIT) describe --tags --abbrev=0)) \
@@ -381,7 +382,7 @@ tag/minor: dep/tag dep/staging  ## Tag a new minor version release
 	fi
 
 .PHONY: tag/major
-tag/major: dep/tag  dep/staging  ## Tag a new major version release
+tag/major: tag  staging  ## Tag a new major version release
 	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
 	if [ "$$NEEDS_RELEASE" = "true" ]; then \
 		$(eval TAG := $(shell $(GIT) describe --tags --abbrev=0)) \
