@@ -86,9 +86,9 @@ Docker info:
   Docker container name: p3t
 ```
 4. If any of the needed tools is missing, it will be marked as '*not installed*'. Install them and re-run `make info` to ensure the tools are now correctly installed and in your PATH.
-5. Update the project variables values by editing the file `makefile.env`. The file content should look like this:
+5. Update the project variables values by editing the file `Makefile.env`. The file content should look like this:
 ```bash
-PROJECT_DESCRIPTION='Override default values of project variables in makefile.env'
+PROJECT_DESCRIPTION='Override default values of project variables in Makefile.env'
 PROJECT_NAME=Python Pyenv Poetry template
 DOCKER_CONTAINER_NAME=p3t
 DOCKER_IMAGE_NAME=p3t
