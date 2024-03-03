@@ -46,6 +46,7 @@ BUILD_STAMP := .build.stamp
 DOCKER_BUILD_STAMP := .docker-build.stamp
 DOCS_STAMP := .docs.stamp
 RELEASE_STAMP := .release.stamp
+STAGING_STAMP := .staging.stamp
 STAMP_FILES := $(wildcard .*.stamp)
 
 # Dirs
@@ -348,26 +349,31 @@ dep/tag: dep/git
 	@echo -e "  $(CYAN)Commits behind/ahead:$(RESET) $(shell echo ${BEHIND_AHEAD} | tr '[:space:]' '/' | sed 's/\/$$//')"
 	@echo -e "  $(CYAN)Needs release:$(RESET) $(shell cat $(RELEASE_STAMP))"
 
-.PHONY: tag/patch
-tag/patch: dep/tag  ## Tag a new patch version release
-	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
-	if [ -n "$$($(GIT) status --porcelain)" ]; then \
-		echo -e "$(RED)Staging area is not empty. Please commit or stash your changes first.$(RESET)"; \
-		exit 1; \
+.PHONY: dep/staging
+dep/staging: dep/git
+	@if $(GIT) diff --cached --quiet; then \
+		echo "true" > $(STAGING_STAMP); \
 	else \
-		if [ "$$NEEDS_RELEASE" = "true" ]; then \
-			$(eval TAG := $(shell $(GIT) describe --tags --abbrev=0)) \
-			$(eval NEW_TAG := $(shell $(POETRY) version patch > /dev/null && $(POETRY) version -s)) \
-			$(GIT) add pyproject.toml; \
-			$(GIT) commit -m "Bump version to $(NEW_TAG)"; \
-			echo -e "$(CYAN)\nTagging a new patch version... [$(TAG)->$(NEW_TAG)]$(RESET)"; \
-			$(GIT) tag $(NEW_TAG); \
-			echo -e "$(GREEN)New patch version tagged.$(RESET)"; \
-		fi; \
+		echo "false" > $(STAGING_STAMP); \
+	fi; \
+	echo -e "$(CYAN)\nChecking the staging area...$(RESET)"; \
+	echo -e "  $(CYAN)Staging area empty:$(RESET) $$(cat $(STAGING_STAMP))"
+
+.PHONY: tag/patch
+tag/patch: dep/tag dep/staging  ## Tag a new patch version release
+	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
+	if [ "$$NEEDS_RELEASE" = "true" ]; then \
+		$(eval TAG := $(shell $(GIT) describe --tags --abbrev=0)) \
+		$(eval NEW_TAG := $(shell $(POETRY) version patch > /dev/null && $(POETRY) version -s)) \
+		$(GIT) add pyproject.toml; \
+		$(GIT) commit -m "Bump version to $(NEW_TAG)"; \
+		echo -e "$(CYAN)\nTagging a new patch version... [$(TAG)->$(NEW_TAG)]$(RESET)"; \
+		$(GIT) tag $(NEW_TAG); \
+		echo -e "$(GREEN)New patch version tagged.$(RESET)"; \
 	fi
 
 .PHONY: tag/minor
-tag/minor: dep/tag  ## Tag a new minor version release
+tag/minor: dep/tag dep/staging  ## Tag a new minor version release
 	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
 	if [ "$$NEEDS_RELEASE" = "true" ]; then \
 		$(eval TAG := $(shell $(GIT) describe --tags --abbrev=0)) \
@@ -380,7 +386,7 @@ tag/minor: dep/tag  ## Tag a new minor version release
 	fi
 
 .PHONY: tag/major
-tag/major: dep/tag  ## Tag a new major version release
+tag/major: dep/tag  dep/staging  ## Tag a new major version release
 	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
 	if [ "$$NEEDS_RELEASE" = "true" ]; then \
 		$(eval TAG := $(shell $(GIT) describe --tags --abbrev=0)) \
