@@ -56,17 +56,6 @@ BUILD := dist
 DOCS := docs
 CACHE := $(wildcard .*_cache)
 
-# Files
-GIT_FILES := .gitignore .pre-commit-config.yaml
-GITHUB_FILES := $(shell find .github -type f)
-POETRY_FILES := pyproject.toml poetry.lock $(wildcard requirements*.txt)
-DOCKER_FILES := $(DOCKER_FILE) $(DOCKER_COMPOSE_FILE) entrypoint.sh
-SRC_FILES := $(shell find $(SRC) -name '*.py') $(shell find $(TESTS) -name '*.py') .toml.py
-DOCS_FILES := mkdocs.yml .readthedocs.yml
-MAKE_FILES := makefile.env Makefile
-AUX_FILES := LICENSE README.md
-ALL_FILES := $(GIT_FILES) $(GITHUB_FILES) $(POETRY_FILES) $(DOCKER_FILES) $(SRC_FILES) $(DOCS_FILES) $(MAKE_FILES) $(AUX_FILES)
-
 # Colors
 RESET := \033[0m
 RED := \033[0;31m
