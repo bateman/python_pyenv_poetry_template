@@ -17,41 +17,41 @@ $ make
 
 Usage: make [target]
 
+Info
+ help                  Show this help message
+ info                  Show development environment info
 System
- help                 Show this help message
- info                 Show development box info
- clean                Clean the project - removes all cache dirs and stamp files
- reset                Reset the project - cleans plus removes the virtual enviroment
- python               Check if python is installed - install it if not
- virtualenv           Check if virtualenv exists - create and activate it if not
- update        Update Poetry
+ clean                 Clean the project - removes all cache dirs and stamp files
+ reset                 Reset the project - cleans plus removes the virtual enviroment
+ python                Check if python is installed - install it if not
+ virtualenv            Check if virtualenv exists and activate it - create it if not
+ update                Update Poetry
 Project
- project/all          Install, build and generate the documentation
- project/install      Install the project for development
- project/update       Update the project
- project/production   Install the project for production
- project/deps-export  Export the project's dependencies
- project/build        Build the project as a package
- project/docs         Generate the project documentation
-Run
- run/project          Run the project
- run/tests            Run the tests
-Release
- release/patch        Tag a new patch version release
- release/minor        Tag a new minor version release
- release/major        Tag a new major version release
- release/push         Push the release
+ project/all           Install and build the project, generate the documentation
+ project/install       Install the project for development
+ project/update        Update the project
+ project/run           Run the project
+ project/tests         Run the tests
+ project/production    Install the project for production
+ project/deps-export   Export the project's dependencies
+ project/build         Build the project as a package
+ project/docs          Generate the project documentation
+Tag
+ tag/patch             Tag a new patch version release
+ tag/minor             Tag a new minor version release
+ tag/major             Tag a new major version release
+ tag/push              Push the tag to origin - triggers the release action
 Check
- check/precommit      Run the pre-commit checks
- check/format         Format the code
- check/lint           Lint the code
+ check/precommit       Run the pre-commit checks
+ check/format          Format the code
+ check/lint            Lint the code
 Docker
- docker/build         Build the Docker image
- docker/run           Run the Docker container
- docker/all           Build and run the Docker container
- docker/stop          Stop the Docker container
- docker/clean         Clean the Docker container
- docker/remove        Clean the Docker container and remove the image
+ docker/build          Build the Docker image
+ docker/run            Run the Docker container
+ docker/all            Build and run the Docker container
+ docker/stop           Stop the Docker container
+ docker/clean          Clean the Docker container
+ docker/remove         Clean the Docker container and remove the image
 ```
 
 ## Installation
@@ -114,6 +114,9 @@ The project uses the following development libraries:
 > [!NOTE]
 > To manually run code formatting and linting, run `make check/format` and `make check/lint`, respectively.
 > To execute all the checks, stage your changes, then run `make check/precommit`.
+
+## Release
+
 
 
 ## Update
