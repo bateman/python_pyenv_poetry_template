@@ -136,7 +136,7 @@ reset:  ## Reset the project - cleans plus removes the virtual enviroment
 
 .PHONY: python
 python:  ## Check if python is installed - install it if not
-	@if ! $(PYENV)s versions | grep $(PYTHON_VERSION) > /dev/null ; then \
+	@if ! $(PYENV) versions | grep $(PYTHON_VERSION) > /dev/null ; then \
 		$(eval PV=$(shell $(PYTHON) --version | cut -d ' ' -f 2)) \
 		echo -e "Python version found: $(PV)"; \
 		echo -e "Python version requested: $(PYTHON_VERSION)"; \
