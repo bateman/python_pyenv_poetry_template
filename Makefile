@@ -244,21 +244,21 @@ project/tests: dep/poetry $(INSTALL_STAMP)  ## Run the tests
 
 .PHONY: project/production
 project/production: dep/poetry $(PRODUCTION_STAMP)  ## Install the project for production
-$(PRODUCTION_STAMP): pyproject.toml
+$(PRODUCTION_STAMP): $(INSTALL_STAMP) $(UPDATE_STAMP)
 	@echo -e "$(CYAN)\Install project for production...$(RESET)"
 	@$(POETRY) install --only main --no-interaction
 	@touch $(PRODUCTION_STAMP)
 	@echo -e "$(GREEN)Project installed for production.$(RESET)"
 
 .PHONY: project/deps-export
-project/deps-export: dep/poetry project/update $(DEPS_EXPORT_STAMP)  ## Export the project's dependencies
+project/deps-export: dep/poetry $(DEPS_EXPORT_STAMP)  ## Export the project's dependencies
 $(DEPS_EXPORT_STAMP): pyproject.toml
-	@echo -e "$(CYAN)\nExporting the project...$(RESET)"
+	@echo -e "$(CYAN)\nExporting the project dependencies...$(RESET)"
 	@$(POETRY) export -f requirements.txt --output requirements.txt --without-hashes --only main
 	@$(POETRY) export -f requirements.txt --output requirements-dev.txt --without-hashes --with dev --without docs
 	@$(POETRY) export -f requirements.txt --output requirements-docs.txt --without-hashes --only docs
+	@echo -e "$(GREEN)Dependencies exported.$(RESET)"
 	@touch $(DEPS_EXPORT_STAMP)
-	@echo -e "$(GREEN)Project exported.$(RESET)"
 
 .PHONY: project/build
 project/build: dep/poetry $(BUILD_STAMP)  ## Build the project as a package
@@ -266,16 +266,16 @@ $(BUILD_STAMP): pyproject.toml
 	@echo -e "$(CYAN)\nBuilding the project...$(RESET)"
 	@rm -rf $(BUILD)
 	@$(POETRY) build
-	@touch $(BUILD_STAMP)
 	@echo -e "$(GREEN)Project built.$(RESET)"
+	@touch $(BUILD_STAMP)
 
 .PHONY: project/docs
-project/docs: dep/poetry $(DOCS_STAMP) project/deps-export ## Generate the project documentation
-$(DOCS_STAMP): requirements-docs.txt mkdocs.yml
+project/docs: dep/poetry $(DOCS_STAMP)  ## Generate the project documentation
+$(DOCS_STAMP): $(DEPS_EXPORT_STAMP) mkdocs.yml .readthedocs.yml
 	@echo -e "$(CYAN)\nGenerating the project documentation...$(RESET)"
 	@$(POETRY) run mkdocs build
-	@touch $(DOCS_STAMP)
 	@echo -e "$(GREEN)Project documentation generated.$(RESET)"
+	@touch $(DOCS_STAMP)
 
 #-- Check
 
