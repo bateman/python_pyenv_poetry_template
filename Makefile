@@ -78,24 +78,24 @@ help:  ## Show this help message
 
 .PHONY: info
 info: ## Show development environment info
-	@echo -e "$(MAGENTA)\nSystem info:$(RESET)"
+	@echo -e "$(MAGENTA)\nSystem:$(RESET)"
 	@echo -e "  $(CYAN)OS:$(RESET) $(shell uname -s)"
 	@echo -e "  $(CYAN)Shell:$(RESET) $(SHELL) - $(shell $(SHELL) --version | head -n 1)"
 	@echo -e "  $(CYAN)Make:$(RESET) $(MAKE_VERSION)"
 	@echo -e "  $(CYAN)Git:$(RESET) $(GIT_VERSION)"
-	@echo -e "$(MAGENTA)Project info:$(RESET)"
+	@echo -e "$(MAGENTA)Project:$(RESET)"
 	@echo -e "  $(CYAN)Project name:$(RESET) $(PROJECT_NAME)"
 	@echo -e "  $(CYAN)Project directory:$(RESET) $(CURDIR)"
 	@echo -e "  $(CYAN)Project version:$(RESET) $(PROJECT_VERSION)"
 	@echo -e "  $(CYAN)Project license:$(RESET) $(PROJECT_LICENSE)"
 	@echo -e "  $(CYAN)Project description:$(RESET) $(PROJECT_DESCRIPTION)"
-	@echo -e "$(MAGENTA)Python info:$(RESET)"
+	@echo -e "$(MAGENTA)Python:$(RESET)"
 	@echo -e "  $(CYAN)Python version:$(RESET) $(PYTHON_VERSION)"
 	@echo -e "  $(CYAN)Pyenv version:$(RESET) $(shell $(PYENV) --version || echo "$(RED)not installed $(RESET)")"
 	@echo -e "  $(CYAN)Pyenv root:$(RESET) $(PYENV_ROOT)"
 	@echo -e "  $(CYAN)Pyenv virtualenv name:$(RESET) $(PYENV_VIRTUALENV_NAME)"
 	@echo -e "  $(CYAN)Poetry version:$(RESET) $(shell $(POETRY) --version || echo "$(RED)not installed $(RESET)")"
-	@echo -e "$(MAGENTA)Docker info:$(RESET)"
+	@echo -e "$(MAGENTA)Docker:$(RESET)"
 	@if [ -n "$(DOCKER_VERSION)" ]; then \
 		echo -e "  $(CYAN)Docker:$(RESET) $(DOCKER_VERSION)"; \
 	else \
