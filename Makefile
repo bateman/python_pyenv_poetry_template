@@ -352,10 +352,12 @@ dep/tag: dep/git
 tag/patch: dep/tag  ## Tag a new patch version release
 	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
 	if [ "$$NEEDS_RELEASE" = "true" ]; then \
-		$(eval TAG=$(shell $(GIT) describe --tags --abbrev=0))
-		$(POETRY) version patch; \
-		echo -e "$(CYAN)\nTagging a new patch version... [$(TAG)->$(shell poetry version -s)]$(RESET)"; \
-		$(GIT) tag -a v$(shell poetry version -s) -m "Creating tag v$(shell poetry version -s)"; \
+		$(eval TAG := $(shell $(GIT) describe --tags --abbrev=0)) \
+		$(eval NEW_TAG := $(shell $(POETRY) version patch > /dev/null && $(POETRY) version -s)) \
+		$(GIT) add pyproject.toml; \
+		$(GIT) commit -m "Bump version to $(NEW_TAG)"; \
+		echo -e "$(CYAN)\nTagging a new patch version... [$(TAG)->$(NEW_TAG)]$(RESET)"; \
+		$(GIT) tag $(NEW_TAG); \
 		echo -e "$(GREEN)New patch version tagged.$(RESET)"; \
 	fi
 
@@ -363,10 +365,12 @@ tag/patch: dep/tag  ## Tag a new patch version release
 tag/minor: dep/tag  ## Tag a new minor version release
 	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
 	if [ "$$NEEDS_RELEASE" = "true" ]; then \
-		$(eval TAG=$(shell $(GIT) describe --tags --abbrev=0))
-		$(POETRY) version minor; \
-		echo -e "$(CYAN)\nTagging a new minor version... [$(TAG)->$(shell poetry version -s)]$(RESET)"; \
-		$(GIT) tag -a v$(shell poetry version -s) -m "Creating tag v$(shell poetry version -s)"; \
+		$(eval TAG := $(shell $(GIT) describe --tags --abbrev=0)) \
+		$(eval NEW_TAG := $(shell $(POETRY) version minor > /dev/null && $(POETRY) version -s)) \
+		$(GIT) add pyproject.toml; \
+		$(GIT) commit -m "Bump version to $(NEW_TAG)"; \
+		echo -e "$(CYAN)\nTagging a new minor version... [$(TAG)->$(NEW_TAG)]$(RESET)"; \
+		$(GIT) tag $(NEW_TAG); \
 		echo -e "$(GREEN)New minor version tagged.$(RESET)"; \
 	fi
 
@@ -374,10 +378,12 @@ tag/minor: dep/tag  ## Tag a new minor version release
 tag/major: dep/tag  ## Tag a new major version release
 	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
 	if [ "$$NEEDS_RELEASE" = "true" ]; then \
-		$(eval TAG=$(shell $(GIT) describe --tags --abbrev=0))
-		$(POETRY) version major; \
-		echo -e "$(CYAN)\nTagging a new major version... [$(TAG)->$(shell poetry version -s)]$(RESET)"; \
-		$(GIT) tag -a v$(shell poetry version -s) -m "Creating tag v$(shell poetry version -s)"; \
+		$(eval TAG := $(shell $(GIT) describe --tags --abbrev=0)) \
+		$(eval NEW_TAG := $(shell $(POETRY) version major > /dev/null && $(POETRY) version -s)) \
+		$(GIT) add pyproject.toml; \
+		$(GIT) commit -m "Bump version to $(NEW_TAG)"; \
+		echo -e "$(CYAN)\nTagging a new major version... [$(TAG)->$(NEW_TAG)]$(RESET)"; \
+		$(GIT) tag $(NEW_TAG); \
 		echo -e "$(GREEN)New major version tagged.$(RESET)"; \
 	fi
 
