@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - '*'
-  workflow_dispatch:
 
 jobs:
   release:
@@ -25,12 +24,7 @@ jobs:
         run: poetry build
       - name: Retrieve tag
         id: tag
-        run: |
-          version=${GITHUB_REF/refs\/tags\//}
-          if [ "$version" == "refs/heads/main" ]; then
-              version=$(poetry version -s)
-          fi
-          echo "version=$version" >> $GITHUB_OUTPUT
+        run: 'echo "version=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_OUTPUT'
       - name: Retrieve repo name
         id: reponame
         run: >-
