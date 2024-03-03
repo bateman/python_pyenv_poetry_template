@@ -267,55 +267,6 @@ $(DOCS_STAMP): requirements-docs.txt mkdocs.yml
 	@touch $(DOCS_STAMP)
 	@echo -e "$(GREEN)Project documentation generated.$(RESET)"
 
-#-- Tag
-
-.PHONY: dep/git
-dep/git:
-	@if [ -z "$(GIT)" ]; then echo -e "$(RED)Git not found.$(RESET)" && exit 1; fi
-
-.PHONY: dep/tag
-dep/tag: dep/git
-	@$(eval TAG=$(shell $(GIT) describe --tags --abbrev=0))
-	@$(eval BEHIND_AHEAD=$(shell $(GIT) rev-list --left-right --count $(TAG)...origin/main))
-	@$(eval NEEDS_RELEASE=$(shell if [ "$(BEHIND_AHEAD)" = "0	0" ]; then echo "false" > $(RELEASE_STAMP); else echo "true" > $(RELEASE_STAMP); fi))
-
-.PHONY: tag/patch
-tag/patch: dep/tag  ## Tag a new patch version release
-	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
-	if [ "$$NEEDS_RELEASE" = "true" ]; then \
-		echo -e "$(CYAN)\nTagging a new patch version...$(RESET)"; \
-		$(POETRY) version patch; \
-		$(GIT) tag -a v$(shell poetry version -s) -m "Creating tag v$(shell poetry version -s)"; \
-		echo -e "$(GREEN)New patch version tagged.$(RESET)"; \
-	fi
-
-.PHONY: tag/minor
-tag/minor: dep/tag  ## Tag a new minor version release
-	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
-	if [ "$$NEEDS_RELEASE" = "true" ]; then \
-		echo -e "$(CYAN)\nTagging a new minor version...$(RESET)"; \
-		$(POETRY) version minor; \
-		$(GIT) tag -a v$(shell poetry version -s) -m "Creating tag v$(shell poetry version -s)"; \
-		echo -e "$(GREEN)New minor version tagged.$(RESET)"; \
-	fi
-
-.PHONY: tag/major
-tag/major: dep/tag  ## Tag a new major version release
-	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
-	if [ "$$NEEDS_RELEASE" = "true" ]; then \
-		echo -e "$(CYAN)\nTagging a new major version...$(RESET)"; \
-		$(POETRY) version major; \
-		$(GIT) tag -a v$(shell poetry version -s) -m "Creating tag v$(shell poetry version -s)"; \
-		echo -e "$(GREEN)New major version tagged.$(RESET)"; \
-	fi
-
-.PHONY: tag/push
-tag/push: dep/git  ## Push the tag to origin - triggers the release action
-	@$(eval TAG=$(shell $(GIT) describe --tags --abbrev=0))
-	@echo -e "$(CYAN)\nPushing release v$(TAG)...$(RESET)"
-	@$(GIT) push origin $(TAG)
-	@echo -e "$(GREEN)Release v$(TAG) pushed.$(RESET)"
-
 #-- Check
 
 .PHONY: check/precommit
@@ -380,3 +331,52 @@ docker/remove: dep/docker dep/docker-compose  ## Clean the Docker container and 
 	@echo -e "$(CYAN)\nRemoving the Docker image...$(RESET)"
 	@DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME) DOCKER_CONTAINER_NAME=$(DOCKER_CONTAINER_NAME) $(DOCKER_COMPOSE) down -v --rmi all
 	@echo -e "$(GREEN)Docker image removed.$(RESET)"
+
+#-- Tag
+
+.PHONY: dep/git
+dep/git:
+	@if [ -z "$(GIT)" ]; then echo -e "$(RED)Git not found.$(RESET)" && exit 1; fi
+
+.PHONY: dep/tag
+dep/tag: dep/git
+	@$(eval TAG=$(shell $(GIT) describe --tags --abbrev=0))
+	@$(eval BEHIND_AHEAD=$(shell $(GIT) rev-list --left-right --count $(TAG)...origin/main))
+	@$(eval NEEDS_RELEASE=$(shell if [ "$(BEHIND_AHEAD)" = "0	0" ]; then echo "false" > $(RELEASE_STAMP); else echo "true" > $(RELEASE_STAMP); fi))
+
+.PHONY: tag/patch
+tag/patch: dep/tag  ## Tag a new patch version release
+	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
+	if [ "$$NEEDS_RELEASE" = "true" ]; then \
+		echo -e "$(CYAN)\nTagging a new patch version...$(RESET)"; \
+		$(POETRY) version patch; \
+		$(GIT) tag -a v$(shell poetry version -s) -m "Creating tag v$(shell poetry version -s)"; \
+		echo -e "$(GREEN)New patch version tagged.$(RESET)"; \
+	fi
+
+.PHONY: tag/minor
+tag/minor: dep/tag  ## Tag a new minor version release
+	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
+	if [ "$$NEEDS_RELEASE" = "true" ]; then \
+		echo -e "$(CYAN)\nTagging a new minor version...$(RESET)"; \
+		$(POETRY) version minor; \
+		$(GIT) tag -a v$(shell poetry version -s) -m "Creating tag v$(shell poetry version -s)"; \
+		echo -e "$(GREEN)New minor version tagged.$(RESET)"; \
+	fi
+
+.PHONY: tag/major
+tag/major: dep/tag  ## Tag a new major version release
+	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
+	if [ "$$NEEDS_RELEASE" = "true" ]; then \
+		echo -e "$(CYAN)\nTagging a new major version...$(RESET)"; \
+		$(POETRY) version major; \
+		$(GIT) tag -a v$(shell poetry version -s) -m "Creating tag v$(shell poetry version -s)"; \
+		echo -e "$(GREEN)New major version tagged.$(RESET)"; \
+	fi
+
+.PHONY: tag/push
+tag/push: dep/git  ## Push the tag to origin - triggers the release action
+	@$(eval TAG=$(shell $(GIT) describe --tags --abbrev=0))
+	@echo -e "$(CYAN)\nPushing release v$(TAG)...$(RESET)"
+	@$(GIT) push origin $(TAG)
+	@echo -e "$(GREEN)Release v$(TAG) pushed.$(RESET)"
