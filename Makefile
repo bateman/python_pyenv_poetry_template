@@ -342,14 +342,19 @@ dep/git:
 dep/tag: dep/git
 	@$(eval TAG=$(shell $(GIT) describe --tags --abbrev=0))
 	@$(eval BEHIND_AHEAD=$(shell $(GIT) rev-list --left-right --count $(TAG)...origin/main))
-	@$(eval NEEDS_RELEASE=$(shell if [ "$(BEHIND_AHEAD)" = "0	0" ]; then echo "false" > $(RELEASE_STAMP); else echo "true" > $(RELEASE_STAMP); fi))
+	@$(shell if [ "$(BEHIND_AHEAD)" = "0	0" ]; then echo "false" > $(RELEASE_STAMP); else echo "true" > $(RELEASE_STAMP); fi)
+	@echo -e "$(CYAN)\nChecking if a new release is needed...$(RESET)"
+	@echo -e "  $(CYAN)Current tag:$(RESET) $(TAG)"
+	@echo -e "  $(CYAN)Commits behind/ahead:$(RESET) $(shell echo ${BEHIND_AHEAD} | tr '[:space:]' '/' | sed 's/\/$$//')"
+	@echo -e "  $(CYAN)Needs release:$(RESET) $(shell cat $(RELEASE_STAMP))"
 
 .PHONY: tag/patch
 tag/patch: dep/tag  ## Tag a new patch version release
 	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
 	if [ "$$NEEDS_RELEASE" = "true" ]; then \
-		echo -e "$(CYAN)\nTagging a new patch version...$(RESET)"; \
+		$(eval TAG=$(shell $(GIT) describe --tags --abbrev=0))
 		$(POETRY) version patch; \
+		echo -e "$(CYAN)\nTagging a new patch version... [$(TAG)->$(shell poetry version -s)]$(RESET)"; \
 		$(GIT) tag -a v$(shell poetry version -s) -m "Creating tag v$(shell poetry version -s)"; \
 		echo -e "$(GREEN)New patch version tagged.$(RESET)"; \
 	fi
@@ -358,8 +363,9 @@ tag/patch: dep/tag  ## Tag a new patch version release
 tag/minor: dep/tag  ## Tag a new minor version release
 	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
 	if [ "$$NEEDS_RELEASE" = "true" ]; then \
-		echo -e "$(CYAN)\nTagging a new minor version...$(RESET)"; \
+		$(eval TAG=$(shell $(GIT) describe --tags --abbrev=0))
 		$(POETRY) version minor; \
+		echo -e "$(CYAN)\nTagging a new minor version... [$(TAG)->$(shell poetry version -s)]$(RESET)"; \
 		$(GIT) tag -a v$(shell poetry version -s) -m "Creating tag v$(shell poetry version -s)"; \
 		echo -e "$(GREEN)New minor version tagged.$(RESET)"; \
 	fi
@@ -368,8 +374,9 @@ tag/minor: dep/tag  ## Tag a new minor version release
 tag/major: dep/tag  ## Tag a new major version release
 	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
 	if [ "$$NEEDS_RELEASE" = "true" ]; then \
-		echo -e "$(CYAN)\nTagging a new major version...$(RESET)"; \
+		$(eval TAG=$(shell $(GIT) describe --tags --abbrev=0))
 		$(POETRY) version major; \
+		echo -e "$(CYAN)\nTagging a new major version... [$(TAG)->$(shell poetry version -s)]$(RESET)"; \
 		$(GIT) tag -a v$(shell poetry version -s) -m "Creating tag v$(shell poetry version -s)"; \
 		echo -e "$(GREEN)New major version tagged.$(RESET)"; \
 	fi
