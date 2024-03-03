@@ -391,5 +391,6 @@ tag/major: dep/tag  ## Tag a new major version release
 tag/push: dep/git  ## Push the tag to origin - triggers the release action
 	@$(eval TAG=$(shell $(GIT) describe --tags --abbrev=0))
 	@echo -e "$(CYAN)\nPushing release v$(TAG)...$(RESET)"
+	@$(GIT) push origin
 	@$(GIT) push origin $(TAG)
 	@echo -e "$(GREEN)Release v$(TAG) pushed.$(RESET)"
