@@ -3,6 +3,8 @@ name: Release
   push:
     tags:
       - '*'
+  workflow_dispatch:
+
 jobs:
   release:
     name: Release
@@ -16,13 +18,18 @@ jobs:
           python-version: '3.12.1'
       - name: Install Poetry
         uses: Gr1N/setup-poetry@v8
+      - name: Install dependencies
+        run: poetry install
       - name: Build package
-        run: |
-          python --version
-          make project/build
+        run: poetry build
       - name: Retrieve tag
         id: tag
-        run: 'echo "version=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_OUTPUT'
+        run: |
+          version=${GITHUB_REF/refs\/tags\//}
+          if [ "$version" == "refs/heads/main" ]; then
+              version=$(poetry version -s)
+          fi
+          echo "version=$version" >> $GITHUB_OUTPUT
       - name: Retrieve repo name
         id: reponame
         run: >-
@@ -34,7 +41,7 @@ jobs:
         env:
           GITHUB_TOKEN: '${{ secrets.RELEASE_TOKEN }}'
         with:
-          name: 'P3 template ver. ${{ steps.tag.outputs.version }}'
+          name: '${{ steps.reponame.outputs.name }} ver. ${{ steps.tag.outputs.version }}'
           generate_release_notes: null
           files: >
             "./dist/${{ steps.reponame.outputs.name }}-${{ steps.tag.outputs.version }}.tar.gz"
