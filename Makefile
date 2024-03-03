@@ -351,18 +351,19 @@ dep/tag: dep/git
 .PHONY: tag/patch
 tag/patch: dep/tag  ## Tag a new patch version release
 	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
-	if [ "$$NEEDS_RELEASE" = "true" ]; then \
-		if [ -n "$$($(GIT) status --porcelain)" ]; then \
-			echo -e "$(RED)Staging area is not empty. Please commit or stash your changes first.$(RESET)"; \
-			exit 1; \
+	if [ -n "$$($(GIT) status --porcelain)" ]; then \
+		echo -e "$(RED)Staging area is not empty. Please commit or stash your changes first.$(RESET)"; \
+		exit 1; \
+	else \
+		if [ "$$NEEDS_RELEASE" = "true" ]; then \
+			$(eval TAG := $(shell $(GIT) describe --tags --abbrev=0)) \
+			$(eval NEW_TAG := $(shell $(POETRY) version patch > /dev/null && $(POETRY) version -s)) \
+			$(GIT) add pyproject.toml; \
+			$(GIT) commit -m "Bump version to $(NEW_TAG)"; \
+			echo -e "$(CYAN)\nTagging a new patch version... [$(TAG)->$(NEW_TAG)]$(RESET)"; \
+			$(GIT) tag $(NEW_TAG); \
+			echo -e "$(GREEN)New patch version tagged.$(RESET)"; \
 		fi; \
-		$(eval TAG := $(shell $(GIT) describe --tags --abbrev=0)) \
-		$(eval NEW_TAG := $(shell $(POETRY) version patch > /dev/null && $(POETRY) version -s)) \
-		$(GIT) add pyproject.toml; \
-		$(GIT) commit -m "Bump version to $(NEW_TAG)"; \
-		echo -e "$(CYAN)\nTagging a new patch version... [$(TAG)->$(NEW_TAG)]$(RESET)"; \
-		$(GIT) tag $(NEW_TAG); \
-		echo -e "$(GREEN)New patch version tagged.$(RESET)"; \
 	fi
 
 .PHONY: tag/minor
