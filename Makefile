@@ -43,7 +43,9 @@ UPDATE_STAMP := .update.stamp
 PRODUCTION_STAMP := .production.stamp
 DEPS_EXPORT_STAMP := .deps-export.stamp
 BUILD_STAMP := .build.stamp
+DOCKER_BUILD_STAMP := .docker-build.stamp
 DOCS_STAMP := .docs.stamp
+RELEASE_STAMP := .release.stamp
 STAMP_FILES := $(wildcard .*.stamp)
 
 # Dirs
@@ -53,6 +55,17 @@ BUILD := dist
 DOCS := docs
 CACHE := $(wildcard .*_cache)
 
+# Files
+GIT_FILES := .gitignore .pre-commit-config.yaml
+GITHUB_FILES := $(shell find .github -type f)
+POETRY_FILES := pyproject.toml poetry.lock $(wildcard requirements*.txt)
+DOCKER_FILES := $(DOCKER_FILE) $(DOCKER_COMPOSE_FILE) entrypoint.sh
+SRC_FILES := $(shell find $(SRC) -name '*.py') $(shell find $(TESTS) -name '*.py') .toml.py
+DOCS_FILES := mkdocs.yml .readthedocs.yml
+MAKE_FILES := makefile.env Makefile
+AUX_FILES := LICENSE README.md
+ALL_FILES := $(GIT_FILES) $(GITHUB_FILES) $(POETRY_FILES) $(DOCKER_FILES) $(SRC_FILES) $(DOCS_FILES) $(MAKE_FILES) $(AUX_FILES)
+
 # Colors
 RESET := \033[0m
 RED := \033[0;31m
@@ -61,7 +74,7 @@ ORANGE := \033[0;33m
 MAGENTA := \033[0;35m
 CYAN := \033[0;36m
 
-#-- System
+#-- Info
 
 .DEFAULT_GOAL := help
 .PHONY: help
@@ -72,7 +85,7 @@ help:  ## Show this help message
 	| sed -e 's/\[36m #-- /\[35m/'
 
 .PHONY: info
-info: ## Show development box info
+info: ## Show development environment info
 	@echo -e "$(MAGENTA)\nSystem info:$(RESET)"
 	@echo -e "  $(CYAN)OS:$(RESET) $(shell uname -s)"
 	@echo -e "  $(CYAN)Shell:$(RESET) $(SHELL) - $(shell $(SHELL) --version | head -n 1)"
@@ -104,6 +117,8 @@ info: ## Show development box info
 	@echo -e "  $(CYAN)Docker image name:$(RESET) $(DOCKER_IMAGE_NAME)"
 	@echo -e "  $(CYAN)Docker container name:$(RESET) $(DOCKER_CONTAINER_NAME)"
 
+#-- System
+
 .PHONY: clean
 clean:  ## Clean the project - removes all cache dirs and stamp files
 	@echo -e "$(ORANGE)\nCleaning the project...$(RESET)"
@@ -115,27 +130,38 @@ clean:  ## Clean the project - removes all cache dirs and stamp files
 reset:  ## Reset the project - cleans plus removes the virtual enviroment
 	@echo -e "$(RED)\nAre you sure you want to proceed with the reset (this involves wiping also the virual enviroment)? [y/N]: $(RESET)"
 	@read -r answer; \
-	if [ "$$answer" != "y" ]; then \
-		echo -e "$(ORANGE)Project reset aborted.$(RESET)"; \
-		exit 0; \
-	else \
-		$(MAKE) clean; \
-		echo -e "$(ORANGE)Resetting the project...$(RESET)"; \
-		rm -f .python-version > /dev/null || true ; \
-		rm -f poetry.lock > /dev/null || true ; \
-		pyenv virtualenv-delete -f $(PYENV_VIRTUALENV_NAME) ; \
-		echo -e "$(GREEN)Project reset.$(RESET)" ; \
-	fi
+	case $$answer in \
+		[Yy]* ) \
+			$(MAKE) clean; \
+			echo -e "$(ORANGE)Resetting the project...$(RESET)"; \
+			rm -f .python-version > /dev/null || true ; \
+			rm -f poetry.lock > /dev/null || true ; \
+			pyenv virtualenv-delete -f $(PYENV_VIRTUALENV_NAME) ; \
+			echo -e "$(GREEN)Project reset.$(RESET)" ;; \
+		* ) \
+			echo -e "$(ORANGE)Project reset aborted.$(RESET)"; \
+			exit 0 ;; \
+	esac
 
+.PHONY: python
 python:  ## Check if python is installed - install it if not
 	@if ! $(PYENV) versions | grep $(PYTHON_VERSION) > /dev/null ; then \
-		echo -e "$(ORANGE)\nPython version $(PYTHON_VERSION) not installed. Installing it via pyenv...$(RESET)"; \
-		$(PYENV) install $(PYTHON_VERSION) || exit 1; \
-		echo -e "$(GREEN)Python version $(PYTHON_VERSION) installed.$(RESET)"; \
+		echo -e "$(ORANGE)Python version $(PYTHON_VERSION) not installed. Do you want to install it via pyenv? [y/N]: $(RESET)"; \
+		read -r answer; \
+		case $$answer in \
+			[Yy]* ) \
+				$(PYENV) install $(PYTHON_VERSION) || exit 1; \
+				echo -e "$(GREEN)Python version $(PYTHON_VERSION) installed.$(RESET)";; \
+			* ) \
+				echo -e "$(ORANGE)To install manually, run '$(PYENV) install $(PYTHON_VERSION)'.$(RESET)"; \
+				echo -e "$(ORANGE)Then, re-run 'make virtualenv'.$(RESET)"; \
+                exit 1 ;; \
+		esac \
 	else \
-		echo -e "$(CYAN)\nPython version $(PYTHON_VERSION) already installed.$(RESET)"; \
+		echo -e "$(CYAN)\nPython version $(PYTHON_VERSION) available.$(RESET)"; \
 	fi
 
+.PHONY: virtualenv
 virtualenv: python  ## Check if virtualenv exists and activate it - create it if not
 	@if ! $(PYENV) virtualenvs | grep $(PYENV_VIRTUALENV_NAME) > /dev/null ; then \
 		echo -e "$(ORANGE)\nLocal virtualenv not found. Creating it...$(RESET)"; \
@@ -147,10 +173,11 @@ virtualenv: python  ## Check if virtualenv exists and activate it - create it if
 	@$(PYENV) local $(PYENV_VIRTUALENV_NAME)
 	@echo -e "$(GREEN)Virtualenv activated.$(RESET)"
 
+.PHONY: dep/poetry
 dep/poetry: virtualenv
 	@if [ -z "$(POETRY)" ]; then echo -e "$(RED)Poetry not found.$(RESET)" && exit 1; fi
 
-.PHONY:
+.PHONY: update
 update: dep/poetry  ## Update Poetry
 	@echo -e "$(CYAN)\nUpgrading Poetry...$(RESET)"
 	@$(POETRY) self update
@@ -158,8 +185,10 @@ update: dep/poetry  ## Update Poetry
 
 #-- Project
 
+.PHONY: project/all
 project/all: project/install project/build project/docs  ## Install and build the project, generate the documentation
 
+.PHONY: project/install
 project/install: dep/poetry $(INSTALL_STAMP) ## Install the project for development
 $(INSTALL_STAMP): pyproject.toml
 	@if [ ! -f .python-version ]; then \
@@ -179,19 +208,31 @@ $(INSTALL_STAMP): pyproject.toml
 		else \
 			echo -e "$(ORANGE)Project already initialized.$(RESET)"; \
 		fi; \
-		touch $(INSTALL_STAMP); \
 		echo -e "$(GREEN)Project installed for development.$(RESET)"; \
+		touch $(INSTALL_STAMP); \
 	fi
 
+.PHONY: project/update
 project/update: dep/poetry $(UPDATE_STAMP)  ## Update the project
 $(UPDATE_STAMP): pyproject.toml
 	@echo -e "$(CYAN)\nUpdating the project...$(RESET)"
 	@$(POETRY) update
 	$(POETRY) lock
 	@$(POETRY) run pre-commit autoupdate
-	@touch $(UPDATE_STAMP)
 	@echo -e "$(GREEN)Project updated.$(RESET)"
+	@touch $(UPDATE_STAMP)
 
+.PHONY: project/run
+project/run: virtualenv $(INSTALL_STAMP)  ## Run the project
+	@python -m $(SRC)
+
+.PHONY: project/tests
+project/tests: dep/poetry $(INSTALL_STAMP)  ## Run the tests
+	@echo -e "$(CYAN)\nRunning the tests...$(RESET)"
+	@$(POETRY) run pytest $(TESTS)
+	@echo -e "$(GREEN)Tests passed.$(RESET)"
+
+.PHONY: project/production
 project/production: dep/poetry $(PRODUCTION_STAMP)  ## Install the project for production
 $(PRODUCTION_STAMP): pyproject.toml
 	@echo -e "$(CYAN)\Install project for production...$(RESET)"
@@ -199,6 +240,7 @@ $(PRODUCTION_STAMP): pyproject.toml
 	@touch $(PRODUCTION_STAMP)
 	@echo -e "$(GREEN)Project installed for production.$(RESET)"
 
+.PHONY: project/deps-export
 project/deps-export: dep/poetry project/update $(DEPS_EXPORT_STAMP) ## Export the project's dependencies
 $(DEPS_EXPORT_STAMP): pyproject.toml
 	@echo -e "$(CYAN)\nExporting the project...$(RESET)"
@@ -208,6 +250,7 @@ $(DEPS_EXPORT_STAMP): pyproject.toml
 	@touch $(DEPS_EXPORT_STAMP)
 	@echo -e "$(GREEN)Project exported.$(RESET)"
 
+.PHONY: project/build
 project/build: dep/poetry $(BUILD_STAMP)  ## Build the project as a package
 $(BUILD_STAMP): pyproject.toml
 	@echo -e "$(CYAN)\nBuilding the project...$(RESET)"
@@ -216,6 +259,7 @@ $(BUILD_STAMP): pyproject.toml
 	@touch $(BUILD_STAMP)
 	@echo -e "$(GREEN)Project built.$(RESET)"
 
+.PHONY: project/docs
 project/docs: dep/poetry $(DOCS_STAMP) project/deps-export ## Generate the project documentation
 $(DOCS_STAMP): requirements-docs.txt mkdocs.yml
 	@echo -e "$(CYAN)\nGenerating the project documentation...$(RESET)"
@@ -223,47 +267,54 @@ $(DOCS_STAMP): requirements-docs.txt mkdocs.yml
 	@touch $(DOCS_STAMP)
 	@echo -e "$(GREEN)Project documentation generated.$(RESET)"
 
-#-- Run
-
-.PHONY: run/project
-run/project: virtualenv $(INSTALL_STAMP)  ## Run the project
-	@python -m $(SRC)
-
-.PHONY: run/tests
-run/tests: dep/poetry $(INSTALL_STAMP)  ## Run the tests
-	@echo -e "$(CYAN)\nRunning the tests...$(RESET)"
-	@$(POETRY) run pytest $(TESTS)
-	@echo -e "$(GREEN)Tests passed.$(RESET)"
-
-#-- Release
+#-- Tag
 
 .PHONY: dep/git
 dep/git:
 	@if [ -z "$(GIT)" ]; then echo -e "$(RED)Git not found.$(RESET)" && exit 1; fi
 
-.PHONY: release/patch
-release/patch: dep/git $(INSTALL_STAMP)  ## Tag a new patch version release
-	@echo -e "$(CYAN)\nReleasing a new patch version...$(RESET)"
-	@$(POETRY) version patch
-	@$(GIT) tag -a v$(shell poetry version -s) -m "Release v$(shell poetry version -s)"
-	@echo -e "$(GREEN)New patch version released.$(RESET)"
+.PHONY: dep/tag
+dep/tag: dep/git
+	@LOCAL_COMMIT=$$(git rev-parse HEAD); \
+	REMOTE_COMMIT=$$(git rev-parse origin/main); \
+	if [ "$$LOCAL_COMMIT" != "$$REMOTE_COMMIT" ]; then \
+		echo true > $(RELEASE_STAMP); \
+	else \
+		echo false > $(RELEASE_STAMP); \
+	fi
 
-.PHONY: release/minor
-release/minor: dep/git $(INSTALL_STAMP)  ## Tag a new minor version release
-	@echo -e "$(CYAN)\nReleasing a new minor version...$(RESET)"
-	@$(POETRY) version minor
-	@$(GIT) tag -a v$(shell poetry version -s) -m "Release v$(shell poetry version -s)"
-	@echo -e "$(GREEN)New minor version released.$(RESET)"
+.PHONY: tag/patch
+tag/patch: dep/tag  ## Tag a new patch version release
+	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
+	if [ "$$NEEDS_RELEASE" = "true" ]; then \
+		echo -e "$(CYAN)\Tagging a new patch version...$(RESET)"; \
+		$(POETRY) version patch; \
+		$(GIT) tag -a v$(shell poetry version -s) -m "Creating tag v$(shell poetry version -s)"; \
+		echo -e "$(GREEN)New patch version tagged.$(RESET)"; \
+	fi
 
-.PHONY: release/major
-release/major: dep/git $(INSTALL_STAMP)  ## Tag a new major version release
-	@echo -e "$(CYAN)\nReleasing a new major version...$(RESET)"
-	@$(POETRY) version major
-	@$(GIT) tag -a v$(shell poetry version -s) -m "Release v$(shell poetry version -s)"
-	@echo -e "$(GREEN)New major version released.$(RESET)"
+.PHONY: tag/minor
+tag/minor: dep/tag  ## Tag a new minor version release
+	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
+	if [ "$$NEEDS_RELEASE" = "true" ]; then \
+		echo -e "$(CYAN)\Tagging a new minor version...$(RESET)"; \
+		$(POETRY) version minor; \
+		$(GIT) tag -a v$(shell poetry version -s) -m "Creating tag v$(shell poetry version -s)"; \
+		echo -e "$(GREEN)New minor version tagged.$(RESET)"; \
+	fi
 
-.PHONY: release/push
-release/push: dep/git $(INSTALL_STAMP)  ## Push the release
+.PHONY: tag/major
+tag/major: dep/tag  ## Tag a new major version release
+	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
+	if [ "$$NEEDS_RELEASE" = "true" ]; then \
+		echo -e "$(CYAN)\Tagging a new major version...$(RESET)"; \
+		$(POETRY) version major; \
+		$(GIT) tag -a v$(shell poetry version -s) -m "Creating tag v$(shell poetry version -s)"; \
+		echo -e "$(GREEN)New major version tagged.$(RESET)"; \
+	fi
+
+.PHONY: tag/push
+tag/push: dep/git  ## Push the tag to origin - triggers the release action
 	@$(eval TAG=$(shell git describe --tags --abbrev=0))
 	@echo -e "$(CYAN)\nPushing release v$(TAG)...$(RESET)"
 	@$(GIT) push origin $(TAG)
@@ -299,14 +350,16 @@ dep/docker:
 dep/docker-compose:
 	@if [ -z "$(DOCKER_COMPOSE)" ]; then echo -e"$(RED)Docker Compose not found.$(RESET)" && exit 1; fi
 
-.PHONY: docker/build $(INSTALL_STAMP)
-docker/build: dep/docker dep/docker-compose $(DEPS_EXPORT_STAMP)  ## Build the Docker image
+.PHONY: docker/build
+docker/build: dep/docker dep/docker-compose $(INSTALL_STAMP) $(DEPS_EXPORT_STAMP) $(DOCKER_BUILD_STAMP)  ## Build the Docker image
+$(DOCKER_BUILD_STAMP): $(DOCKER_FILE) $(DOCKER_COMPOSE_FILE)
 	@echo -e "$(CYAN)\nBuilding the Docker image...$(RESET)"
 	@DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME) DOCKER_CONTAINER_NAME=$(DOCKER_CONTAINER_NAME) $(DOCKER_COMPOSE) build
 	@echo -e "$(GREEN)Docker image built.$(RESET)"
+	@touch $(DOCKER_BUILD_STAMP)
 
-.PHONY: docker/run $(INSTALL_STAMP)
-docker/run: dep/docker dep/docker-compose docker/build  ## Run the Docker container
+.PHONY: docker/run
+docker/run: docker/build $(DOCKER_BUILD_STAMP)  ## Run the Docker container
 	@echo -e "$(CYAN)\nRunning the Docker container...$(RESET)"
 	@DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME) DOCKER_CONTAINER_NAME=$(DOCKER_CONTAINER_NAME) $(DOCKER_COMPOSE) up
 	@echo -e "$(GREEN)Docker container running.$(RESET)"
