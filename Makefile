@@ -55,7 +55,8 @@ SRC := $(PROJECT_NAME)
 TESTS := tests
 BUILD := dist
 DOCS := docs
-CACHE := $(wildcard .*_cache)
+DOCS_SITE := site
+CACHE_DIRS := $(wildcard .*_cache)
 
 # Colors
 RESET := \033[0m
@@ -136,7 +137,7 @@ dep/docker-compose:
 clean:  ## Clean the project - removes all cache dirs and stamp files
 	@echo -e "$(ORANGE)\nCleaning the project...$(RESET)"
 	@find . -type d -name "__pycache__" | xargs rm -rf {};
-	@rm -rf $(STAMP_FILES) $(CACHE) $(BUILD) $(DOCS) .coverage
+	@rm -rf $(STAMP_FILES) $(CACHE_DIRS) $(BUILD) $(DOCS_SITE) .coverage
 	@echo -e "$(GREEN)Project cleaned.$(RESET)"
 
 .PHONY: reset
@@ -250,7 +251,7 @@ $(PRODUCTION_STAMP): pyproject.toml
 	@echo -e "$(GREEN)Project installed for production.$(RESET)"
 
 .PHONY: project/deps-export
-project/deps-export: dep/poetry project/update $(DEPS_EXPORT_STAMP) ## Export the project's dependencies
+project/deps-export: dep/poetry project/update $(DEPS_EXPORT_STAMP)  ## Export the project's dependencies
 $(DEPS_EXPORT_STAMP): pyproject.toml
 	@echo -e "$(CYAN)\nExporting the project...$(RESET)"
 	@$(POETRY) export -f requirements.txt --output requirements.txt --without-hashes --only main
