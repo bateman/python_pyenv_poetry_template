@@ -13,7 +13,10 @@ jobs:
       - name: Install pyenv
         uses: gabrielfalcao/pyenv-action@v18
         with:
-          default: 3.12.1
+          command: |
+            pyenv install --list
+            pyenv install -s 3.12.1
+            pyenv global 3.12.1
       - name: Install Poetry
         uses: Gr1N/setup-poetry@v8
       - name: Build package
