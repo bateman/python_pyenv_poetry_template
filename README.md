@@ -36,11 +36,6 @@ Project
  project/deps-export   Export the project's dependencies
  project/build         Build the project as a package
  project/docs          Generate the project documentation
-Tag
- tag/patch             Tag a new patch version release
- tag/minor             Tag a new minor version release
- tag/major             Tag a new major version release
- tag/push              Push the tag to origin - triggers the release action
 Check
  check/precommit       Run the pre-commit checks
  check/format          Format the code
@@ -52,6 +47,11 @@ Docker
  docker/stop           Stop the Docker container
  docker/clean          Clean the Docker container
  docker/remove         Clean the Docker container and remove the image
+Tag
+ tag/patch             Tag a new patch version release
+ tag/minor             Tag a new minor version release
+ tag/major             Tag a new major version release
+ tag/push              Push the tag to origin - triggers the release action
 ```
 
 ## Installation
