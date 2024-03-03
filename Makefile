@@ -147,17 +147,20 @@ reset:  ## Reset the project - cleans plus removes the virtual enviroment
 .PHONY: python
 python:  ## Check if python is installed - install it if not
 	@if ! $(PYENV) versions | grep $(PYTHON_VERSION) > /dev/null ; then \
-		echo -e "$(ORANGE)Python version $(PYTHON_VERSION) not installed. Do you want to install it via pyenv? [y/N]: $(RESET)"; \
-		read -r answer; \
-		case $$answer in \
-			[Yy]* ) \
-				$(PYENV) install $(PYTHON_VERSION) || exit 1; \
-				echo -e "$(GREEN)Python version $(PYTHON_VERSION) installed.$(RESET)";; \
-			* ) \
-				echo -e "$(ORANGE)To install manually, run '$(PYENV) install $(PYTHON_VERSION)'.$(RESET)"; \
-				echo -e "$(ORANGE)Then, re-run 'make virtualenv'.$(RESET)"; \
-                exit 1 ;; \
-		esac \
+		$(eval PV=$(shell command -v python --version | cut -d ' ' -f 2)) \
+		if [ "$(PV)" != "$(PYTHON_VERSION)" ]; then \
+			echo -e "$(ORANGE)Python version $(PYTHON_VERSION) not installed. Do you want to install it via pyenv? [y/N]: $(RESET)"; \
+			read -r answer; \
+			case $$answer in \
+				[Yy]* ) \
+					$(PYENV) install $(PYTHON_VERSION) || exit 1; \
+					echo -e "$(GREEN)Python version $(PYTHON_VERSION) installed.$(RESET)";; \
+				* ) \
+					echo -e "$(ORANGE)To install manually, run '$(PYENV) install $(PYTHON_VERSION)'.$(RESET)"; \
+					echo -e "$(ORANGE)Then, re-run 'make virtualenv'.$(RESET)"; \
+					exit 1 ;; \
+			esac \
+		fi \
 	else \
 		echo -e "$(CYAN)\nPython version $(PYTHON_VERSION) available.$(RESET)"; \
 	fi
@@ -401,7 +404,7 @@ tag/major: dep/tag  dep/staging  ## Tag a new major version release
 .PHONY: tag/push
 tag/push: dep/git  ## Push the tag to origin - triggers the release action
 	@$(eval TAG=$(shell $(GIT) describe --tags --abbrev=0))
-	@echo -e "$(CYAN)\nPushing release v$(TAG)...$(RESET)"
+	@echo -e "$(CYAN)\nPushing release $(TAG)...$(RESET)"
 	@$(GIT) push origin
 	@$(GIT) push origin $(TAG)
 	@echo -e "$(GREEN)Release v$(TAG) pushed.$(RESET)"
