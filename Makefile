@@ -27,6 +27,7 @@ DOCKER_CONTAINER_NAME ?= $(PROJECT_NAME)
 MAKE_VERSION := $(shell make --version | head -n 1 2> /dev/null)
 POETRY := $(shell command -v poetry 2> /dev/null)
 PYENV := $(shell command -v pyenv 2> /dev/null)
+PYTHON := $(shell command -v python 2> /dev/null)
 PYENV_ROOT := $(shell pyenv root)
 GIT := $(shell command -v git 2> /dev/null)
 GIT_VERSION := $(shell $(GIT) --version 2> /dev/null || echo -e "\033[31mnot installed\033[0m")
@@ -135,8 +136,10 @@ reset:  ## Reset the project - cleans plus removes the virtual enviroment
 
 .PHONY: python
 python:  ## Check if python is installed - install it if not
-	@if ! $(PYENV) versions | grep $(PYTHON_VERSION) > /dev/null ; then \
-		$(eval PV=$(shell command -v python --version | cut -d ' ' -f 2)) \
+	@if ! $(PYENV)s versions | grep $(PYTHON_VERSION) > /dev/null ; then \
+		$(eval PV=$(shell $(PYTHON) --version | cut -d ' ' -f 2)) \
+		echo -e "Python version found: $(PV)"; \
+		echo -e "Python version requested: $(PYTHON_VERSION)"; \
 		if [ "$(PV)" != "$(PYTHON_VERSION)" ]; then \
 			echo -e "$(ORANGE)Python version $(PYTHON_VERSION) not installed. Do you want to install it via pyenv? [y/N]: $(RESET)"; \
 			read -r answer; \
@@ -193,7 +196,7 @@ $(INSTALL_STAMP): pyproject.toml
 		$(POETRY) run pre-commit install; \
 		if [ ! -f $(INIT_STAMP) ]; then \
 			echo -e "$(CYAN)\nInitializing the project dependencies [v$(PROJECT_VERSION)]...$(RESET)"; \
-			python .toml.py --name $(PROJECT_NAME) --ver $(PROJECT_VERSION) --desc $(PROJECT_DESCRIPTION) --repo $(PROJECT_REPO)  --lic $(PROJECT_LICENSE) ; \
+			$(PYTHON) .toml.py --name $(PROJECT_NAME) --ver $(PROJECT_VERSION) --desc $(PROJECT_DESCRIPTION) --repo $(PROJECT_REPO)  --lic $(PROJECT_LICENSE) ; \
 			mkdir -p $(SRC) $(TESTS) $(DOCS) $(BUILD) || true ; \
 			touch $(SRC)/__init__.py $(SRC)/main.py ; \
 			echo -e "$(GREEN)Project initialized.$(RESET)"; \
@@ -217,7 +220,7 @@ $(UPDATE_STAMP): pyproject.toml
 
 .PHONY: project/run
 project/run: virtualenv $(INSTALL_STAMP)  ## Run the project
-	@python -m $(SRC)
+	@$(PYTHON) -m $(SRC)
 
 .PHONY: project/tests
 project/tests: dep/poetry $(INSTALL_STAMP)  ## Run the tests
