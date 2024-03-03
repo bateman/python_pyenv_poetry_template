@@ -153,7 +153,7 @@ python:  ## Check if python is installed - install it if not
 			read -r answer; \
 			case $$answer in \
 				[Yy]* ) \
-					$(PYENV) install $(PYTHON_VERSION) || exit 1; \
+					$(PYENV) install -s $(PYTHON_VERSION) || exit 1; \
 					echo -e "$(GREEN)Python version $(PYTHON_VERSION) installed.$(RESET)";; \
 				* ) \
 					echo -e "$(ORANGE)To install manually, run '$(PYENV) install $(PYTHON_VERSION)'.$(RESET)"; \
