@@ -10,17 +10,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Install pyenv
-        uses: gabrielfalcao/pyenv-action@v18
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          command: |
-            pyenv install --list
-            pyenv install -s 3.12.1
-            pyenv global 3.12.1
+          python-version: '3.12.1'
       - name: Install Poetry
         uses: Gr1N/setup-poetry@v8
       - name: Build package
-        run: make project/build
+        run: |
+          python --version
+          make project/build
       - name: Retrieve tag
         id: tag
         run: 'echo "version=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_OUTPUT'
