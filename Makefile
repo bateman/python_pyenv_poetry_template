@@ -352,7 +352,6 @@ dep/tag: dep/git
 tag/patch: dep/tag  ## Tag a new patch version release
 	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
 	if [ "$$NEEDS_RELEASE" = "true" ]; then \
-		# if staging area is not empty, abort
 		if [ -n "$$($(GIT) status --porcelain)" ]; then \
 			echo -e "$(RED)Staging area is not empty. Please commit or stash your changes first.$(RESET)"; \
 			exit 1; \
