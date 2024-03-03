@@ -10,10 +10,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Install pyenv
+        uses: gabrielfalcao/pyenv-action@v18
         with:
-          python-version: '3.12.1'
+          default: 3.12.1
       - name: Install Poetry
         uses: Gr1N/setup-poetry@v8
       - name: Build package
