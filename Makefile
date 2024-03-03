@@ -119,8 +119,12 @@ dep/git:
 dep/pyenv:
 	@if [ -z "$(PYENV)" ]; then echo -e "$(RED)Pyenv not found.$(RESET)" && exit 1; fi
 
+.PHONY: dep/python
+dep/python: dep/pyenv
+	@if [ -z "$(PYTHON)" ]; then echo -e "$(RED)Python not found.$(RESET)" && exit 1; fi
+
 .PHONY: dep/poetry
-dep/poetry: virtualenv
+dep/poetry: dep/python
 	@if [ -z "$(POETRY)" ]; then echo -e "$(RED)Poetry not found.$(RESET)" && exit 1; fi
 
 .PHONY: dep/docker
@@ -176,7 +180,7 @@ python: dep/pyenv  ## Check if python is installed - install it if not
 	fi
 
 .PHONY: virtualenv
-virtualenv: python  ## Check if virtualenv exists and activate it - create it if not
+virtualenv: dep/python  ## Check if virtualenv exists and activate it - create it if not
 	@if ! $(PYENV) virtualenvs | grep $(PYENV_VIRTUALENV_NAME) > /dev/null ; then \
 		echo -e "$(ORANGE)\nLocal virtualenv not found. Creating it...$(RESET)"; \
 		$(PYENV) virtualenv $(PYTHON_VERSION) $(PYENV_VIRTUALENV_NAME) || exit 1; \
@@ -233,7 +237,7 @@ $(UPDATE_STAMP): pyproject.toml
 	@touch $(UPDATE_STAMP)
 
 .PHONY: project/run
-project/run: virtualenv $(INSTALL_STAMP)  ## Run the project
+project/run: dep/python $(INSTALL_STAMP)  ## Run the project
 	@$(PYTHON) -m $(SRC)
 
 .PHONY: project/tests
