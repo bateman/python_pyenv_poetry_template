@@ -8,7 +8,7 @@ MAKEFLAGS += --no-builtin-rules
 
 # Project variables -- change as needed before running make install
 # override the defaults by setting the variables in a makefile.env file
--include makefile.env
+-include Makefile.env
 PROJECT_NAME ?= $(shell basename $(CURDIR))
 # make sure the project name is lowercase and has no spaces
 PROJECT_NAME := $(shell echo $(PROJECT_NAME) | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
