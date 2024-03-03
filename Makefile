@@ -275,19 +275,15 @@ dep/git:
 
 .PHONY: dep/tag
 dep/tag: dep/git
-	@LOCAL_COMMIT=$$(git rev-parse HEAD); \
-	REMOTE_COMMIT=$$(git rev-parse origin/main); \
-	if [ "$$LOCAL_COMMIT" != "$$REMOTE_COMMIT" ]; then \
-		echo true > $(RELEASE_STAMP); \
-	else \
-		echo false > $(RELEASE_STAMP); \
-	fi
+	@$(eval TAG=$(shell $(GIT) describe --tags --abbrev=0))
+	@$(eval BEHIND_AHEAD=$(shell $(GIT) rev-list --left-right --count $(TAG)...origin/main))
+	@$(eval NEEDS_RELEASE=$(shell if [ "$(BEHIND_AHEAD)" = "0	0" ]; then echo "false" > $(RELEASE_STAMP); else echo "true" > $(RELEASE_STAMP); fi))
 
 .PHONY: tag/patch
 tag/patch: dep/tag  ## Tag a new patch version release
 	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
 	if [ "$$NEEDS_RELEASE" = "true" ]; then \
-		echo -e "$(CYAN)\Tagging a new patch version...$(RESET)"; \
+		echo -e "$(CYAN)\nTagging a new patch version...$(RESET)"; \
 		$(POETRY) version patch; \
 		$(GIT) tag -a v$(shell poetry version -s) -m "Creating tag v$(shell poetry version -s)"; \
 		echo -e "$(GREEN)New patch version tagged.$(RESET)"; \
@@ -297,7 +293,7 @@ tag/patch: dep/tag  ## Tag a new patch version release
 tag/minor: dep/tag  ## Tag a new minor version release
 	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
 	if [ "$$NEEDS_RELEASE" = "true" ]; then \
-		echo -e "$(CYAN)\Tagging a new minor version...$(RESET)"; \
+		echo -e "$(CYAN)\nTagging a new minor version...$(RESET)"; \
 		$(POETRY) version minor; \
 		$(GIT) tag -a v$(shell poetry version -s) -m "Creating tag v$(shell poetry version -s)"; \
 		echo -e "$(GREEN)New minor version tagged.$(RESET)"; \
@@ -307,7 +303,7 @@ tag/minor: dep/tag  ## Tag a new minor version release
 tag/major: dep/tag  ## Tag a new major version release
 	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
 	if [ "$$NEEDS_RELEASE" = "true" ]; then \
-		echo -e "$(CYAN)\Tagging a new major version...$(RESET)"; \
+		echo -e "$(CYAN)\nTagging a new major version...$(RESET)"; \
 		$(POETRY) version major; \
 		$(GIT) tag -a v$(shell poetry version -s) -m "Creating tag v$(shell poetry version -s)"; \
 		echo -e "$(GREEN)New major version tagged.$(RESET)"; \
@@ -315,7 +311,7 @@ tag/major: dep/tag  ## Tag a new major version release
 
 .PHONY: tag/push
 tag/push: dep/git  ## Push the tag to origin - triggers the release action
-	@$(eval TAG=$(shell git describe --tags --abbrev=0))
+	@$(eval TAG=$(shell $(GIT) describe --tags --abbrev=0))
 	@echo -e "$(CYAN)\nPushing release v$(TAG)...$(RESET)"
 	@$(GIT) push origin $(TAG)
 	@echo -e "$(GREEN)Release v$(TAG) pushed.$(RESET)"
