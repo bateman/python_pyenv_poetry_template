@@ -52,7 +52,7 @@ STAGING_STAMP := .staging.stamp
 STAMP_FILES := $(wildcard .*.stamp)
 
 # Dirs
-SRC := $(PROJECT_NAME)
+SRC := $(PROJECT_NAME) .toml.py
 TESTS := tests
 BUILD := dist
 DOCS := docs
