@@ -114,9 +114,13 @@ The project uses the following development libraries:
 > To manually run code formatting and linting, run `make check/format` and `make check/lint`, respectively.
 > To execute all the checks, stage your changes, then run `make check/precommit`.
 
-## Release
+## Execution
 
+* To run the project: `make run/project`
+* To run the tests: `make run/tests`
 
+> [!NOTE]
+> Tests are executed using `pytest`. Test coverage is calculated using the plugin `pytest-cov`.
 
 ## Update
 
@@ -132,21 +136,13 @@ The `*.tar.gz` and `*.whl` will be placed in the `BUILD` directory (by default `
 * Run `make docs/build` to build the project documentation using `mkdocstrings`. The documentation will be generated from your project files' comments in doctring format.
 The documenation files will be stored in the `DOCS_SITE` directory (by default `site/`).
 * Run `make docs/server` to browse the built site locally, at http://127.0.0.1:8000/<your-github-name>/<your-project-name>
-* Run `make docs/deploy` to publish the documentation site as GitHub pages. The content will be published to a separate branch, name `gh_pages`.
+* Run `make docs/deploy` to publish the documentation site as GitHub pages. The content will be published to a separate branch, name `gh-pages`. Access the documenation online at https://<your-github-name>.github.io/<your-project-name>/
 
 > [!NOTE]
 > You will have to edit the `mkdocs.yml` file to adapt them to your project's specifics. For example, it uses by default the `readthedocs` theme.
 
 > [!WARNING]
-> After the first deploy of the documentation site to your GitHub repository, you need to enable the Pages feature. Go to your repository' Settings > Pages, then select the `gh_pages` branch and save.
-
-## Execution
-
-* To run the project: `make run/project`
-* To run the tests: `make run/tests`
-
-> [!NOTE]
-> Tests are executed using `pytest`. Test coverage is calculated using the plugin `pytest-cov`.
+> After the first deploy to your GitHub repository, your repository Pages settings (Settings > Pages) will be automatically updated to point to the documentation site content stored in the `gh-pages` branch.
 
 ## Docker
 
