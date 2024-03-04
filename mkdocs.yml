@@ -18,13 +18,18 @@ theme:
 
 plugins:
   - search
+  - autorefs
   - mkdocstrings:
       default_handler: python
       handlers:
         python:
-          paths: [python_pyenv_poetry_template]
+          options:
+            show_source: false
 
 nav:
   - Home: index.md
-  - About: about.md
-  - License: license.md
+  - Documentation:
+    - Modules: modules.md
+  - Info:
+    - About: about.md
+    - License: license.md
