@@ -239,9 +239,10 @@ $(UPDATE_STAMP): pyproject.toml
 	@echo -e "$(GREEN)Project updated.$(RESET)"
 	@touch $(UPDATE_STAMP)
 
+ARGS=
 .PHONY: project/run
-project/run: dep/python $(INSTALL_STAMP)  ## Run the project
-	@$(PYTHON) -m $(SRC)
+project/run: dep/python $(INSTALL_STAMP)  ## Run the project (pass arguments with ARGS="...")
+	@$(PYTHON) -m $(SRC) $(ARGS)
 
 .PHONY: project/tests
 project/tests: dep/poetry $(INSTALL_STAMP)  ## Run the tests

@@ -24,14 +24,14 @@ Info
 System
  clean                 Clean the project - removes all cache dirs and stamp files
  reset                 Reset the project - cleans plus removes the virtual enviroment
- python                Check if Python is installed - install it if not
+ python                Check if python is installed - install it if not
  virtualenv            Check if virtualenv exists and activate it - create it if not
  update                Update Poetry
 Project
  project/all           Install and build the project, generate the documentation
  project/install       Install the project for development
  project/update        Update the project
- project/run           Run the project
+ project/run           Run the project (pass arguments with ARGS="...")
  project/tests         Run the tests
  project/production    Install the project for production
  project/deps-export   Export the project's dependencies
