@@ -2,9 +2,9 @@
 
 ![GitHub Release](https://img.shields.io/github/v/release/bateman/python_pyenv_poetry_template?style=flat-square)
 ![GitHub top language](https://img.shields.io/github/languages/top/bateman/python_pyenv_poetry_template?style=flat-square)
+![Codecov](https://img.shields.io/codecov/c/github/bateman/python_pyenv_poetry_template?style=flat-square)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/bateman/python_pyenv_poetry_template/release.yml?style=flat-square)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/bateman/python_pyenv_poetry_template/docker.yml?style=flat-square&label=docker)
-![Codecov](https://img.shields.io/codecov/c/github/bateman/python_pyenv_poetry_template?style=flat-square)
 ![GitHub Pages Status](https://img.shields.io/badge/docs-passing-46cc14?style=flat-square)
 ![GitHub License](https://img.shields.io/github/license/bateman/python_pyenv_poetry_template?style=flat-square)
 
