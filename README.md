@@ -137,6 +137,18 @@ The project uses the following development libraries:
 
 Run `make project/update` to update all the dependencies using `poetry`.
 
+## Release
+
+* Add your pending changes to the staging, commit, and push them to the origin.
+* Apply a semver tag to your repository by updating the current project version (note that this will update `pyproject.toml` accordingly):
+  - `make tag/patch` - e.g., 0.1.0 -> 0.1.1
+  - `make tag/minor` - e.g., 0.1.1 -> 0.2.1
+  - `make tag/major` - e.g., 0.2.1 -> 1.0.1
+* Run `make tag/push` to trigger the upload of a new release by excuting the GitHub Action `release.yml`.
+
+> [!WARNING]
+> Before uploading a new release, you need to add a `RELEASE_TOKEN` to your repository's 'Actions secrets and variables' settings page. The `RELEASE_TOKEN` is generated from your GitHub 'Developer Settings' page. Make sure to select the full `repo` scope when generating it.
+
 ## Build
 
 Run `make project/build` for building the project as a Python package.
@@ -165,7 +177,7 @@ The documenation files will be stored in the `DOCS_SITE` directory (by default `
 > Before building the container, edit `Dockerfile` and change the name of the folder containing your Python module (by default `python_pyenv_poetry_template`).
 
 > [!WARNING]
-> Pushing a new release to GitHub, will trigger the GitHub Action defined in `docker.yml`. To ensure a correct execution, you  first need to add the `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets to your repository's 'Actions secrets and variables' settings page.
+> Pushing a new release to GitHub, will trigger the GitHub Action defined in `docker.yml`. To ensure a correct execution, you first need to add the `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets to your repository's 'Actions secrets and variables' settings page.
 
 ## Contributing
 
