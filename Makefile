@@ -13,6 +13,7 @@ PROJECT_NAME ?= $(shell basename $(CURDIR))
 # make sure the project name is lowercase and has no spaces
 PROJECT_NAME := $(shell echo $(PROJECT_NAME) | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
 PROJECT_REPO ?= $(shell url=$$(git config --get remote.origin.url); echo $${url%.git})
+GITHUB_USER ?= $(shell echo $(PROJECT_REPO) | awk -F/ 'NF>=4{print $$4}')
 PROJECT_VERSION ?= $(shell poetry version -s 2>/dev/null || echo 0.1.0)
 PROJECT_DESCRIPTION ?= 'A short description of the project'
 PROJECT_LICENSE ?= MIT
@@ -86,6 +87,8 @@ info: ## Show development environment info
 	@echo -e "$(MAGENTA)Project:$(RESET)"
 	@echo -e "  $(CYAN)Project name:$(RESET) $(PROJECT_NAME)"
 	@echo -e "  $(CYAN)Project directory:$(RESET) $(CURDIR)"
+	@echo -e "  $(CYAN)Project author:$(RESET) $(GITHUB_USER)"
+	@echo -e "  $(CYAN)Project repository:$(RESET) $(PROJECT_REPO)"
 	@echo -e "  $(CYAN)Project version:$(RESET) $(PROJECT_VERSION)"
 	@echo -e "  $(CYAN)Project license:$(RESET) $(PROJECT_LICENSE)"
 	@echo -e "  $(CYAN)Project description:$(RESET) $(PROJECT_DESCRIPTION)"
@@ -273,14 +276,6 @@ $(BUILD_STAMP): pyproject.toml
 	@echo -e "$(GREEN)Project built.$(RESET)"
 	@touch $(BUILD_STAMP)
 
-.PHONY: project/docs
-project/docs: dep/poetry $(DOCS_STAMP)  ## Generate the project documentation
-$(DOCS_STAMP): $(DEPS_EXPORT_STAMP) mkdocs.yml .readthedocs.yml
-	@echo -e "$(CYAN)\nGenerating the project documentation...$(RESET)"
-	@$(POETRY) run mkdocs build
-	@echo -e "$(GREEN)Project documentation generated.$(RESET)"
-	@touch $(DOCS_STAMP)
-
 #-- Check
 
 .PHONY: check/precommit
@@ -406,3 +401,24 @@ tag/push: dep/git  ## Push the tag to origin - triggers the release action
 	@$(GIT) push origin
 	@$(GIT) push origin $(TAG)
 	@echo -e "$(GREEN)Release v$(TAG) pushed.$(RESET)"
+
+#-- Documentation
+
+.PHONY: docs/build
+docs/build: dep/poetry $(DOCS_STAMP)  ## Generate the project documentation
+$(DOCS_STAMP): $(DEPS_EXPORT_STAMP) mkdocs.yml
+	@echo -e "$(CYAN)\nGenerating the project documentation...$(RESET)"
+	@$(POETRY) run mkdocs build
+	@echo -e "$(GREEN)Project documentation generated.$(RESET)"
+	@touch $(DOCS_STAMP)
+
+.PHONY: docs/serve
+docs/serve: dep/poetry $(DOCS_STAMP)  ## Serve the project documentation
+	@echo -e "$(CYAN)\nServing the project documentation...$(RESET)"
+	@$(POETRY) run mkdocs serve
+
+.PHONY: docs/deploy
+docs/deploy: dep/poetry $(DOCS_STAMP)  ## Deploy the project documentation
+	@echo -e "$(CYAN)\nDeploying the project documentation...$(RESET)"
+	@$(POETRY) run mkdocs gh-deploy
+	@echo -e "$(GREEN)Project documentation deployed at http://$(GITHUB_USER).github.io/$(PROJECT_NAME) $(RESET)"
