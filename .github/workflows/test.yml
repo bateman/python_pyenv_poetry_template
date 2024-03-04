@@ -1,0 +1,38 @@
+name: Test
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  release:
+    name: Run tests and upload coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.1'
+      - name: Install Poetry
+        uses: Gr1N/setup-poetry@v8
+      - name: Install dependencies
+        run: poetry install
+      - name: Run pytest
+        run: poetry run pytest tests/
+      - name: Retrieve repo name
+        id: reponame
+        run: >-
+          echo "name=$(echo ${{ github.repository }} | cut -d '/' -f 2)" >>
+          $GITHUB_OUTPUT
+      - name: Retrieve user name
+        id: username
+        run: >-
+            echo "name=$(echo ${{ github.repository }} | cut -d '/' -f 1)" >>
+            $GITHUB_OUTPUT
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4.0.1
+        with:
+            token: ${{ secrets.CODECOV_TOKEN }}
+            slug: ${{ steps.username.outputs.name }}/${{ steps.reponame.outputs.name }}
