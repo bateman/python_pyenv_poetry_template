@@ -52,13 +52,16 @@ STAGING_STAMP := .staging.stamp
 STAMP_FILES := $(wildcard .*.stamp)
 
 # Dirs
-SRC := $(PROJECT_NAME) toml.py
+SRC := $(PROJECT_NAME)
 TESTS := tests
 BUILD := dist
 DOCS := docs
 DOCS_SITE := site
 CACHE_DIRS := $(wildcard .*_cache)
 COVERAGE := .coverage $(wildcard coverage.*)
+
+# Files
+SRC_FILES := $(shell find . -type f -name '*.py')
 
 # Colors
 RESET := \033[0m
@@ -289,13 +292,13 @@ check/precommit: $(INSTALL_STAMP) $(PRECOMMIT_CONF)  ## Run the pre-commit check
 .PHONY: check/format
 check/format: $(INSTALL_STAMP)  ## Format the code
 	@echo -e "$(CYAN)\nFormatting the code...$(RESET)"
-	@ruff format $(SRC) $(TESTS)
+	@ruff format $(SRC_FILES) $(TESTS)
 	@echo -e "$(GREEN)Code formatted.$(RESET)"
 
 .PHONY: check/lint
 check/lint: $(INSTALL_STAMP)  ## Lint the code
 	@echo -e "$(CYAN)\nLinting the code...$(RESET)"
-	@ruff check $(SRC) $(TESTS)
+	@ruff check $(SRC_FILES) $(TESTS)
 	@echo -e "$(GREEN)Code linted.$(RESET)"
 
 #-- Docker
