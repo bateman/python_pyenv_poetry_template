@@ -20,7 +20,7 @@ jobs:
       - name: Install dependencies
         run: poetry install
       - name: Run pytest
-        run: poetry run pytest tests/
+        run: poetry run pytest --cov tests/ --cov-report=json
       - name: Retrieve repo name
         id: reponame
         run: >-
