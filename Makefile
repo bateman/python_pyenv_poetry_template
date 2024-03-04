@@ -61,7 +61,7 @@ CACHE_DIRS := $(wildcard .*_cache)
 COVERAGE := .coverage $(wildcard coverage.*)
 
 # Files
-SRC_FILES := $(shell find . -type f -name '*.py')
+PY_FILES := $(shell find . -type f -name '*.py')
 
 # Colors
 RESET := \033[0m
@@ -292,13 +292,13 @@ check/precommit: $(INSTALL_STAMP) $(PRECOMMIT_CONF)  ## Run the pre-commit check
 .PHONY: check/format
 check/format: $(INSTALL_STAMP)  ## Format the code
 	@echo -e "$(CYAN)\nFormatting the code...$(RESET)"
-	@ruff format $(SRC_FILES) $(TESTS)
+	@ruff format $(PY_FILES)
 	@echo -e "$(GREEN)Code formatted.$(RESET)"
 
 .PHONY: check/lint
 check/lint: $(INSTALL_STAMP)  ## Lint the code
 	@echo -e "$(CYAN)\nLinting the code...$(RESET)"
-	@ruff check $(SRC_FILES) $(TESTS)
+	@ruff check $(PY_FILES)
 	@echo -e "$(GREEN)Code linted.$(RESET)"
 
 #-- Docker
