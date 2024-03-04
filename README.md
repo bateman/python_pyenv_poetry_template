@@ -24,8 +24,8 @@ Info
  info                  Show development environment info
 System
  clean                 Clean the project - removes all cache dirs and stamp files
- reset                 Reset the project - cleans plus removes the virtual enviroment
- python                Check if python is installed - install it if not
+ reset                 Reset the project - cleans plus removes the virtual environment
+ python                Check if Python is installed - install it if not
  virtualenv            Check if virtualenv exists and activate it - create it if not
  update                Update Poetry
 Project
@@ -33,7 +33,7 @@ Project
  project/install       Install the project for development
  project/update        Update the project
  project/run           Run the project (pass arguments with ARGS="...")
- project/tests         Run the tests
+ project/tests         Run the tests (pass arguments with ARGS="...")
  project/production    Install the project for production
  project/deps-export   Export the project's dependencies
  project/build         Build the project as a package
@@ -61,7 +61,7 @@ Documentation
 
 ## Installation
 
-This is a template repository, so first things first, you create a new GitHub repository and chose this as its template. After that, follow the installation steps below.
+This is a template repository, so first things first, you create a new GitHub repository and choose this as its template. After that, follow the installation steps below.
 
 1. Clone the repository: `git clone https://github.com/<your-github-name>/<your-project-name>.git `
 2. Navigate to the project directory: `cd <your-project-name>`
@@ -131,7 +131,7 @@ The project uses the following development libraries:
 > Tests are executed using `pytest`. Test coverage is calculated using the plugin `pytest-cov`.
 
 > [!WARNING]
-> Pushing new commits to GitHub, will trigger the GitHub Action defined in `test.yml`, which will try to upload the coverage report to [Codecov](https://about.codecov.io/). To ensure a correct execution, first log in to Codecov and enable the coverage report for your repository; this will generage a `CODECOV_TOKEN`. Then, add the `CODECOV_TOKEN` to your repository's 'Actions secrets and variables' settings page.
+> Pushing new commits to GitHub, will trigger the GitHub Action defined in `test.yml`, which will try to upload the coverage report to [Codecov](https://about.codecov.io/). To ensure correct execution, first log in to Codecov and enable the coverage report for your repository; this will generate a `CODECOV_TOKEN`. Then, add the `CODECOV_TOKEN` to your repository's 'Actions secrets and variables' settings page.
 
 ## Update
 
@@ -151,33 +151,33 @@ Run `make project/update` to update all the dependencies using `poetry`.
 
 ## Build
 
-Run `make project/build` for building the project as a Python package.
+Run `make project/build` to build the project as a Python package.
 The `*.tar.gz` and `*.whl` will be placed in the `BUILD` directory (by default `dist/`).
 
 ## Documentation
 
 * Run `make docs/build` to build the project documentation using `mkdocstrings`. The documentation will be generated from your project files' comments in doctring format.
-The documenation files will be stored in the `DOCS_SITE` directory (by default `site/`).
+The documentation files will be stored in the `DOCS_SITE` directory (by default `site/`).
 * Run `make docs/server` to browse the built site locally, at http://127.0.0.1:8000/your-github-name/your-project-name/
-* Run `make docs/deploy` to publish the documentation site as GitHub pages. The content will be published to a separate branch, name `gh-pages`. Access the documenation online at https://your-github-name.github.io/your-project-name/
+* Run `make docs/deploy` to publish the documentation site as GitHub pages. The content will be published to a separate branch, name `gh-pages`. Access the documentation online at https://your-github-name.github.io/your-project-name/
 
 > [!NOTE]
-> You will have to edit the `mkdocs.yml` file to adapt them to your project's specifics. For example, it uses by default the `readthedocs` theme.
+> You will have to edit the `mkdocs.yml` file to adapt it to your project's specifics. For example, it uses by default the `readthedocs` theme.
 
 > [!WARNING]
-> After the first deploy to your GitHub repository, your repository Pages settings (Settings > Pages) will be automatically updated to point to the documentation site content stored in the `gh-pages` branch.
+> After the first deployment to your GitHub repository, your repository Pages settings (Settings > Pages) will be automatically updated to point to the documentation site content stored in the `gh-pages` branch.
 
 ## Docker
 
 * To build the Docker container: `make docker/build`
-* To start the Dokcer container and run the application: `make docker/run`
+* To start the Docker container and run the application: `make docker/run`
 * To build and run: `make docker/all`
 
 > [!NOTE]
 > Before building the container, edit `Dockerfile` and change the name of the folder containing your Python module (by default `python_pyenv_poetry_template`).
 
 > [!WARNING]
-> Pushing a new release to GitHub, will trigger the GitHub Action defined in `docker.yml`. To ensure a correct execution, you first need to add the `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets to your repository's 'Actions secrets and variables' settings page.
+> Pushing a new release to GitHub, will trigger the GitHub Action defined in `docker.yml`. To ensure correct execution, you first need to add the `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets to your repository's 'Actions secrets and variables' settings page.
 
 ## Contributing
 
