@@ -19,9 +19,9 @@ jobs:
       - name: Install Poetry
         uses: Gr1N/setup-poetry@v8
       - name: Install dependencies
-        run: make project/install
+        run: poetry install
       - name: Build package
-        run: make project/build
+        run: poetry build
       - name: Retrieve tag
         id: tag
         run: 'echo "version=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_OUTPUT'
