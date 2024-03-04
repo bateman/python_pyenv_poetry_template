@@ -49,7 +49,7 @@ indent-width = 4
 fixable = ["ALL"]
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 extend-select = [ "I", "D",]
-ignore = [ "D211", "D213", ]
+ignore = [ "D203", "D211", "D213", ]
 
 [tool.ruff.format]
 quote-style = "double"
