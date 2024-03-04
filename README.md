@@ -79,7 +79,7 @@ Project info:
   Project directory: /Users/fabio/Dev/git/python_pyenv_poetry_template
   Project version: 0.1.0
   Project license: MIT
-  Project description: 'Override default values of project variables in makefile.env'
+  Project description: 'Override default values of project variables in Makefile.env'
 Python info:
   Python version: 3.12.1
   Pyenv version: pyenv 2.3.36
