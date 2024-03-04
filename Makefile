@@ -207,7 +207,7 @@ update: dep/poetry  ## Update Poetry
 #-- Project
 
 .PHONY: project/all
-project/all: project/install project/build project/docs  ## Install and build the project, generate the documentation
+project/all: project/install project/build docs/build  ## Install and build the project, generate the documentation
 
 .PHONY: project/install
 project/install: dep/poetry $(INSTALL_STAMP) ## Install the project for development
