@@ -152,8 +152,8 @@ clean:  ## Clean the project - removes all cache dirs and stamp files
 	@echo -e "$(GREEN)Project cleaned.$(RESET)"
 
 .PHONY: reset
-reset:  ## Reset the project - cleans plus removes the virtual enviroment
-	@echo -e "$(RED)\nAre you sure you want to proceed with the reset (this involves wiping also the virual enviroment)? [y/N]: $(RESET)"
+reset:  ## Reset the project - cleans plus removes the virtual environment
+	@echo -e "$(RED)\nAre you sure you want to proceed with the reset (this involves wiping also the virual environment)? [y/N]: $(RESET)"
 	@read -r answer; \
 	case $$answer in \
 		[Yy]* ) \
@@ -169,7 +169,7 @@ reset:  ## Reset the project - cleans plus removes the virtual enviroment
 	esac
 
 .PHONY: python
-python: dep/pyenv  ## Check if python is installed - install it if not
+python: dep/pyenv  ## Check if Python is installed - install it if not
 	@if ! $(PYENV) versions | grep $(PYTHON_VERSION) > /dev/null ; then \
 		echo -e "$(ORANGE)Python version $(PYTHON_VERSION) not installed. Do you want to install it via pyenv? [y/N]: $(RESET)"; \
 		read -r answer; \
@@ -213,7 +213,7 @@ project/all: project/install project/build docs/build  ## Install and build the 
 project/install: dep/poetry $(INSTALL_STAMP) ## Install the project for development
 $(INSTALL_STAMP): pyproject.toml
 	@if [ ! -f .python-version ]; then \
-		echo -e "$(RED)\nVirtual enviroment missing. Please run 'make virtualenv' first.$(RESET)"; \
+		echo -e "$(RED)\nVirtual environment missing. Please run 'make virtualenv' first.$(RESET)"; \
 	else \
 		echo -e "$(CYAN)\nInstalling the project...$(RESET)"; \
 		$(POETRY) install; \
