@@ -6,7 +6,30 @@ import sys
 import tomlkit
 
 
-def update_toml(name, version, description, repository, license):
+def get_key_value(table: str, key: str) -> str:
+    """Get the value of the provided key from the provided table.
+
+    Args:
+    ----
+        table (str): The table to search for the key
+        key (str): The key to search for in the table
+
+    Returns:
+    -------
+            str: The value of the provided key in the provided table
+
+    """
+    with open("pyproject.toml", "r") as file:
+        data = tomlkit.loads(file.read())
+        try:
+            return data[table][key]
+        except KeyError:
+            return ""
+
+
+def update_toml(
+    name: str, version: str, description: str, repository: str, license: str
+) -> None:
     """Update the 'pyproject.toml' file with the provided parameters.
 
     Args:
@@ -16,6 +39,10 @@ def update_toml(name, version, description, repository, license):
         description (str): A short description of the project
         repository (str): The URL of the project's repository
         license (str): The license of the project
+
+    Returns:
+    -------
+        None
 
     """
     with open("pyproject.toml", "r") as file:
