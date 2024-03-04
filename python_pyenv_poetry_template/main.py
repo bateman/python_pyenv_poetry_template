@@ -76,7 +76,7 @@ def parse_args() -> Tuple[str, str]:
 
     Returns
     -------
-        tuple: The text and color parsed from the command line arguments.
+        Tuple[str, str]: The text and color to print.
 
     """
     parser = argparse.ArgumentParser(description="Prints any text in color.")
