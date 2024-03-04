@@ -6,24 +6,6 @@ SHELL := /bin/bash
 MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 
-# Project variables -- change as needed before running make install
-# override the defaults by setting the variables in a makefile.env file
--include Makefile.env
-PROJECT_NAME ?= $(shell basename $(CURDIR))
-# make sure the project name is lowercase and has no spaces
-PROJECT_NAME := $(shell echo $(PROJECT_NAME) | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
-PROJECT_REPO ?= $(shell url=$$(git config --get remote.origin.url); echo $${url%.git})
-GITHUB_USER ?= $(shell echo $(PROJECT_REPO) | awk -F/ 'NF>=4{print $$4}')
-PROJECT_VERSION ?= $(shell poetry version -s 2>/dev/null || echo 0.1.0)
-PROJECT_DESCRIPTION ?= 'A short description of the project'
-PROJECT_LICENSE ?= MIT
-PYTHON_VERSION ?= 3.12.1
-PYENV_VIRTUALENV_NAME ?= venv-$(shell echo "$(PROJECT_NAME)")
-PRECOMMIT_CONF ?= .pre-commit-config.yaml
-DOCKER_COMPOSE_FILE ?= docker-compose.yml
-DOCKER_IMAGE_NAME ?= $(PROJECT_NAME)
-DOCKER_CONTAINER_NAME ?= $(PROJECT_NAME)
-
 # Executables
 MAKE_VERSION := $(shell make --version | head -n 1 2> /dev/null)
 POETRY := $(shell command -v poetry 2> /dev/null)
@@ -38,9 +20,27 @@ DOCKER_FILE := Dockerfile
 DOCKER_COMPOSE := $(shell if [ -n "$(DOCKER)" ]; then command -v docker-compose 2> /dev/null || echo "$(DOCKER) compose"; fi)
 DOCKER_COMPOSE_VERSION := $(shell if [ -n "$(DOCKER_COMPOSE)" ]; then $(DOCKER_COMPOSE) version 2> /dev/null; fi )
 
+# Project variables -- change as needed before running make install
+# override the defaults by setting the variables in a makefile.env file
+-include Makefile.env
+PROJECT_NAME ?= $(shell basename $(CURDIR))
+# make sure the project name is lowercase and has no spaces
+PROJECT_NAME := $(shell echo $(PROJECT_NAME) | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
+PROJECT_REPO ?= $(shell url=$$($(GIT) config --get remote.origin.url); echo $${url%.git})
+GITHUB_USER ?= $(shell echo $(PROJECT_REPO) | awk -F/ 'NF>=4{print $$4}')
+PROJECT_VERSION ?= $(shell $(POETRY) version -s 2>/dev/null || echo 0.1.0)
+PROJECT_DESCRIPTION ?= 'A short description of the project'
+PROJECT_LICENSE ?= MIT
+PYTHON_VERSION ?= 3.12.1
+PYENV_VIRTUALENV_NAME ?= venv-$(shell echo "$(PROJECT_NAME)")
+PRECOMMIT_CONF ?= .pre-commit-config.yaml
+DOCKER_COMPOSE_FILE ?= docker-compose.yml
+DOCKER_IMAGE_NAME ?= $(PROJECT_NAME)
+DOCKER_CONTAINER_NAME ?= $(PROJECT_NAME)
+
+
 # Stamp files
 INSTALL_STAMP := .install.stamp
-INIT_STAMP := .init.stamp
 UPDATE_STAMP := .update.stamp
 PRODUCTION_STAMP := .production.stamp
 DEPS_EXPORT_STAMP := .deps-export.stamp
@@ -62,6 +62,10 @@ COVERAGE := .coverage $(wildcard coverage.*)
 
 # Files
 PY_FILES := $(shell find . -type f -name '*.py')
+PROJECT_INIT := .project-init
+DOCKER_FILES := $(DOCKER_FILE) $(DOCKER_COMPOSE_FILE) entrypoint.sh
+MAIN_PY_FILES := $(SRC)/__main__.py $(TESTS)/test_main.py
+DOCS_FILES := mkdocs.yml $(DOCS)/module.md
 
 # Colors
 RESET := \033[0m
@@ -174,23 +178,16 @@ reset:  ## Reset the project - cleans plus removes the virtual environment
 .PHONY: python
 python: dep/pyenv  ## Check if Python is installed - install it if not
 	@if ! $(PYENV) versions | grep $(PYTHON_VERSION) > /dev/null ; then \
-		echo -e "$(ORANGE)Python version $(PYTHON_VERSION) not installed. Do you want to install it via pyenv? [y/N]: $(RESET)"; \
-		read -r answer; \
-		case $$answer in \
-			[Yy]* ) \
-				$(PYENV) install -s $(PYTHON_VERSION) || exit 1; \
-				echo -e "$(GREEN)Python version $(PYTHON_VERSION) installed.$(RESET)";; \
-			* ) \
-				echo -e "$(ORANGE)To install manually, run '$(PYENV) install $(PYTHON_VERSION)'.$(RESET)"; \
-				echo -e "$(ORANGE)Then, re-run 'make virtualenv'.$(RESET)"; \
-				exit 1 ;; \
-		esac \
+		echo -e "$(RED)Python version $(PYTHON_VERSION) not installed.$(RESET)"; \
+		echo -e "$(RED)To install it, run '$(PYENV) install $(PYTHON_VERSION)'.$(RESET)"; \
+		echo -e "$(RED)Then, re-run 'make virtualenv'.$(RESET)"; \
+		exit 1 ; \
 	else \
 		echo -e "$(CYAN)\nPython version $(PYTHON_VERSION) available.$(RESET)"; \
 	fi
 
 .PHONY: virtualenv
-virtualenv: dep/python  ## Check if virtualenv exists and activate it - create it if not
+virtualenv: python  ## Check if virtualenv exists and activate it - create it if not
 	@if ! $(PYENV) virtualenvs | grep $(PYENV_VIRTUALENV_NAME) > /dev/null ; then \
 		echo -e "$(ORANGE)\nLocal virtualenv not found. Creating it...$(RESET)"; \
 		$(PYENV) virtualenv $(PYTHON_VERSION) $(PYENV_VIRTUALENV_NAME) || exit 1; \
@@ -219,16 +216,20 @@ $(INSTALL_STAMP): pyproject.toml
 		echo -e "$(RED)\nVirtual environment missing. Please run 'make virtualenv' first.$(RESET)"; \
 	else \
 		echo -e "$(CYAN)\nInstalling the project...$(RESET)"; \
+		mkdir -p $(SRC) $(TESTS) $(DOCS) $(BUILD) || true ; \
 		$(POETRY) install; \
 		$(POETRY) lock; \
 		$(POETRY) run pre-commit install; \
-		if [ ! -f $(INIT_STAMP) ]; then \
+		if [ ! -f $(PROJECT_INIT) ]; then \
 			echo -e "$(CYAN)\nInitializing the project dependencies [v$(PROJECT_VERSION)]...$(RESET)"; \
 			$(PYTHON) toml.py --name $(PROJECT_NAME) --ver $(PROJECT_VERSION) --desc $(PROJECT_DESCRIPTION) --repo $(PROJECT_REPO)  --lic $(PROJECT_LICENSE) ; \
-			mkdir -p $(SRC) $(TESTS) $(DOCS) $(BUILD) || true ; \
-			touch $(SRC)/__init__.py $(SRC)/main.py ; \
+			mv python_pyenv_poetry_template/* $(SRC)/ ; \
+			rm -rf python_pyenv_poetry_template ; \
+			sed -i "" "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(DOCKER_FILES) ; \
+			sed -i "" "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(MAIN_PY_FILES) ; \
+			sed -i "" "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(DOCS_FILES) ; \
 			echo -e "$(GREEN)Project initialized.$(RESET)"; \
-			touch $(INIT_STAMP); \
+			touch $(PROJECT_INIT); \
 		else \
 			echo -e "$(ORANGE)Project already initialized.$(RESET)"; \
 		fi; \
