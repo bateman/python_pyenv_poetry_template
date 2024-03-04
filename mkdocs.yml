@@ -2,7 +2,7 @@
 site_name: python_pyenv_poetry_template
 site_url: https://github.com/bateman/python_pyenv_poetry_template
 site_description: A Python Pyenv Poetry template project.
-site_author: Fabio Calefat <fcalefato@gmail.com>
+site_author: Fabio Calefato <fcalefato@gmail.com>
 
 # Repository
 repo_url: https://github.com/bateman/python_pyenv_poetry_template
@@ -29,7 +29,7 @@ plugins:
 nav:
   - Home: index.md
   - Documentation:
-    - Modules: modules.md
+    - Module: module.md
   - Info:
     - About: about.md
     - License: license.md
