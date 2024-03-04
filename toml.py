@@ -6,25 +6,14 @@ import sys
 import tomlkit
 
 
-def get_key_value(table: str, key: str) -> str:
-    """Get the value of the provided key from the provided table.
-
-    Args:
-    ----
-        table (str): The table to search for the key
-        key (str): The key to search for in the table
-
-    Returns:
-    -------
-            str: The value of the provided key in the provided table
-
-    """
+def get_dict() -> dict | None:
+    """Get the 'pyproject.toml' file as a dictionary."""
     with open("pyproject.toml", "r") as file:
         data = tomlkit.loads(file.read())
         try:
-            return data[table][key]
+            return data
         except KeyError:
-            return ""
+            return None
 
 
 def update_toml(
