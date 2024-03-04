@@ -58,6 +58,7 @@ BUILD := dist
 DOCS := docs
 DOCS_SITE := site
 CACHE_DIRS := $(wildcard .*_cache)
+COVERAGE := .coverage $(wildcard coverage.*)
 
 # Colors
 RESET := \033[0m
@@ -144,7 +145,7 @@ dep/docker-compose:
 clean:  ## Clean the project - removes all cache dirs and stamp files
 	@echo -e "$(ORANGE)\nCleaning the project...$(RESET)"
 	@find . -type d -name "__pycache__" | xargs rm -rf {};
-	@rm -rf $(STAMP_FILES) $(CACHE_DIRS) $(BUILD) $(DOCS_SITE) .coverage
+	@rm -rf $(STAMP_FILES) $(CACHE_DIRS) $(BUILD) $(DOCS_SITE) $(COVERAGE) || true
 	@echo -e "$(GREEN)Project cleaned.$(RESET)"
 
 .PHONY: reset
