@@ -1,6 +1,6 @@
 # P3T - Python Pyenv Poetry Template
 
-A template repository for Python projects using pyenv and Poetry.
+A template repository for Python projects using Pyenv and Poetry.
 
 ## Makefile
 
