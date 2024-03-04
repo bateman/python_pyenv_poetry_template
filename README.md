@@ -35,7 +35,6 @@ Project
  project/production    Install the project for production
  project/deps-export   Export the project's dependencies
  project/build         Build the project as a package
- project/docs          Generate the project documentation
 Check
  check/precommit       Run the pre-commit checks
  check/format          Format the code
@@ -52,11 +51,17 @@ Tag
  tag/minor             Tag a new minor version release
  tag/major             Tag a new major version release
  tag/push              Push the tag to origin - triggers the release action
+Documentation
+ docs/build            Generate the project documentation
+ docs/serve            Serve the project documentation
+ docs/deploy           Deploy the project documentation
 ```
 
 ## Installation
 
-1. Clone the repository: `git clone https://github.com/bateman/python_pyenv_poetry_template.git <your-project-name>`
+This is a template repository, so first things first, you create a new GitHub repository and chose this as its template. After that, follow the installation steps below.
+
+1. Clone the repository: `git clone https://github.com/<your-github-name>/<your-project-name>.git `
 2. Navigate to the project directory: `cd <your-project-name>`
 3. Check the status of the dev environment: `make show` will list the tools currently installed and the default value of project vars, as in the example below:
 ```console
@@ -130,11 +135,16 @@ The `*.tar.gz` and `*.whl` will be placed in the `BUILD` directory (by default `
 
 ## Documentation
 
-Run `make project/docs` for building the project documentation using `mkdocstrings`. The documentation will be generated from your project files' comments in doctring format.
-The documenation files will be stored in the `DOCS` directory (by default `docs/`).
+* Run `make docs/build` to build the project documentation using `mkdocstrings`. The documentation will be generated from your project files' comments in doctring format.
+The documenation files will be stored in the `DOCS_SITE` directory (by default `site/`).
+* Run `make docs/server` to browse the built site locally, at http://127.0.0.1:8000/<your-github-name>/<your-project-name>
+* Run `make docs/deploy` to publish the documentation site as GitHub pages. The content will be published to a separate branch, name `gh_pages`.
 
 > [!NOTE]
-> You will have to edit the files `mkdocs.yml` and `.readthedocs.yml` to adapt them to your project's specifics.
+> You will have to edit the `mkdocs.yml` file to adapt them to your project's specifics. For example, it uses by default the `readthedocs` theme.
+
+> [!WARNING]
+> After the first deploy of the documentation site to your GitHub repository, you need to enable the Pages feature. Go to your repository' Settings > Pages, then select the `gh_pages` branch and save.
 
 ## Execution
 
@@ -149,6 +159,9 @@ The documenation files will be stored in the `DOCS` directory (by default `docs/
 * To build the Docker container: `make docker/build`
 * To start the Dokcer container and run the application: `make docker/run`
 * To build and run: `make docker/all`
+
+> [!WARNING]
+> Before building the container, edit `Dockerfile` and change the name of the folder containing your python module (by default `python_pyenv_poetry_template`).
 
 ## Contributing
 
