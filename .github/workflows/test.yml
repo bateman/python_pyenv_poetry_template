@@ -18,9 +18,9 @@ jobs:
       - name: Install Poetry
         uses: Gr1N/setup-poetry@v8
       - name: Install dependencies
-        run: poetry install
+        run: make project/install
       - name: Run pytest
-        run: poetry run pytest --cov tests/ --cov-report=json
+        run: make project/tests ARGS=--cov-report=json
       - name: Retrieve repo name
         id: reponame
         run: >-
