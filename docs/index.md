@@ -122,9 +122,24 @@ The project uses the following development libraries:
 > [!NOTE]
 > Tests are executed using `pytest`. Test coverage is calculated using the plugin `pytest-cov`.
 
+> [!WARNING]
+> Pushing new commits to GitHub, will trigger the GitHub Action defined in `test.yml`, which will try to upload the coverage report to [Codecov](https://about.codecov.io/). To ensure a correct execution, first log in to Codecov and enable the coverage report for your repository; this will generage a `CODECOV_TOKEN`. Then, add the `CODECOV_TOKEN` to your repository's 'Actions secrets and variables' settings page.
+
 ## Update
 
 Run `make project/update` to update all the dependencies using `poetry`.
+
+## Release
+
+* Add your pending changes to the staging, commit, and push them to the origin.
+* Apply a semver tag to your repository by updating the current project version (note that this will update `pyproject.toml` accordingly):
+  - `make tag/patch` - e.g., 0.1.0 -> 0.1.1
+  - `make tag/minor` - e.g., 0.1.1 -> 0.2.1
+  - `make tag/major` - e.g., 0.2.1 -> 1.0.1
+* Run `make tag/push` to trigger the upload of a new release by excuting the GitHub Action `release.yml`.
+
+> [!WARNING]
+> Before uploading a new release, you need to add a `RELEASE_TOKEN` to your repository's 'Actions secrets and variables' settings page. The `RELEASE_TOKEN` is generated from your GitHub 'Developer Settings' page. Make sure to select the full `repo` scope when generating it.
 
 ## Build
 
@@ -135,8 +150,8 @@ The `*.tar.gz` and `*.whl` will be placed in the `BUILD` directory (by default `
 
 * Run `make docs/build` to build the project documentation using `mkdocstrings`. The documentation will be generated from your project files' comments in doctring format.
 The documenation files will be stored in the `DOCS_SITE` directory (by default `site/`).
-* Run `make docs/server` to browse the built site locally, at http://127.0.0.1:8000/<your-github-name>/<your-project-name>
-* Run `make docs/deploy` to publish the documentation site as GitHub pages. The content will be published to a separate branch, name `gh-pages`. Access the documenation online at https://<your-github-name>.github.io/<your-project-name>/
+* Run `make docs/server` to browse the built site locally, at http://127.0.0.1:8000/your-github-name/your-project-name/
+* Run `make docs/deploy` to publish the documentation site as GitHub pages. The content will be published to a separate branch, name `gh-pages`. Access the documenation online at https://your-github-name.github.io/your-project-name/
 
 > [!NOTE]
 > You will have to edit the `mkdocs.yml` file to adapt them to your project's specifics. For example, it uses by default the `readthedocs` theme.
@@ -150,8 +165,11 @@ The documenation files will be stored in the `DOCS_SITE` directory (by default `
 * To start the Dokcer container and run the application: `make docker/run`
 * To build and run: `make docker/all`
 
-> [!WARNING]
+> [!NOTE]
 > Before building the container, edit `Dockerfile` and change the name of the folder containing your Python module (by default `python_pyenv_poetry_template`).
+
+> [!WARNING]
+> Pushing a new release to GitHub, will trigger the GitHub Action defined in `docker.yml`. To ensure a correct execution, you first need to add the `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets to your repository's 'Actions secrets and variables' settings page.
 
 ## Contributing
 
@@ -164,4 +182,4 @@ Contributions are welcome! Follow these steps:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](license.md) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
