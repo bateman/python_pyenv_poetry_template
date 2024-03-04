@@ -52,7 +52,7 @@ STAGING_STAMP := .staging.stamp
 STAMP_FILES := $(wildcard .*.stamp)
 
 # Dirs
-SRC := $(PROJECT_NAME) .toml.py
+SRC := $(PROJECT_NAME) toml.py
 TESTS := tests
 BUILD := dist
 DOCS := docs
@@ -217,7 +217,7 @@ $(INSTALL_STAMP): pyproject.toml
 		$(POETRY) run pre-commit install; \
 		if [ ! -f $(INIT_STAMP) ]; then \
 			echo -e "$(CYAN)\nInitializing the project dependencies [v$(PROJECT_VERSION)]...$(RESET)"; \
-			$(PYTHON) .toml.py --name $(PROJECT_NAME) --ver $(PROJECT_VERSION) --desc $(PROJECT_DESCRIPTION) --repo $(PROJECT_REPO)  --lic $(PROJECT_LICENSE) ; \
+			$(PYTHON) toml.py --name $(PROJECT_NAME) --ver $(PROJECT_VERSION) --desc $(PROJECT_DESCRIPTION) --repo $(PROJECT_REPO)  --lic $(PROJECT_LICENSE) ; \
 			mkdir -p $(SRC) $(TESTS) $(DOCS) $(BUILD) || true ; \
 			touch $(SRC)/__init__.py $(SRC)/main.py ; \
 			echo -e "$(GREEN)Project initialized.$(RESET)"; \
