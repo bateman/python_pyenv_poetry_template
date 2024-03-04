@@ -247,7 +247,7 @@ project/run: dep/python $(INSTALL_STAMP)  ## Run the project (pass arguments wit
 .PHONY: project/tests
 project/tests: dep/poetry $(INSTALL_STAMP)  ## Run the tests
 	@echo -e "$(CYAN)\nRunning the tests...$(RESET)"
-	@$(POETRY) run pytest $(TESTS)
+	@$(POETRY) run pytest --cov $(TESTS)
 	@echo -e "$(GREEN)Tests passed.$(RESET)"
 
 .PHONY: project/production
