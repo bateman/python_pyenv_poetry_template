@@ -1,0 +1,29 @@
+# Project information
+site_name: python_pyenv_poetry_template
+site_url: https://github.com/bateman/python_pyenv_poetry_template
+site_description: A Python Pyenv Poetry template project.
+site_author: Fabio Calefat <fcalefato@gmail.com>
+
+# Repository
+repo_url: https://github.com/bateman/python_pyenv_poetry_template
+repo_name: bateman/python_pyenv_poetry_template
+edit_uri: "" #disables edit button
+
+# Copyright
+copyright: MIT License 2024
+
+# Configuration
+theme:
+  name: readthedocs
+
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths: [python_pyenv_poetry_template]
+
+nav:
+  - Home: index.md
+  - About: about.md
