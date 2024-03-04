@@ -27,3 +27,4 @@ plugins:
 nav:
   - Home: index.md
   - About: about.md
+  - License: license.md
