@@ -105,7 +105,7 @@ DOCKER_IMAGE_NAME=p3t
 
 > [!NOTE]
 > The installation step will install some 'default' dependencies, such as `rich` and `pretty-errors`, but also dev-dependecies, such as `ruff` and `pytest`.
-> Edit the `pyproject.toml` to add/remove dependencies before running `make install`. Otherwise, you can add and remove dependencies later using `poetry add` and `poetry remove` commands.
+> Edit the `pyproject.toml` to add/remove dependencies before running `make project/install`. Otherwise, you can add and remove dependencies later using `poetry add` and `poetry remove` commands.
 
 > [!WARNING]
 > The `PROJECT_NAME` var will be converted to lowercase and whitespaces will be replaced by `_`. This value will be the name of your project module.
@@ -142,8 +142,8 @@ Run `make project/update` to update all the dependencies using `poetry`.
 * Add your pending changes to the staging, commit, and push them to the origin.
 * Apply a semver tag to your repository by updating the current project version (note that this will update `pyproject.toml` accordingly):
   - `make tag/patch` - e.g., 0.1.0 -> 0.1.1
-  - `make tag/minor` - e.g., 0.1.1 -> 0.2.1
-  - `make tag/major` - e.g., 0.2.1 -> 1.0.1
+  - `make tag/minor` - e.g., 0.1.1 -> 0.2.0
+  - `make tag/major` - e.g., 0.2.0 -> 1.0.0
 * Run `make tag/push` to trigger the upload of a new release by excuting the GitHub Action `release.yml`.
 
 > [!WARNING]
