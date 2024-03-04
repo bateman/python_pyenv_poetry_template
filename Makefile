@@ -71,6 +71,9 @@ ORANGE := \033[0;33m
 MAGENTA := \033[0;35m
 CYAN := \033[0;36m
 
+# Intentionally left empty
+ARGS=
+
 #-- Info
 
 .DEFAULT_GOAL := help
@@ -243,15 +246,14 @@ $(UPDATE_STAMP): pyproject.toml
 	@echo -e "$(GREEN)Project updated.$(RESET)"
 	@touch $(UPDATE_STAMP)
 
-ARGS=
 .PHONY: project/run
 project/run: dep/python $(INSTALL_STAMP)  ## Run the project (pass arguments with ARGS="...")
 	@$(PYTHON) -m $(SRC) $(ARGS)
 
 .PHONY: project/tests
-project/tests: dep/poetry $(INSTALL_STAMP)  ## Run the tests
+project/tests: dep/poetry $(INSTALL_STAMP)  ## Run the tests (pass arguments with ARGS="...")
 	@echo -e "$(CYAN)\nRunning the tests...$(RESET)"
-	@$(POETRY) run pytest --cov $(TESTS)
+	@$(POETRY) run pytest --cov $(TESTS) $(ARGS)
 	@echo -e "$(GREEN)Tests passed.$(RESET)"
 
 .PHONY: project/production
