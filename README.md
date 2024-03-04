@@ -124,10 +124,11 @@ The project uses the following development libraries:
 
 ## Execution
 
-* To run the project: `make run/project`
-* To run the tests: `make run/tests`
+* To run the project: `make project/run`
+* To run the tests: `make project/tests`
 
 > [!NOTE]
+> Pass parameters using the ARGA variable (e.g., `make project/run ARGS=--color red`).
 > Tests are executed using `pytest`. Test coverage is calculated using the plugin `pytest-cov`.
 
 > [!WARNING]
