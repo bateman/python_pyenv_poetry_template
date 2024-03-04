@@ -130,6 +130,9 @@ The project uses the following development libraries:
 > [!NOTE]
 > Tests are executed using `pytest`. Test coverage is calculated using the plugin `pytest-cov`.
 
+> [!WARNING]
+> Pushing new commits to GitHub, will trigger the GitHub Action defined in `test.yml`, which will try to upload the coverage report to [Codecov](https://about.codecov.io/). To ensure a correct execution, first log in to Codecov and enable the coverage report for your repository; this will generage a `CODECOV_TOKEN`. Then, add the `CODECOV_TOKEN` to your repository's 'Actions secrets and variables' settings page.
+
 ## Update
 
 Run `make project/update` to update all the dependencies using `poetry`.
@@ -158,8 +161,11 @@ The documenation files will be stored in the `DOCS_SITE` directory (by default `
 * To start the Dokcer container and run the application: `make docker/run`
 * To build and run: `make docker/all`
 
-> [!WARNING]
+> [!NOTE]
 > Before building the container, edit `Dockerfile` and change the name of the folder containing your Python module (by default `python_pyenv_poetry_template`).
+
+> [!WARNING]
+> Pushing a new release to GitHub, will trigger the GitHub Action defined in `docker.yml`. To ensure a correct execution, you  first need to add the `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets to your repository's 'Actions secrets and variables' settings page.
 
 ## Contributing
 
