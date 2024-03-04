@@ -23,7 +23,7 @@ Info
 System
  clean                 Clean the project - removes all cache dirs and stamp files
  reset                 Reset the project - cleans plus removes the virtual enviroment
- python                Check if python is installed - install it if not
+ python                Check if Python is installed - install it if not
  virtualenv            Check if virtualenv exists and activate it - create it if not
  update                Update Poetry
 Project
@@ -98,7 +98,7 @@ PROJECT_NAME=Python Pyenv Poetry template
 DOCKER_CONTAINER_NAME=p3t
 DOCKER_IMAGE_NAME=p3t
 ```
-6. To create the virtual environment, run `make virtualenv`. Note that this will also check for the requested python version; if not available, it will use `pyenv` to install it.
+6. To create the virtual environment, run `make virtualenv`. Note that this will also check for the requested Python version; if not available, it will use `pyenv` to install it.
 7. To complete the installation for development purposes, run `make project/install` -- this will install all development dependencies. Otherwise, for production purposes only, run `make project/production`.
 
 > [!NOTE]
@@ -134,7 +134,7 @@ Run `make project/update` to update all the dependencies using `poetry`.
 
 ## Build
 
-Run `make project/build` for building the project as a python package.
+Run `make project/build` for building the project as a Python package.
 The `*.tar.gz` and `*.whl` will be placed in the `BUILD` directory (by default `dist/`).
 
 ## Documentation
@@ -157,7 +157,7 @@ The documenation files will be stored in the `DOCS_SITE` directory (by default `
 * To build and run: `make docker/all`
 
 > [!WARNING]
-> Before building the container, edit `Dockerfile` and change the name of the folder containing your python module (by default `python_pyenv_poetry_template`).
+> Before building the container, edit `Dockerfile` and change the name of the folder containing your Python module (by default `python_pyenv_poetry_template`).
 
 ## Contributing
 
