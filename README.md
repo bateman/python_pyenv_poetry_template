@@ -6,7 +6,7 @@
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/bateman/python_pyenv_poetry_template/docker.yml?style=flat-square&label=docker)
 ![GitHub License](https://img.shields.io/github/license/bateman/python_pyenv_poetry_template?style=flat-square)
 
-A template repository for Python projects using pyenv and Poetry.
+A template repository for Python projects using Pyenv and Poetry.
 
 ## Makefile
 
