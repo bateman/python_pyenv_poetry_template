@@ -63,9 +63,11 @@ COVERAGE := .coverage $(wildcard coverage.*)
 # Files
 PY_FILES := $(shell find . -type f -name '*.py')
 PROJECT_INIT := .project-init
-DOCKER_FILES := $(DOCKER_FILE) $(DOCKER_COMPOSE_FILE) entrypoint.sh
-MAIN_PY_FILES := $(SRC)/__main__.py $(TESTS)/test_main.py
-DOCS_FILES := mkdocs.yml $(DOCS)/module.md
+DOCKER_FILES_TO_UPDATE := $(DOCKER_FILE) $(DOCKER_COMPOSE_FILE) entrypoint.sh
+PY_FILES_TO_UPDATE := $(SRC)/__main__.py $(TESTS)/test_main.py
+DOCS_FILES_TO_UPDATE :=  mkdocs.yml $(DOCS)/module.md
+DOCS_FILES_TO_RESET := README.md $(DOCS)/index.md $(DOCS)/about.md
+DOCS_FILES_TO_REPLACE := $(DOCS)/module.md
 
 # Colors
 RESET := \033[0m
@@ -225,9 +227,13 @@ $(INSTALL_STAMP): pyproject.toml
 			$(PYTHON) toml.py --name $(PROJECT_NAME) --ver $(PROJECT_VERSION) --desc $(PROJECT_DESCRIPTION) --repo $(PROJECT_REPO)  --lic $(PROJECT_LICENSE) ; \
 			mv python_pyenv_poetry_template/* $(SRC)/ ; \
 			rm -rf python_pyenv_poetry_template ; \
-			sed -i "" "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(DOCKER_FILES) ; \
-			sed -i "" "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(MAIN_PY_FILES) ; \
-			sed -i "" "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(DOCS_FILES) ; \
+			sed -i "" "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(DOCKER_FILES_TO_UPDATE) ; \
+			sed -i "" "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(PY_FILES_TO_UPDATE) ; \
+			sed -i "" "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(DOCS_FILES_TO_UPDATE) ; \
+			$(eval NEW_TEXT := $(shell echo "# $(PROJECT_NAME)\n\n$(PROJECT_DESCRIPTION)")) ; \
+			echo $(NEW_TEXT) > $(DOCS_FILES_TO_RESET) ; \
+			sed -i "" "1s/.*/$$NEW_TEXT/" $(DOCS_FILES_TO_REPLACE) ; \
+
 			echo -e "$(GREEN)Project initialized.$(RESET)"; \
 			touch $(PROJECT_INIT); \
 		else \
@@ -345,8 +351,8 @@ docker/remove: dep/docker dep/docker-compose  ## Clean the Docker container and 
 
 .PHONY: tag
 tag: dep/git
-	@$(eval TAG=$(shell $(GIT) describe --tags --abbrev=0))
-	@$(eval BEHIND_AHEAD=$(shell $(GIT) rev-list --left-right --count $(TAG)...origin/main))
+	@$(eval TAG := $(shell $(GIT) describe --tags --abbrev=0))
+	@$(eval BEHIND_AHEAD := $(shell $(GIT) rev-list --left-right --count $(TAG)...origin/main))
 	@$(shell if [ "$(BEHIND_AHEAD)" = "0	0" ]; then echo "false" > $(RELEASE_STAMP); else echo "true" > $(RELEASE_STAMP); fi)
 	@echo -e "$(CYAN)\nChecking if a new release is needed...$(RESET)"
 	@echo -e "  $(CYAN)Current tag:$(RESET) $(TAG)"
@@ -404,7 +410,7 @@ tag/major: tag  staging  ## Tag a new major version release
 
 .PHONY: tag/push
 tag/push: dep/git  ## Push the tag to origin - triggers the release action
-	@$(eval TAG=$(shell $(GIT) describe --tags --abbrev=0))
+	@$(eval TAG := $(shell $(GIT) describe --tags --abbrev=0))
 	@echo -e "$(CYAN)\nPushing release $(TAG)...$(RESET)"
 	@$(GIT) push origin
 	@$(GIT) push origin $(TAG)
