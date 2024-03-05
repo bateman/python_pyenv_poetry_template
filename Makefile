@@ -230,10 +230,11 @@ $(INSTALL_STAMP): pyproject.toml
 			sed -i "" "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(DOCKER_FILES_TO_UPDATE) ; \
 			sed -i "" "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(PY_FILES_TO_UPDATE) ; \
 			sed -i "" "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(DOCS_FILES_TO_UPDATE) ; \
-			$(eval NEW_TEXT := $(shell echo "# $(PROJECT_NAME)\n\n$(PROJECT_DESCRIPTION)")) ; \
-			echo $(NEW_TEXT) > $(DOCS_FILES_TO_RESET) ; \
-			sed -i "" "1s/.*/$$NEW_TEXT/" $(DOCS_FILES_TO_REPLACE) ; \
-
+			$(eval NEW_TEXT := $(shell echo "# $(PROJECT_NAME)\n\n$(PROJECT_DESCRIPTION)"))  \
+			for file in $(DOCS_FILES_TO_RESET); do \
+        		echo $(NEW_TEXT) > $$file; \
+    		done; \
+			sed -i "" "1s/.*/$(NEW_TEXT)/" $(DOCS_FILES_TO_REPLACE) ; \
 			echo -e "$(GREEN)Project initialized.$(RESET)"; \
 			touch $(PROJECT_INIT); \
 		else \
