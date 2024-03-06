@@ -45,4 +45,5 @@ jobs:
         with:
           target_branch: gh-pages
           build_dir: docs
-          token: ${{ secrets.RELEASE_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
