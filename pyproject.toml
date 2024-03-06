@@ -50,12 +50,18 @@ fixable = ["ALL"]
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 extend-select = [ "I", "D",]
 ignore = [ "D203", "D211", "D213", ]
+ignore-init-module-imports = true
 
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
+docstring-code-format = true
+docstring-code-line-length = 60
+
+[tool.ruff.lint.pycodestyle]
+max-doc-length = 88
 
 [tool.pytest.ini_options]
 addopts = [ "--cov-fail-under=5", "--cov-report=term-missing", "--cov=python_pyenv_poetry_template",]
