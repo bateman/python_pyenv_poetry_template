@@ -420,10 +420,15 @@ tag/major: tag  staging  ## Tag a new major version release
 .PHONY: tag/push
 tag/push: dep/git  ## Push the tag to origin - triggers the release action
 	@$(eval TAG := $(shell $(GIT) describe --tags --abbrev=0))
-	@echo -e "$(CYAN)\nPushing release $(TAG)...$(RESET)"
-	@$(GIT) push origin
-	@$(GIT) push origin $(TAG)
-	@echo -e "$(GREEN)Release v$(TAG) pushed.$(RESET)"
+	@$(eval REMOTE_TAGS := $(shell $(GIT) ls-remote --tags origin | $(AWK) '{print $$2}'))
+	@if echo $(REMOTE_TAGS) | grep -q $(TAG); then \
+		echo -e "$(ORANGE)\nNothing to push: tag $(TAG) already exists on origin.$(RESET)"; \
+	else \
+		echo -e "$(CYAN)\nPushing new release $(TAG)...$(RESET)"; \
+		$(GIT) push origin; \
+		$(GIT) push origin $(TAG); \
+		echo -e "$(GREEN)Release $(TAG) pushed.$(RESET)"; \
+	fi
 
 #-- Documentation
 
