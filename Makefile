@@ -164,7 +164,7 @@ clean:  ## Clean the project - removes all cache dirs and stamp files
 	@echo -e "$(GREEN)Project cleaned.$(RESET)"
 
 .PHONY: reset
-reset:  ## Reset the project - cleans plus removes the virtual environment
+reset:  ## Reset the project - cleans plus removes the virtual environment (use ARGS=hard to re-initialize the project)
 	@echo -e "$(RED)\nAre you sure you want to proceed with the reset (this involves wiping also the virual environment)? [y/N]: $(RESET)"
 	@read -r answer; \
 	case $$answer in \
@@ -174,6 +174,9 @@ reset:  ## Reset the project - cleans plus removes the virtual environment
 			rm -f .python-version > /dev/null || true ; \
 			rm -f poetry.lock > /dev/null || true ; \
 			pyenv virtualenv-delete -f $(PYENV_VIRTUALENV_NAME) ; \
+			if [ "$(ARGS)" = "hard" ]; then \
+				rm -f $(PROJECT_INIT) > /dev/null || true ; \
+			fi; \
 			echo -e "$(GREEN)Project reset.$(RESET)" ;; \
 		* ) \
 			echo -e "$(ORANGE)Project reset aborted.$(RESET)"; \
