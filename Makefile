@@ -229,14 +229,16 @@ $(INSTALL_STAMP): pyproject.toml
 		$(POETRY) lock; \
 		$(POETRY) run pre-commit install; \
 		if [ ! -f $(PROJECT_INIT) ]; then \
-			echo -e "$(CYAN)\nInitializing the project dependencies [v$(PROJECT_VERSION)]...$(RESET)"; \
+			echo -e "$(CYAN)Updating project information...$(RESET)"; \
 			$(PYTHON) toml.py --name $(PROJECT_NAME) --ver $(PROJECT_VERSION) --desc $(PROJECT_DESCRIPTION) --repo $(PROJECT_REPO)  --lic $(PROJECT_LICENSE) ; \
+			echo -e "$(CYAN)Creating package module...$(RESET)"; \
 			mv python_pyenv_poetry_template/* $(SRC)/ ; \
 			rm -rf python_pyenv_poetry_template ; \
+			echo -e "$(CYAN)Updating files...$(RESET)"; \
 			$(SED_INPLACE) "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(DOCKER_FILES_TO_UPDATE) ; \
 			$(SED_INPLACE) "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(PY_FILES_TO_UPDATE) ; \
 			$(SED_INPLACE) "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(DOCS_FILES_TO_UPDATE) ; \
-			$(eval NEW_TEXT := $(shell echo "# $(PROJECT_NAME)\n\n$(PROJECT_DESCRIPTION)"))  \
+			$(eval NEW_TEXT := $(shell echo -e "# $(PROJECT_NAME)\n\n$(PROJECT_DESCRIPTION)"))  \
 			for file in $(DOCS_FILES_TO_RESET); do \
         		echo $(NEW_TEXT) > $$file; \
     		done; \
