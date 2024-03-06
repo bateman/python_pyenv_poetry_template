@@ -24,7 +24,7 @@ Info
  info                  Show development environment info
 System
  clean                 Clean the project - removes all cache dirs and stamp files
- reset                 Reset the project - cleans plus removes the virtual environment
+ reset                 Cleans plus removes the virtual environment (use ARGS="hard" to re-initialize the project)
  python                Check if Python is installed - install it if not
  virtualenv            Check if virtualenv exists and activate it - create it if not
  update                Update Poetry
