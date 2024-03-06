@@ -8,6 +8,9 @@ MAKEFLAGS += --no-builtin-rules
 
 # Executables
 MAKE_VERSION := $(shell make --version | head -n 1 2> /dev/null)
+SED := $(shell command -v sed 2> /dev/null)
+SED_INPLACE := $(shell if $(SED) --version >/dev/null 2>&1; then echo "$(SED) -i"; else echo "$(SED) -i ''"; fi)
+AWK := $(shell command -v awk 2> /dev/null)
 POETRY := $(shell command -v poetry 2> /dev/null)
 PYENV := $(shell command -v pyenv 2> /dev/null)
 PYTHON := $(shell command -v python 2> /dev/null)
@@ -27,7 +30,7 @@ PROJECT_NAME ?= $(shell basename $(CURDIR))
 # make sure the project name is lowercase and has no spaces
 PROJECT_NAME := $(shell echo $(PROJECT_NAME) | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
 PROJECT_REPO ?= $(shell url=$$($(GIT) config --get remote.origin.url); echo $${url%.git})
-GITHUB_USER ?= $(shell echo $(PROJECT_REPO) | awk -F/ 'NF>=4{print $$4}')
+GITHUB_USER ?= $(shell echo $(PROJECT_REPO) | $(AWK) -F/ 'NF>=4{print $$4}')
 PROJECT_VERSION ?= $(shell $(POETRY) version -s 2>/dev/null || echo 0.1.0)
 PROJECT_DESCRIPTION ?= 'A short description of the project'
 PROJECT_LICENSE ?= MIT
@@ -87,8 +90,8 @@ ARGS=
 help:  ## Show this help message
 	@echo -e "\nUsage: make [target]\n"
 	@grep -E '^[0-9a-zA-Z_-]+(/?[0-9a-zA-Z_-]*)*:.*?## .*$$|(^#--)' $(firstword $(MAKEFILE_LIST)) \
-	| awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m %-21s\033[0m %s\n", $$1, $$2}' \
-	| sed -e 's/\[36m #-- /\[35m/'
+	| $(AWK) 'BEGIN {FS = ":.*?## "}; {printf "\033[36m %-21s\033[0m %s\n", $$1, $$2}' \
+	| $(SED) -e 's/\[36m #-- /\[35m/'
 
 .PHONY: info
 info: ## Show development environment info
@@ -227,14 +230,14 @@ $(INSTALL_STAMP): pyproject.toml
 			$(PYTHON) toml.py --name $(PROJECT_NAME) --ver $(PROJECT_VERSION) --desc $(PROJECT_DESCRIPTION) --repo $(PROJECT_REPO)  --lic $(PROJECT_LICENSE) ; \
 			mv python_pyenv_poetry_template/* $(SRC)/ ; \
 			rm -rf python_pyenv_poetry_template ; \
-			sed -i "" "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(DOCKER_FILES_TO_UPDATE) ; \
-			sed -i "" "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(PY_FILES_TO_UPDATE) ; \
-			sed -i "" "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(DOCS_FILES_TO_UPDATE) ; \
+			$(SED_INPLACE) "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(DOCKER_FILES_TO_UPDATE) ; \
+			$(SED_INPLACE) "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(PY_FILES_TO_UPDATE) ; \
+			$(SED_INPLACE) "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(DOCS_FILES_TO_UPDATE) ; \
 			$(eval NEW_TEXT := $(shell echo "# $(PROJECT_NAME)\n\n$(PROJECT_DESCRIPTION)"))  \
 			for file in $(DOCS_FILES_TO_RESET); do \
         		echo $(NEW_TEXT) > $$file; \
     		done; \
-			sed -i "" "1s/.*/$(NEW_TEXT)/" $(DOCS_FILES_TO_REPLACE) ; \
+			$(SED_INPLACE) "1s/.*/$(NEW_TEXT)/" $(DOCS_FILES_TO_REPLACE) ; \
 			echo -e "$(GREEN)Project initialized.$(RESET)"; \
 			touch $(PROJECT_INIT); \
 		else \
@@ -357,7 +360,7 @@ tag: dep/git
 	@$(shell if [ "$(BEHIND_AHEAD)" = "0	0" ]; then echo "false" > $(RELEASE_STAMP); else echo "true" > $(RELEASE_STAMP); fi)
 	@echo -e "$(CYAN)\nChecking if a new release is needed...$(RESET)"
 	@echo -e "  $(CYAN)Current tag:$(RESET) $(TAG)"
-	@echo -e "  $(CYAN)Commits behind/ahead:$(RESET) $(shell echo ${BEHIND_AHEAD} | tr '[:space:]' '/' | sed 's/\/$$//')"
+	@echo -e "  $(CYAN)Commits behind/ahead:$(RESET) $(shell echo ${BEHIND_AHEAD} | tr '[:space:]' '/' | $(SED) 's/\/$$//')"
 	@echo -e "  $(CYAN)Needs release:$(RESET) $(shell cat $(RELEASE_STAMP))"
 
 .PHONY: staging
