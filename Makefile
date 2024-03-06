@@ -81,7 +81,7 @@ MAGENTA := \033[0;35m
 CYAN := \033[0;36m
 
 # Intentionally left empty
-ARGS=
+ARGS ?= ''
 
 #-- Info
 
@@ -332,8 +332,8 @@ $(DOCKER_BUILD_STAMP): $(DOCKER_FILE) $(DOCKER_COMPOSE_FILE)
 .PHONY: docker/run
 docker/run: docker/build $(DOCKER_BUILD_STAMP)  ## Run the Docker container
 	@echo -e "$(CYAN)\nRunning the Docker container...$(RESET)"
-	@DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME) DOCKER_CONTAINER_NAME=$(DOCKER_CONTAINER_NAME) $(DOCKER_COMPOSE) up
-	@echo -e "$(GREEN)Docker container running.$(RESET)"
+	@DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME) DOCKER_CONTAINER_NAME=$(DOCKER_CONTAINER_NAME) ARGS="$(ARGS)" $(DOCKER_COMPOSE) up
+	@echo -e "$(GREEN)Docker container executed.$(RESET)"
 
 .PHONY: docker/all
 docker/all: docker/build docker/run  ## Build and run the Docker container
