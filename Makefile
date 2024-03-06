@@ -164,7 +164,7 @@ clean:  ## Clean the project - removes all cache dirs and stamp files
 	@echo -e "$(GREEN)Project cleaned.$(RESET)"
 
 .PHONY: reset
-reset:  ## Reset the project - cleans plus removes the virtual environment (use ARGS=hard to re-initialize the project)
+reset:  ## Cleans plus removes the virtual environment (use ARGS="hard" to re-initialize the project)
 	@echo -e "$(RED)\nAre you sure you want to proceed with the reset (this involves wiping also the virual environment)? [y/N]: $(RESET)"
 	@read -r answer; \
 	case $$answer in \
