@@ -52,6 +52,9 @@ extend-select = [ "I", "D",]
 ignore = [ "D203", "D211", "D213", ]
 ignore-init-module-imports = true
 
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
