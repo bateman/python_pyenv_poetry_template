@@ -81,7 +81,7 @@ MAGENTA := \033[0;35m
 CYAN := \033[0;36m
 
 # Intentionally left empty
-ARGS ?= ''
+ARGS ?=
 
 #-- Info
 
@@ -174,7 +174,7 @@ reset:  ## Cleans plus removes the virtual environment (use ARGS="hard" to re-in
 			echo -e "$(ORANGE)Resetting the project...$(RESET)"; \
 			rm -f .python-version > /dev/null || true ; \
 			rm -f poetry.lock > /dev/null || true ; \
-			pyenv virtualenv-delete -f $(PYENV_VIRTUALENV_NAME) ; \
+			$(PYENV) virtualenv-delete -f $(PYENV_VIRTUALENV_NAME) ; \
 			if [ "$(ARGS)" = "hard" ]; then \
 				rm -f $(PROJECT_INIT) > /dev/null || true ; \
 			fi; \
@@ -335,7 +335,7 @@ $(DOCKER_BUILD_STAMP): $(DOCKER_FILE) $(DOCKER_COMPOSE_FILE)
 	@touch $(DOCKER_BUILD_STAMP)
 
 .PHONY: docker/run
-docker/run: docker/build $(DOCKER_BUILD_STAMP)  ## Run the Docker container
+docker/run: dep/docker $(DOCKER_BUILD_STAMP)  ## Run the Docker container
 	@echo -e "$(CYAN)\nRunning the Docker container...$(RESET)"
 	@DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME) DOCKER_CONTAINER_NAME=$(DOCKER_CONTAINER_NAME) ARGS="$(ARGS)" $(DOCKER_COMPOSE) up
 	@echo -e "$(GREEN)Docker container executed.$(RESET)"
