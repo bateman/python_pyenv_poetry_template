@@ -242,7 +242,7 @@ $(INSTALL_STAMP): pyproject.toml
 			$(SED_INPLACE) "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(DOCKER_FILES_TO_UPDATE) ; \
 			$(SED_INPLACE) "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(PY_FILES_TO_UPDATE) ; \
 			$(SED_INPLACE) "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(DOCS_FILES_TO_UPDATE) ; \
-			$(eval NEW_TEXT := $(shell echo -e "# $(PROJECT_NAME)\n\n$(PROJECT_DESCRIPTION)"))  \
+			NEW_TEXT="#$(PROJECT_NAME)\n\n#$(PROJECT_DESCRIPTION)"; \
 			for file in $(DOCS_FILES_TO_RESET); do \
         		echo -e $(NEW_TEXT) > $$file; \
     		done; \
