@@ -9,7 +9,8 @@ The project relies heavily on `make`, which is used to run *all* commands. Run `
 ```console
 $ make
 
-Usage: make [target]
+Usage:
+ make [target]
 
 Info
  help                  Show this help message
@@ -17,9 +18,10 @@ Info
 System
  clean                 Clean the project - removes all cache dirs and stamp files
  reset                 Cleans plus removes the virtual environment (use ARGS="hard" to re-initialize the project)
- python                Check if Python is installed - install it if not
+ python                Check if Python is installed
  virtualenv            Check if virtualenv exists and activate it - create it if not
- update                Update Poetry
+ poetry                Check if Poetry is installed
+ poetry-update         Update Poetry
 Project
  project/all           Install and build the project, generate the documentation
  project/install       Install the project for development
