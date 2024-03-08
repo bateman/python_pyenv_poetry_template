@@ -1,14 +1,14 @@
 version: '3.5'
 
 services:
-  python_pyenv_poetry_template:  ## Change this to your project name
+  python_pyenv_poetry_template:
     image: ${DOCKER_IMAGE_NAME}:latest
     command: ${ARGS}
     build:
       context: .
       dockerfile: Dockerfile
     container_name: ${DOCKER_CONTAINER_NAME}
-    restart: no  # Change to unless-stopped
+    restart: 'no'
     networks:
       - app-network
 
