@@ -349,16 +349,11 @@ docker/stop: dep/docker dep/docker-compose  ## Stop the Docker container
 	@DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME) DOCKER_CONTAINER_NAME=$(DOCKER_CONTAINER_NAME) $(DOCKER_COMPOSE) down
 	@echo -e "$(GREEN)Docker container stopped.$(RESET)"
 
-.PHONY: docker/clean
-docker/clean: dep/docker dep/docker-compose  ## Clean the Docker container
-	@echo -e "$(CYAN)\nCleaning the Docker container...$(RESET)"
-	@DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME) DOCKER_CONTAINER_NAME=$(DOCKER_CONTAINER_NAME) $(DOCKER_COMPOSE) down -v
-	@echo -e "$(GREEN)Docker container cleaned.$(RESET)"
-
 .PHONY: docker/remove
-docker/remove: dep/docker dep/docker-compose  ## Clean the Docker container and remove the image
+docker/remove: dep/docker dep/docker-compose  ## Remove the Docker image, container, and volumes
 	@echo -e "$(CYAN)\nRemoving the Docker image...$(RESET)"
 	@DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME) DOCKER_CONTAINER_NAME=$(DOCKER_CONTAINER_NAME) $(DOCKER_COMPOSE) down -v --rmi all
+	@rm -f $(DOCKER_BUILD_STAMP)
 	@echo -e "$(GREEN)Docker image removed.$(RESET)"
 
 #-- Tag

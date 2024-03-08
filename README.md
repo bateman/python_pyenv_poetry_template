@@ -48,8 +48,7 @@ Docker
  docker/run            Run the Docker container
  docker/all            Build and run the Docker container
  docker/stop           Stop the Docker container
- docker/clean          Clean the Docker container
- docker/remove         Clean the Docker container and remove the image
+ docker/remove         Remove the Docker image, container, and volumes
 Tag
  tag/patch             Tag a new patch version release
  tag/minor             Tag a new minor version release
