@@ -185,7 +185,7 @@ reset:  ## Cleans plus removes the virtual environment (use ARGS="hard" to re-in
 	esac
 
 .PHONY: python
-python: dep/pyenv  ## Check if Python is installed - install it if not
+python: dep/pyenv  ## Check if Python is installed
 	@if ! $(PYENV) versions | grep $(PYTHON_VERSION) > /dev/null ; then \
 		echo -e "$(RED)Python version $(PYTHON_VERSION) not installed.$(RESET)"; \
 		echo -e "$(RED)To install it, run '$(PYENV) install $(PYTHON_VERSION)'.$(RESET)"; \
@@ -207,8 +207,12 @@ virtualenv: python  ## Check if virtualenv exists and activate it - create it if
 	@$(PYENV) local $(PYENV_VIRTUALENV_NAME)
 	@echo -e "$(GREEN)Virtualenv activated.$(RESET)"
 
-.PHONY: update
-update: dep/poetry  ## Update Poetry
+.PHONY: poetry
+poetry: dep/poetry  ## Check if Poetry is installed
+	@echo -e "$(CYAN)\n$(shell $(POETRY) --version) available.$(RESET)"
+
+.PHONY: poetry-update
+poetry-update: dep/poetry  ## Update Poetry
 	@echo -e "$(CYAN)\nUpgrading Poetry...$(RESET)"
 	@$(POETRY) self update
 	@echo -e "$(GREEN)Poetry upgraded.$(RESET)"
