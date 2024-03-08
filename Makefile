@@ -88,7 +88,8 @@ ARGS ?= ''
 .DEFAULT_GOAL := help
 .PHONY: help
 help:  ## Show this help message
-	@echo -e "\nUsage: make [target]\n"
+	@echo -e "\n$(MAGENTA)$(PROJECT_NAME) v$(PROJECT_VERSION) Makefile$(RESET)"
+	@echo -e "\n$(MAGENTA)Usage:\n$(RESET) make $(CYAN)[target]$(RESET)\n"
 	@grep -E '^[0-9a-zA-Z_-]+(/?[0-9a-zA-Z_-]*)*:.*?## .*$$|(^#--)' $(firstword $(MAKEFILE_LIST)) \
 	| $(AWK) 'BEGIN {FS = ":.*?## "}; {printf "\033[36m %-21s\033[0m %s\n", $$1, $$2}' \
 	| $(SED) -e 's/\[36m #-- /\[35m/'
