@@ -70,7 +70,6 @@ DOCKER_FILES_TO_UPDATE := $(DOCKER_FILE) $(DOCKER_COMPOSE_FILE) entrypoint.sh
 PY_FILES_TO_UPDATE := $(SRC)/__main__.py $(TESTS)/test_main.py
 DOCS_FILES_TO_UPDATE :=  mkdocs.yml $(DOCS)/module.md
 DOCS_FILES_TO_RESET := README.md $(DOCS)/index.md $(DOCS)/about.md
-DOCS_FILES_TO_REPLACE := $(DOCS)/module.md
 
 # Colors
 RESET := \033[0m
@@ -228,15 +227,15 @@ $(INSTALL_STAMP): pyproject.toml
 	@if [ ! -f .python-version ]; then \
 		echo -e "$(RED)\nVirtual environment missing. Please run 'make virtualenv' first.$(RESET)"; \
 	else \
-		echo -e "$(CYAN)\nInstalling the project...$(RESET)"; \
+		echo -e "$(CYAN)\nInstalling project $(PROJECT_NAME)...$(RESET)"; \
 		mkdir -p $(SRC) $(TESTS) $(DOCS) $(BUILD) || true ; \
 		$(POETRY) install; \
 		$(POETRY) lock; \
 		$(POETRY) run pre-commit install; \
 		if [ ! -f $(PROJECT_INIT) ]; then \
-			echo -e "$(CYAN)Updating project information...$(RESET)"; \
+			echo -e "$(CYAN)Updating project $(PROJECT_NAME) information...$(RESET)"; \
 			$(PYTHON) toml.py --name $(PROJECT_NAME) --ver $(PROJECT_VERSION) --desc $(PROJECT_DESCRIPTION) --repo $(PROJECT_REPO)  --lic $(PROJECT_LICENSE) ; \
-			echo -e "$(CYAN)Creating package module...$(RESET)"; \
+			echo -e "$(CYAN)Creating $(PROJECT_NAME) package module...$(RESET)"; \
 			mv python_pyenv_poetry_template/* $(SRC)/ ; \
 			rm -rf python_pyenv_poetry_template ; \
 			echo -e "$(CYAN)Updating files...$(RESET)"; \
@@ -245,15 +244,15 @@ $(INSTALL_STAMP): pyproject.toml
 			$(SED_INPLACE) "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(DOCS_FILES_TO_UPDATE) ; \
 			$(eval NEW_TEXT := $(shell echo -e "# $(PROJECT_NAME)\n\n$(PROJECT_DESCRIPTION)"))  \
 			for file in $(DOCS_FILES_TO_RESET); do \
-        		echo $(NEW_TEXT) > $$file; \
+        		echo -e $(NEW_TEXT) > $$file; \
     		done; \
-			$(SED_INPLACE) "1s/.*/$(NEW_TEXT)/" $(DOCS_FILES_TO_REPLACE) ; \
-			echo -e "$(GREEN)Project initialized.$(RESET)"; \
+			$(SED_INPLACE) "1s/.*/$(NEW_TEXT)/" $(DOCS)/module.md ; \
+			echo -e "$(GREEN)Project $(PROJECT_NAME) initialized.$(RESET)"; \
 			touch $(PROJECT_INIT); \
 		else \
-			echo -e "$(ORANGE)Project already initialized.$(RESET)"; \
+			echo -e "$(ORANGE)Project $(PROJECT_NAME) already initialized.$(RESET)"; \
 		fi; \
-		echo -e "$(GREEN)Project installed for development.$(RESET)"; \
+		echo -e "$(GREEN)Project $(PROJECT_NAME) installed for development.$(RESET)"; \
 		touch $(INSTALL_STAMP); \
 	fi
 
