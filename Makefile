@@ -44,7 +44,6 @@ DOCKER_CONTAINER_NAME ?= $(PROJECT_NAME)
 
 # Stamp files
 INSTALL_STAMP := .install.stamp
-UPDATE_STAMP := .update.stamp
 PRODUCTION_STAMP := .production.stamp
 DEPS_EXPORT_STAMP := .deps-export.stamp
 BUILD_STAMP := .build.stamp
@@ -257,14 +256,12 @@ $(INSTALL_STAMP): pyproject.toml
 	fi
 
 .PHONY: project/update
-project/update: dep/poetry $(UPDATE_STAMP)  ## Update the project
-$(UPDATE_STAMP): pyproject.toml
+project/update: dep/poetry project/install  ## Update the project
 	@echo -e "$(CYAN)\nUpdating the project...$(RESET)"
 	@$(POETRY) update
 	$(POETRY) lock
 	@$(POETRY) run pre-commit autoupdate
 	@echo -e "$(GREEN)Project updated.$(RESET)"
-	@touch $(UPDATE_STAMP)
 
 .PHONY: project/run
 project/run: dep/python $(INSTALL_STAMP)  ## Run the project (pass arguments with ARGS="...")
