@@ -67,7 +67,6 @@ PY_FILES := $(shell find . -type f -name '*.py')
 PROJECT_INIT := .project-init
 DOCKER_FILES_TO_UPDATE := $(DOCKER_FILE) $(DOCKER_COMPOSE_FILE) entrypoint.sh
 PY_FILES_TO_UPDATE := $(SRC)/__main__.py $(TESTS)/test_main.py
-DOCS_FILES_TO_UPDATE := $(DOCS)/module.md
 DOCS_FILES_TO_RESET := README.md $(DOCS)/index.md $(DOCS)/about.md
 
 # Colors
@@ -240,8 +239,8 @@ $(INSTALL_STAMP): pyproject.toml
 			echo -e "$(CYAN)Updating files...$(RESET)"; \
 			$(SED_INPLACE) "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(DOCKER_FILES_TO_UPDATE) ; \
 			$(SED_INPLACE) "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(PY_FILES_TO_UPDATE) ; \
-			$(SED_INPLACE) "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(DOCS_FILES_TO_UPDATE) ; \
-			$(SED_INPLACE) "1s/.*/$$NEW_TEXT/" $(DOCS_FILES_TO_UPDATE) ; \
+			$(SED_INPLACE) "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(DOCS)/module.md ; \
+			$(SED_INPLACE) "1s/.*/$$NEW_TEXT/" $(DOCS)/module.md ; \
 			NEW_TEXT="#$(PROJECT_NAME)\n\n$(subst ",,$(subst ',,$(PROJECT_DESCRIPTION)))"; \
 			for file in $(DOCS_FILES_TO_RESET); do \
 				echo -e $$NEW_TEXT > $$file; \
