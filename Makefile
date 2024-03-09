@@ -246,7 +246,7 @@ $(INSTALL_STAMP): pyproject.toml
 			for file in $(DOCS_FILES_TO_RESET); do \
 				echo -e $$NEW_TEXT > $$file; \
 			done; \
-			$(SED_INPLACE) "1s/.*/$(NEW_TEXT)/" $(DOCS)/module.md ; \
+			$(SED_INPLACE) "1s/.*/$$NEW_TEXT/" $(DOCS)/module.md ; \
 			echo -e "$(GREEN)Project $(PROJECT_NAME) initialized.$(RESET)"; \
 			touch $(PROJECT_INIT); \
 		else \
