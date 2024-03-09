@@ -242,10 +242,10 @@ $(INSTALL_STAMP): pyproject.toml
 			$(SED_INPLACE) "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(DOCKER_FILES_TO_UPDATE) ; \
 			$(SED_INPLACE) "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(PY_FILES_TO_UPDATE) ; \
 			$(SED_INPLACE) "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(DOCS_FILES_TO_UPDATE) ; \
-			NEW_TEXT="#$(PROJECT_NAME)\n\n#$(PROJECT_DESCRIPTION)"; \
+			NEW_TEXT="#$(PROJECT_NAME)\n\n$(subst ",,$(subst ',,$(PROJECT_DESCRIPTION)))"; \
 			for file in $(DOCS_FILES_TO_RESET); do \
-        		echo -e $(NEW_TEXT) > $$file; \
-    		done; \
+				echo -e $$NEW_TEXT > $$file; \
+			done; \
 			$(SED_INPLACE) "1s/.*/$(NEW_TEXT)/" $(DOCS)/module.md ; \
 			echo -e "$(GREEN)Project $(PROJECT_NAME) initialized.$(RESET)"; \
 			touch $(PROJECT_INIT); \
