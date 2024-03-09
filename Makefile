@@ -246,13 +246,13 @@ $(INSTALL_STAMP): pyproject.toml
 			for file in $(DOCS_FILES_TO_RESET); do \
 				echo -e $$NEW_TEXT > $$file; \
 			done; \
-			$(SED_INPLACE) 's/copyright: MIT License 2024/copyright: $(PROJECT_LICENSE)/g' mkdocs.yml ; \
-			$(SED_INPLACE) 's/site_name: python_pyenv_poetry_template/site_name: $(PROJECT_NAME)/g' mkdocs.yml ; \
-			$(SED_INPLACE) 's/site_url: https:\/\/github\.com\/bateman\/python_pyenv_poetry_template/site_url: https:\/\/$(GITHUB_USER_NAME)\.github\.io\/$(PROJECT_NAME)/g' mkdocs.yml ; \
-			$(SED_INPLACE) 's/site_description: A Python Pyenv Poetry template project./site_description: $(PROJECT_DESCRIPTION)/g' mkdocs.yml ; \
-			$(SED_INPLACE) 's/site_author: Fabio Calefato <fcalefato@gmail.com>/site_author: $(GITHUB_USER_NAME) <$(GITHUB_USER_EMAIL)>/g' mkdocs.yml ; \
-			$(SED_INPLACE) 's/repo_url: https:\/\/github\.com\/bateman\/python_pyenv_poetry_template/repo_url: $(PROJECT_REPO)/g' mkdocs.yml ; \
-			$(SED_INPLACE) 's/repo_name: bateman\/python_pyenv_poetry_template/repo_name: $(GITHUB_USER_NAME)\/$(PROJECT_NAME)/g' mkdocs.yml ; \
+			$(SED_INPLACE) 's|copyright: MIT License 2024/copyright: $$(PROJECT_LICENSE)|g' mkdocs.yml ; \
+			$(SED_INPLACE) 's|site_name: python_pyenv_poetry_template/site_name: $$(PROJECT_NAME)|g' mkdocs.yml ; \
+			$(SED_INPLACE) 's|site_url: https:\/\/github\.com\/bateman\/python_pyenv_poetry_template/site_url: https:\/\/$$(GITHUB_USER_NAME)\.github\.io\/$$(PROJECT_NAME)|g' mkdocs.yml ; \
+			$(SED_INPLACE) 's|site_description: A Python Pyenv Poetry template project./site_description: $$(PROJECT_DESCRIPTION)|g' mkdocs.yml ; \
+			$(SED_INPLACE) 's|site_author: Fabio Calefato <fcalefato@gmail.com>/site_author: $$(GITHUB_USER_NAME) <$$(GITHUB_USER_EMAIL)>|g' mkdocs.yml ; \
+			$(SED_INPLACE) 's|repo_url: https:\/\/github\.com\/bateman\/python_pyenv_poetry_template/repo_url: $$(PROJECT_REPO)|g' mkdocs.yml ; \
+			$(SED_INPLACE) 's|repo_name: bateman\/python_pyenv_poetry_template/repo_name: $$(GITHUB_USER_NAME)\/$$(PROJECT_NAME)|g' mkdocs.yml ; \
 			echo -e "$(GREEN)Project $(PROJECT_NAME) initialized.$(RESET)"; \
 			touch $(PROJECT_INIT); \
 		else \
