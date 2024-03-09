@@ -1,5 +1,13 @@
 # P3T - Python Pyenv Poetry Template
 
+![GitHub Release](https://img.shields.io/github/v/release/bateman/python_pyenv_poetry_template?style=flat-square)
+![GitHub top language](https://img.shields.io/github/languages/top/bateman/python_pyenv_poetry_template?style=flat-square)
+![Codecov](https://img.shields.io/codecov/c/github/bateman/python_pyenv_poetry_template?style=flat-square)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/bateman/python_pyenv_poetry_template/release.yml?style=flat-square)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/bateman/python_pyenv_poetry_template/docker.yml?style=flat-square&label=docker)
+![GitHub Pages Status](https://img.shields.io/badge/docs-passing-46cc14?style=flat-square)
+![GitHub License](https://img.shields.io/github/license/bateman/python_pyenv_poetry_template?style=flat-square)
+
 A template repository for Python projects using Pyenv and Poetry.
 
 ## Makefile
@@ -54,7 +62,7 @@ Documentation
 
 ## Installation
 
-This is a template repository, so first things first, you create a new GitHub repository and chose this as its template. After that, follow the installation steps below.
+This is a template repository, so first things first, you create a new GitHub repository and choose this as its template. After that, follow the installation steps below.
 
 1. Clone the repository: `git clone https://github.com/<your-github-name>/<your-project-name>.git `
 2. Navigate to the project directory: `cd <your-project-name>`
@@ -72,7 +80,7 @@ Project info:
   Project directory: /Users/fabio/Dev/git/python_pyenv_poetry_template
   Project version: 0.1.0
   Project license: MIT
-  Project description: 'Override default values of project variables in makefile.env'
+  Project description: 'Override default values of project variables in Makefile.env'
 Python info:
   Python version: 3.12.1
   Pyenv version: pyenv 2.3.36
@@ -93,14 +101,14 @@ PROJECT_NAME=Python Pyenv Poetry template
 DOCKER_CONTAINER_NAME=p3t
 DOCKER_IMAGE_NAME=p3t
 ```
-6. To create the virtual environment, run `make virtualenv`. Note that this will also check for the requested Python version; if not available, it will use `pyenv` to install it.
+6. To create the virtual environment, run `make virtualenv`. Note that this will also check for the requested Python version; if not available, it will ask you to use `pyenv` to install it.
 7. To complete the installation for development purposes, run `make project/install` -- this will install all development dependencies. Otherwise, for production purposes only, run `make project/production`.
 
-> [!NOTE]
+> [!TIP]
 > The installation step will install some 'default' dependencies, such as `rich` and `pretty-errors`, but also dev-dependecies, such as `ruff` and `pytest`.
-> Edit the `pyproject.toml` to add/remove dependencies before running `make install`. Otherwise, you can add and remove dependencies later using `poetry add` and `poetry remove` commands.
+> Edit the `pyproject.toml` to add/remove dependencies before running `make project/install`. Otherwise, you can add and remove dependencies later using `poetry add` and `poetry remove` commands.
 
-> [!WARNING]
+> [!NOTE]
 > The `PROJECT_NAME` var will be converted to lowercase and whitespaces will be replaced by `_`. This value will be the name of your project module.
 
 ## Development
@@ -111,20 +119,23 @@ The project uses the following development libraries:
 * `bandit`: for security analysis.
 * `pre-commit`: for automating all the checks above before committing.
 
-> [!NOTE]
+> [!TIP]
 > To manually run code formatting and linting, run `make check/format` and `make check/lint`, respectively.
 > To execute all the checks, stage your changes, then run `make check/precommit`.
 
 ## Execution
 
-* To run the project: `make run/project`
-* To run the tests: `make run/tests`
+* To run the project: `make project/run`
+* To run the tests: `make project/tests`
+
+> [!TIP]
+> Pass parameters using the ARGS variable (e.g., `make project/run ARGS=--color red`).
 
 > [!NOTE]
 > Tests are executed using `pytest`. Test coverage is calculated using the plugin `pytest-cov`.
 
-> [!WARNING]
-> Pushing new commits to GitHub, will trigger the GitHub Action defined in `test.yml`, which will try to upload the coverage report to [Codecov](https://about.codecov.io/). To ensure a correct execution, first log in to Codecov and enable the coverage report for your repository; this will generage a `CODECOV_TOKEN`. Then, add the `CODECOV_TOKEN` to your repository's 'Actions secrets and variables' settings page.
+> [!IMPORTANT]
+> Pushing new commits to GitHub, will trigger the GitHub Action defined in `test.yml`, which will try to upload the coverage report to [Codecov](https://about.codecov.io/). To ensure correct execution, first log in to Codecov and enable the coverage report for your repository; this will generate a `CODECOV_TOKEN`. Then, add the `CODECOV_TOKEN` to your repository's 'Actions secrets and variables' settings page.
 
 ## Update
 
@@ -135,8 +146,8 @@ Run `make project/update` to update all the dependencies using `poetry`.
 * Add your pending changes to the staging, commit, and push them to the origin.
 * Apply a semver tag to your repository by updating the current project version (note that this will update `pyproject.toml` accordingly):
   - `make tag/patch` - e.g., 0.1.0 -> 0.1.1
-  - `make tag/minor` - e.g., 0.1.1 -> 0.2.1
-  - `make tag/major` - e.g., 0.2.1 -> 1.0.1
+  - `make tag/minor` - e.g., 0.1.1 -> 0.2.0
+  - `make tag/major` - e.g., 0.2.0 -> 1.0.0
 * Run `make tag/push` to trigger the upload of a new release by excuting the GitHub Action `release.yml`.
 
 > [!WARNING]
@@ -144,33 +155,33 @@ Run `make project/update` to update all the dependencies using `poetry`.
 
 ## Build
 
-Run `make project/build` for building the project as a Python package.
+Run `make project/build` to build the project as a Python package.
 The `*.tar.gz` and `*.whl` will be placed in the `BUILD` directory (by default `dist/`).
 
 ## Documentation
 
 * Run `make docs/build` to build the project documentation using `mkdocstrings`. The documentation will be generated from your project files' comments in doctring format.
-The documenation files will be stored in the `DOCS_SITE` directory (by default `site/`).
+The documentation files will be stored in the `DOCS_SITE` directory (by default `site/`).
 * Run `make docs/server` to browse the built site locally, at http://127.0.0.1:8000/your-github-name/your-project-name/
-* Run `make docs/deploy` to publish the documentation site as GitHub pages. The content will be published to a separate branch, name `gh-pages`. Access the documenation online at https://your-github-name.github.io/your-project-name/
+* Run `make docs/deploy` to publish the documentation site as GitHub pages. The content will be published to a separate branch, name `gh-pages`. Access the documentation online at https://your-github-name.github.io/your-project-name/
 
 > [!NOTE]
-> You will have to edit the `mkdocs.yml` file to adapt them to your project's specifics. For example, it uses by default the `readthedocs` theme.
+> After the first deployment to your GitHub repository, your repository Pages settings (Settings > Pages) will be automatically updated to point to the documentation site content stored in the `gh-pages` branch.
 
-> [!WARNING]
-> After the first deploy to your GitHub repository, your repository Pages settings (Settings > Pages) will be automatically updated to point to the documentation site content stored in the `gh-pages` branch.
+> [!IMPORTANT]
+> You will have to edit the `mkdocs.yml` file to adapt it to your project's specifics. For example, it uses by default the `readthedocs` theme.
 
 ## Docker
 
 * To build the Docker container: `make docker/build`
-* To start the Dokcer container and run the application: `make docker/run`
+* To start the Docker container and run the application: `make docker/run`
 * To build and run: `make docker/all`
 
-> [!NOTE]
+> [!TIP]
 > Before building the container, edit `Dockerfile` and change the name of the folder containing your Python module (by default `python_pyenv_poetry_template`).
 
-> [!WARNING]
-> Pushing a new release to GitHub, will trigger the GitHub Action defined in `docker.yml`. To ensure a correct execution, you first need to add the `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets to your repository's 'Actions secrets and variables' settings page.
+> [!IMPORTANT]
+> Pushing a new release to GitHub, will trigger the GitHub Action defined in `docker.yml`. To ensure correct execution, you first need to add the `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets to your repository's 'Actions secrets and variables' settings page.
 
 ## Contributing
 
