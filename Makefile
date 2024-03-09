@@ -30,7 +30,8 @@ PROJECT_NAME ?= $(shell basename $(CURDIR))
 # make sure the project name is lowercase and has no spaces
 PROJECT_NAME := $(shell echo $(PROJECT_NAME) | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
 PROJECT_REPO ?= $(shell url=$$($(GIT) config --get remote.origin.url); echo $${url%.git})
-GITHUB_USER ?= $(shell echo $(PROJECT_REPO) | $(AWK) -F/ 'NF>=4{print $$4}')
+GITHUB_USER_NAME ?= $(shell echo $(PROJECT_REPO) | $(AWK) -F/ 'NF>=4{print $$4}')
+GITHUB_USER_EMAIL ?= $(shell $(GIT) config --get user.email || echo '')
 PROJECT_VERSION ?= $(shell $(POETRY) version -s 2>/dev/null || echo 0.1.0)
 PROJECT_DESCRIPTION ?= 'A short description of the project'
 PROJECT_LICENSE ?= MIT
@@ -40,7 +41,6 @@ PRECOMMIT_CONF ?= .pre-commit-config.yaml
 DOCKER_COMPOSE_FILE ?= docker-compose.yml
 DOCKER_IMAGE_NAME ?= $(PROJECT_NAME)
 DOCKER_CONTAINER_NAME ?= $(PROJECT_NAME)
-
 
 # Stamp files
 INSTALL_STAMP := .install.stamp
@@ -67,7 +67,7 @@ PY_FILES := $(shell find . -type f -name '*.py')
 PROJECT_INIT := .project-init
 DOCKER_FILES_TO_UPDATE := $(DOCKER_FILE) $(DOCKER_COMPOSE_FILE) entrypoint.sh
 PY_FILES_TO_UPDATE := $(SRC)/__main__.py $(TESTS)/test_main.py
-DOCS_FILES_TO_UPDATE :=  mkdocs.yml $(DOCS)/module.md
+DOCS_FILES_TO_UPDATE := $(DOCS)/module.md
 DOCS_FILES_TO_RESET := README.md $(DOCS)/index.md $(DOCS)/about.md
 
 # Colors
@@ -102,7 +102,7 @@ info: ## Show development environment info
 	@echo -e "$(MAGENTA)Project:$(RESET)"
 	@echo -e "  $(CYAN)Project name:$(RESET) $(PROJECT_NAME)"
 	@echo -e "  $(CYAN)Project directory:$(RESET) $(CURDIR)"
-	@echo -e "  $(CYAN)Project author:$(RESET) $(GITHUB_USER)"
+	@echo -e "  $(CYAN)Project author:$(RESET) $(GITHUB_USER_NAME) <$(GITHUB_USER_EMAIL)>"
 	@echo -e "  $(CYAN)Project repository:$(RESET) $(PROJECT_REPO)"
 	@echo -e "  $(CYAN)Project version:$(RESET) $(PROJECT_VERSION)"
 	@echo -e "  $(CYAN)Project license:$(RESET) $(PROJECT_LICENSE)"
@@ -241,11 +241,18 @@ $(INSTALL_STAMP): pyproject.toml
 			$(SED_INPLACE) "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(DOCKER_FILES_TO_UPDATE) ; \
 			$(SED_INPLACE) "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(PY_FILES_TO_UPDATE) ; \
 			$(SED_INPLACE) "s/python_pyenv_poetry_template/$(PROJECT_NAME)/g" $(DOCS_FILES_TO_UPDATE) ; \
+			$(SED_INPLACE) "1s/.*/$$NEW_TEXT/" $(DOCS_FILES_TO_UPDATE) ; \
 			NEW_TEXT="#$(PROJECT_NAME)\n\n$(subst ",,$(subst ',,$(PROJECT_DESCRIPTION)))"; \
 			for file in $(DOCS_FILES_TO_RESET); do \
 				echo -e $$NEW_TEXT > $$file; \
 			done; \
-			$(SED_INPLACE) "1s/.*/$$NEW_TEXT/" $(DOCS)/module.md ; \
+			$(SED_INPLACE) 's/copyright: MIT License 2024/copyright: $(LICENSE)/g' mkdocs.yml
+			$(SED_INPLACE) 's/site_name: python_pyenv_poetry_template/site_name: $(PROJECT_NAME)/g' mkdocs.yml
+			$(SED_INPLACE) 's/site_url: https:\/\/github\.com\/bateman\/python_pyenv_poetry_template/site_url: https:\/\/$(GITHUB_USER_NAME)\.github\.io\/$(PROJECT_NAME)/g' mkdocs.yml
+			$(SED_INPLACE) 's/site_description: A Python Pyenv Poetry template project./site_description: $(PROJECT_DESCRIPTION)/g' mkdocs.yml
+			$(SED_INPLACE) 's/site_author: Fabio Calefato <fcalefato@gmail.com>/site_author: $(GITHUB_USER_NAME) <$(GITHUB_USER_EMAIL)>/g' mkdocs.yml
+			$(SED_INPLACE) 's/repo_url: https:\/\/github\.com\/bateman\/python_pyenv_poetry_template/repo_url: $(PROJECT_REPO)/g' mkdocs.yml
+			$(SED_INPLACE) 's/repo_name: bateman\/python_pyenv_poetry_template/repo_name: $(GITHUB_USER_NAME)\/$(REPO_NAME)/g' mkdocs.yml
 			echo -e "$(GREEN)Project $(PROJECT_NAME) initialized.$(RESET)"; \
 			touch $(PROJECT_INIT); \
 		else \
@@ -445,4 +452,4 @@ docs/serve: dep/poetry $(DOCS_STAMP)  ## Serve the project documentation
 docs/deploy: dep/poetry $(DOCS_STAMP)  ## Deploy the project documentation
 	@echo -e "$(CYAN)\nDeploying the project documentation...$(RESET)"
 	@$(POETRY) run mkdocs gh-deploy
-	@echo -e "$(GREEN)Project documentation deployed at http://$(GITHUB_USER).github.io/$(PROJECT_NAME) $(RESET)"
+	@echo -e "$(GREEN)Project documentation deployed at http://$(GITHUB_USER_NAME).github.io/$(PROJECT_NAME) $(RESET)"
