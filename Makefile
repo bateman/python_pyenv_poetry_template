@@ -170,7 +170,7 @@ reset:  ## Cleans plus removes the virtual environment (use ARGS="hard" to re-in
 			$(MAKE) clean; \
 			echo -e "$(ORANGE)Resetting the project...$(RESET)"; \
 			rm -f .python-version > /dev/null || true ; \
-			rm -f poetry.lock > /dev/null || true ; \
+			$(GIT) checkout poetry.lock > /dev/null || true ; \
 			$(PYENV) virtualenv-delete -f $(PYENV_VIRTUALENV_NAME) ; \
 			if [ "$(ARGS)" = "hard" ]; then \
 				rm -f $(PROJECT_INIT) > /dev/null || true ; \
