@@ -102,7 +102,7 @@ PROJECT_DESCRIPTION='Override default values of project variables in Makefile.en
 PROJECT_LICENSE=MIT
 GITHUB_USER=bateman
 PROJECT_REPO=https://github.com/bateman/python_pyenv_poetry_template.git
-PYENV_VIRTUALENV_NAME= venvp3t
+PYENV_VIRTUALENV_NAME=venvp3t
 DOCKER_CONTAINER_NAME=p3t
 DOCKER_IMAGE_NAME=p3t
 ```
