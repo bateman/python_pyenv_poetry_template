@@ -104,11 +104,11 @@ DOCKER_IMAGE_NAME=p3t
 6. To create the virtual environment, run `make virtualenv`. Note that this will also check for the requested Python version; if not available, it will ask you to use `pyenv` to install it.
 7. To complete the installation for development purposes, run `make project/install` -- this will install all development dependencies. Otherwise, for production purposes only, run `make project/production`.
 
-> [!NOTE]
+> [!TIP]
 > The installation step will install some 'default' dependencies, such as `rich` and `pretty-errors`, but also dev-dependecies, such as `ruff` and `pytest`.
 > Edit the `pyproject.toml` to add/remove dependencies before running `make project/install`. Otherwise, you can add and remove dependencies later using `poetry add` and `poetry remove` commands.
 
-> [!WARNING]
+> [!NOTE]
 > The `PROJECT_NAME` var will be converted to lowercase and whitespaces will be replaced by `_`. This value will be the name of your project module.
 
 ## Development
@@ -119,7 +119,7 @@ The project uses the following development libraries:
 * `bandit`: for security analysis.
 * `pre-commit`: for automating all the checks above before committing.
 
-> [!NOTE]
+> [!TIP]
 > To manually run code formatting and linting, run `make check/format` and `make check/lint`, respectively.
 > To execute all the checks, stage your changes, then run `make check/precommit`.
 
@@ -128,11 +128,13 @@ The project uses the following development libraries:
 * To run the project: `make project/run`
 * To run the tests: `make project/tests`
 
-> [!NOTE]
+> [!TIP]
 > Pass parameters using the ARGS variable (e.g., `make project/run ARGS=--color red`).
+
+> [!NOTE]
 > Tests are executed using `pytest`. Test coverage is calculated using the plugin `pytest-cov`.
 
-> [!WARNING]
+> [!IMPORTANT]
 > Pushing new commits to GitHub, will trigger the GitHub Action defined in `test.yml`, which will try to upload the coverage report to [Codecov](https://about.codecov.io/). To ensure correct execution, first log in to Codecov and enable the coverage report for your repository; this will generate a `CODECOV_TOKEN`. Then, add the `CODECOV_TOKEN` to your repository's 'Actions secrets and variables' settings page.
 
 ## Update
@@ -164,10 +166,10 @@ The documentation files will be stored in the `DOCS_SITE` directory (by default 
 * Run `make docs/deploy` to publish the documentation site as GitHub pages. The content will be published to a separate branch, name `gh-pages`. Access the documentation online at https://your-github-name.github.io/your-project-name/
 
 > [!NOTE]
-> You will have to edit the `mkdocs.yml` file to adapt it to your project's specifics. For example, it uses by default the `readthedocs` theme.
-
-> [!WARNING]
 > After the first deployment to your GitHub repository, your repository Pages settings (Settings > Pages) will be automatically updated to point to the documentation site content stored in the `gh-pages` branch.
+
+> [!IMPORTANT]
+> You will have to edit the `mkdocs.yml` file to adapt it to your project's specifics. For example, it uses by default the `readthedocs` theme.
 
 ## Docker
 
@@ -175,10 +177,10 @@ The documentation files will be stored in the `DOCS_SITE` directory (by default 
 * To start the Docker container and run the application: `make docker/run`
 * To build and run: `make docker/all`
 
-> [!NOTE]
+> [!TIP]
 > Before building the container, edit `Dockerfile` and change the name of the folder containing your Python module (by default `python_pyenv_poetry_template`).
 
-> [!WARNING]
+> [!IMPORTANT]
 > Pushing a new release to GitHub, will trigger the GitHub Action defined in `docker.yml`. To ensure correct execution, you first need to add the `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets to your repository's 'Actions secrets and variables' settings page.
 
 ## Contributing
