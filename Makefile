@@ -92,7 +92,7 @@ help:  ## Show this help message
 	| $(SED) -e 's/\[36m #-- /\[35m/'
 
 .PHONY: info
-info: ## Show development environment info
+info:  ## Show development environment info
 	@echo -e "$(MAGENTA)\nSystem:$(RESET)"
 	@echo -e "  $(CYAN)OS:$(RESET) $(shell uname -s)"
 	@echo -e "  $(CYAN)Shell:$(RESET) $(SHELL) - $(shell $(SHELL) --version | head -n 1)"
@@ -182,7 +182,7 @@ reset:  ## Cleans plus removes the virtual environment (use ARGS="hard" to re-in
 	esac
 
 .PHONY: python
-python: dep/pyenv  ## Check if Python is installed
+python: | dep/pyenv  ## Check if Python is installed
 	@if ! $(PYENV) versions | grep $(PYTHON_VERSION) > /dev/null ; then \
 		echo -e "$(RED)Python version $(PYTHON_VERSION) not installed.$(RESET)"; \
 		echo -e "$(RED)To install it, run '$(PYENV) install $(PYTHON_VERSION)'.$(RESET)"; \
@@ -193,7 +193,7 @@ python: dep/pyenv  ## Check if Python is installed
 	fi
 
 .PHONY: virtualenv
-virtualenv: python  ## Check if virtualenv exists and activate it - create it if not
+virtualenv: | python  ## Check if virtualenv exists and activate it - create it if not
 	@if ! $(PYENV) virtualenvs | grep $(PYENV_VIRTUALENV_NAME) > /dev/null ; then \
 		echo -e "$(ORANGE)\nLocal virtualenv not found. Creating it...$(RESET)"; \
 		$(PYENV) virtualenv $(PYTHON_VERSION) $(PYENV_VIRTUALENV_NAME) || exit 1; \
@@ -205,11 +205,11 @@ virtualenv: python  ## Check if virtualenv exists and activate it - create it if
 	@echo -e "$(GREEN)Virtualenv activated.$(RESET)"
 
 .PHONY: poetry
-poetry: dep/poetry  ## Check if Poetry is installed
+poetry: | dep/poetry  ## Check if Poetry is installed
 	@echo -e "$(CYAN)\n$(shell $(POETRY) --version) available.$(RESET)"
 
 .PHONY: poetry-update
-poetry-update: dep/poetry  ## Update Poetry
+poetry-update: | dep/poetry  ## Update Poetry
 	@echo -e "$(CYAN)\nUpgrading Poetry...$(RESET)"
 	@$(POETRY) self update
 	@echo -e "$(GREEN)Poetry upgraded.$(RESET)"
@@ -220,7 +220,7 @@ poetry-update: dep/poetry  ## Update Poetry
 project/all: project/install project/build docs/build  ## Install and build the project, generate the documentation
 
 .PHONY: project/install
-project/install: dep/poetry $(INSTALL_STAMP) ## Install the project for development
+project/install: dep/poetry $(INSTALL_STAMP)  ## Install the project for development
 $(INSTALL_STAMP): pyproject.toml
 	@if [ ! -f .python-version ]; then \
 		echo -e "$(RED)\nVirtual environment missing. Please run 'make virtualenv' first.$(RESET)"; \
@@ -262,7 +262,7 @@ $(INSTALL_STAMP): pyproject.toml
 	fi
 
 .PHONY: project/update
-project/update: dep/poetry project/install  ## Update the project
+project/update: | dep/poetry project/install  ## Update the project
 	@echo -e "$(CYAN)\nUpdating the project...$(RESET)"
 	@$(POETRY) update
 	$(POETRY) lock
@@ -346,13 +346,13 @@ docker/run: dep/docker $(DOCKER_BUILD_STAMP)  ## Run the Docker container
 docker/all: docker/build docker/run  ## Build and run the Docker container
 
 .PHONY: docker/stop
-docker/stop: dep/docker dep/docker-compose  ## Stop the Docker container
+docker/stop: | dep/docker dep/docker-compose  ## Stop the Docker container
 	@echo -e "$(CYAN)\nStopping the Docker container...$(RESET)"
 	@DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME) DOCKER_CONTAINER_NAME=$(DOCKER_CONTAINER_NAME) $(DOCKER_COMPOSE) down
 	@echo -e "$(GREEN)Docker container stopped.$(RESET)"
 
 .PHONY: docker/remove
-docker/remove: dep/docker dep/docker-compose  ## Remove the Docker image, container, and volumes
+docker/remove: | dep/docker dep/docker-compose  ## Remove the Docker image, container, and volumes
 	@echo -e "$(CYAN)\nRemoving the Docker image...$(RESET)"
 	@DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME) DOCKER_CONTAINER_NAME=$(DOCKER_CONTAINER_NAME) $(DOCKER_COMPOSE) down -v --rmi all
 	@rm -f $(DOCKER_BUILD_STAMP)
@@ -361,7 +361,7 @@ docker/remove: dep/docker dep/docker-compose  ## Remove the Docker image, contai
 #-- Tag
 
 .PHONY: tag
-tag: dep/git
+tag: | dep/git
 	@$(eval TAG := $(shell $(GIT) describe --tags --abbrev=0))
 	@$(eval BEHIND_AHEAD := $(shell $(GIT) rev-list --left-right --count $(TAG)...origin/main))
 	@$(shell if [ "$(BEHIND_AHEAD)" = "0	0" ]; then echo "false" > $(RELEASE_STAMP); else echo "true" > $(RELEASE_STAMP); fi)
@@ -371,7 +371,7 @@ tag: dep/git
 	@echo -e "  $(CYAN)Needs release:$(RESET) $(shell cat $(RELEASE_STAMP))"
 
 .PHONY: staging
-staging: dep/git
+staging: | dep/git
 	@if $(GIT) diff --cached --quiet; then \
 		echo "true" > $(STAGING_STAMP); \
 	else \
@@ -381,7 +381,7 @@ staging: dep/git
 	echo -e "  $(CYAN)Staging area empty:$(RESET) $$(cat $(STAGING_STAMP))"
 
 .PHONY: tag/patch
-tag/patch: tag staging  ## Tag a new patch version release
+tag/patch: | tag staging  ## Tag a new patch version release
 	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
 	if [ "$$NEEDS_RELEASE" = "true" ]; then \
 		$(eval TAG := $(shell $(GIT) describe --tags --abbrev=0)) \
@@ -394,7 +394,7 @@ tag/patch: tag staging  ## Tag a new patch version release
 	fi
 
 .PHONY: tag/minor
-tag/minor: tag staging  ## Tag a new minor version release
+tag/minor: | tag staging  ## Tag a new minor version release
 	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
 	if [ "$$NEEDS_RELEASE" = "true" ]; then \
 		$(eval TAG := $(shell $(GIT) describe --tags --abbrev=0)) \
@@ -407,7 +407,7 @@ tag/minor: tag staging  ## Tag a new minor version release
 	fi
 
 .PHONY: tag/major
-tag/major: tag  staging  ## Tag a new major version release
+tag/major: | tag  staging  ## Tag a new major version release
 	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
 	if [ "$$NEEDS_RELEASE" = "true" ]; then \
 		$(eval TAG := $(shell $(GIT) describe --tags --abbrev=0)) \
@@ -420,7 +420,7 @@ tag/major: tag  staging  ## Tag a new major version release
 	fi
 
 .PHONY: tag/push
-tag/push: dep/git  ## Push the tag to origin - triggers the release action
+tag/push: | dep/git  ## Push the tag to origin - triggers the release action
 	@$(eval TAG := $(shell $(GIT) describe --tags --abbrev=0))
 	@$(eval REMOTE_TAGS := $(shell $(GIT) ls-remote --tags origin | $(AWK) '{print $$2}'))
 	@if echo $(REMOTE_TAGS) | grep -q $(TAG); then \
