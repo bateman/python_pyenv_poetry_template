@@ -95,8 +95,8 @@ Docker info:
   Docker image name: p3t
   Docker container name: p3t
 ```
-4. If any of the needed tools is missing, it will be marked as '*not installed*'. Install them and re-run `make info` to ensure the tools are now correctly installed and in your PATH.
-5. Update the project variables values by editing the file `Makefile.env`. Below is the list of variable that you can ovveride. If a variable is not provided, its default value will be used. Check the variable configuration using `make info`.
+4. If any of the needed tools are missing, it will be marked as '*not installed*'. Install them and re-run `make info` to ensure the tools are now correctly installed and in your PATH.
+5. Update the project variables values by editing the file `Makefile.env`. Below is the list of variable that you can override. If a variable is not provided, its default value will be used. Check the variable configuration using `make info`.
 ```bash
 PROJECT_NAME=P3T template
 PROJECT_VERSION=0.0.1
@@ -156,7 +156,7 @@ Run `make project/update` to update all the dependencies using `poetry`.
   - `make tag/patch` - e.g., 0.1.0 -> 0.1.1
   - `make tag/minor` - e.g., 0.1.1 -> 0.2.0
   - `make tag/major` - e.g., 0.2.0 -> 1.0.0
-* Run `make tag/push` to trigger the upload of a new release by excuting the GitHub Action `release.yml`.
+* Run `make tag/push` to trigger the upload of a new release by executing the GitHub Action `release.yml`.
 
 > [!WARNING]
 > Before uploading a new release, you need to add a `RELEASE_TOKEN` to your repository's 'Actions secrets and variables' settings page. The `RELEASE_TOKEN` is generated from your GitHub 'Developer Settings' page. Make sure to select the full `repo` scope when generating it.
@@ -168,10 +168,10 @@ The `*.tar.gz` and `*.whl` will be placed in the `BUILD` directory (by default `
 
 ## Documentation
 
-* Run `make docs/build` to build the project documentation using `mkdocstrings`. The documentation will be generated from your project files' comments in doctring format.
+* Run `make docs/build` to build the project documentation using `mkdocstrings`. The documentation will be generated from your project files' comments in docstring format.
 The documentation files will be stored in the `DOCS_SITE` directory (by default `site/`).
-* Run `make docs/server` to browse the built site locally, at http://127.0.0.1:8000/your-github-name/your-project-name/
-* Run `make docs/deploy` to publish the documentation site as GitHub pages. The content will be published to a separate branch, name `gh-pages`. Access the documentation online at https://your-github-name.github.io/your-project-name/
+* Run `make docs/serve` to browse the built site locally, at http://127.0.0.1:8000/your-github-name/your-project-name/
+* Run `make docs/deploy` to publish the documentation site as GitHub pages. The content will be published to a separate branch, named `gh-pages`. Access the documentation online at https://your-github-name.github.io/your-project-name/
 
 > [!NOTE]
 > After the first deployment to your GitHub repository, your repository Pages settings (Settings > Pages) will be automatically updated to point to the documentation site content stored in the `gh-pages` branch.
