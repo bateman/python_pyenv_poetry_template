@@ -12,7 +12,9 @@ A template repository for Python projects using Pyenv and Poetry.
 
 ## Makefile
 
-The project relies heavily on `make`, which is used to run *all* commands. Run `make` to see the list of the available targets.
+The project relies heavily on `make`, which is used to run *all* commands. It has been tested on macOS and Ubuntu 22.04. Windows users are strongly encouraged to install [WSL](https://learn.microsoft.com/en-us/windows/wsl/install).
+
+Run `make` to see the list of the available targets.
 
 ```console
 $ make
