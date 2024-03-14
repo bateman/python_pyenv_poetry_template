@@ -68,7 +68,7 @@ This is a template repository, so first things first, you create a new GitHub re
 
 1. Clone the repository: `git clone https://github.com/<your-github-name>/<your-project-name>.git `
 2. Navigate to the project directory: `cd <your-project-name>`
-3. Check the status of the dev environment: `make show` will list the tools currently installed and the default value of project vars, as in the example below:
+3. Check the status of the dev environment: `make info` will list the tools currently installed and the default value of project vars, as in the example below:
 ```console
 $ make info
 
