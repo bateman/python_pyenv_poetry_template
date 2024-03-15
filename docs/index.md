@@ -115,6 +115,9 @@ DOCKER_IMAGE_NAME=p3t
 > [!NOTE]
 > The `PROJECT_NAME` var will be converted to lowercase and whitespaces will be replaced by `_`. This value will be the name of your project module.
 
+> [!CRITICAL]
+> The `Makefile.env` should specify at least the `PYTHON_VERSION=...`. Otherwise, the GitHub Actions will fail.
+
 ## Development
 
 The project uses the following development libraries:
