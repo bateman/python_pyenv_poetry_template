@@ -13,10 +13,14 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+    - name: Extract Python version
+      id: get-python-version
+      run: |
+          echo "PYTHON_VERSION=$(grep 'PYTHON_VERSION' Makefile.env | sed 's/PYTHON_VERSION=//')" >> $GITHUB_ENV
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.12.1'
+        python-version: ${{ env.PYTHON_VERSION }}
     - name: Retrieve repo name
       id: reponame
       run: >-
