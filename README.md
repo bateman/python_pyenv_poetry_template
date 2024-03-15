@@ -116,7 +116,7 @@ DOCKER_IMAGE_NAME=p3t
 > The `PROJECT_NAME` var will be converted to lowercase and whitespaces will be replaced by `_`. This value will be the name of your project module.
 
 > [!CAUTION]
-> The `Makefile.env` should specify at least the `PYTHON_VERSION=...`. Otherwise, the GitHub Actions will fail.
+> The `Makefile.env` should specify at least the `PYTHON_VERSION=...`. Otherwise, the GitHub Actions will fail. Also, make sure that the Python version specified in `Makefile.env` (e.g., 3.12.1) satisfies the requirements in `pyproject.toml` file (e.g., python = "^3.12").
 
 ## Development
 
