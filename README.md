@@ -59,7 +59,7 @@ Tag
 Documentation
  docs/build            Generate the project documentation
  docs/serve            Serve the project documentation locally
- docs/deploy           Deploy the project documentation
+ docs/deploy           Deploy the project documentation to GitHub Pages
 ```
 
 ## Installation

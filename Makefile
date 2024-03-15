@@ -451,7 +451,7 @@ docs/serve: dep/poetry $(DOCS_STAMP)  ## Serve the project documentation locally
 	@$(POETRY) run mkdocs serve
 
 .PHONY: docs/deploy
-docs/deploy: dep/poetry $(DOCS_STAMP)  ## Deploy the project documentation
+docs/deploy: dep/poetry $(DOCS_STAMP)  ## Deploy the project documentation to GitHub Pages
 	@echo -e "$(CYAN)\nDeploying the project documentation...$(RESET)"
 	@$(POETRY) run mkdocs gh-deploy
 	@echo -e "$(GREEN)Project documentation deployed.$(RESET)"
