@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "python_pyenv_poetry_template"
-version = "0.4.6"
+version = "0.5.0"
 description = "A GitHub template for Python projects using Pyenv and Poetry"
 authors = [ "Fabio Calefato <fcalefato@gmail.com>",]
 readme = "README.md"
