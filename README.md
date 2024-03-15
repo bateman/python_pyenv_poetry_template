@@ -134,7 +134,7 @@ The project uses the following development libraries:
 * To run the tests: `make project/tests`
 
 > [!TIP]
-> Pass parameters using the ARGS variable (e.g., `make project/run ARGS=--color red`).
+> Pass parameters using the ARGS variable (e.g., `make project/run ARGS="--text Ciao --color red"`).
 
 > [!NOTE]
 > Tests are executed using `pytest`. Test coverage is calculated using the plugin `pytest-cov`.
