@@ -12,7 +12,9 @@ A template repository for Python projects using Pyenv and Poetry.
 
 ## Makefile
 
-The project relies heavily on `make`, which is used to run *all* commands. Run `make` to see the list of the available targets.
+The project relies heavily on `make`, which is used to run *all* commands. It has been tested on macOS and Ubuntu 22.04. Windows users are strongly encouraged to install [WSL](https://learn.microsoft.com/en-us/windows/wsl/install).
+
+Run `make` to see the list of the available targets.
 
 ```console
 $ make
@@ -37,7 +39,7 @@ Project
  project/run           Run the project (pass arguments with ARGS="...")
  project/tests         Run the tests (pass arguments with ARGS="...")
  project/production    Install the project for production
- project/deps-export   Export the project's dependencies
+ project/deps-export   Export the project's dependencies to requirements*.txt files
  project/build         Build the project as a package
 Check
  check/precommit       Run the pre-commit checks
@@ -56,7 +58,7 @@ Tag
  tag/push              Push the tag to origin - triggers the release action
 Documentation
  docs/build            Generate the project documentation
- docs/serve            Serve the project documentation
+ docs/serve            Serve the project documentation locally
  docs/deploy           Deploy the project documentation
 ```
 
@@ -66,7 +68,7 @@ This is a template repository, so first things first, you create a new GitHub re
 
 1. Clone the repository: `git clone https://github.com/<your-github-name>/<your-project-name>.git `
 2. Navigate to the project directory: `cd <your-project-name>`
-3. Check the status of the dev environment: `make show` will list the tools currently installed and the default value of project vars, as in the example below:
+3. Check the status of the dev environment: `make info` will list the tools currently installed and the default value of project vars, as in the example below:
 ```console
 $ make info
 
@@ -93,16 +95,10 @@ Docker info:
   Docker image name: p3t
   Docker container name: p3t
 ```
-4. If any of the needed tools is missing, it will be marked as '*not installed*'. Install them and re-run `make info` to ensure the tools are now correctly installed and in your PATH.
-5. Update the project variables values by editing the file `Makefile.env`. Below is the list of variable that you can ovveride. If a variable is not provided, its default value will be used. Check the variable configuration using `make info`.
+4. If any of the needed tools are missing, it will be marked as '*not installed*'. Install them and re-run `make info` to ensure the tools are now correctly installed and in your PATH.
+5. Update the project variables values by editing `pyproject.toml`. In addition, you can add any of the variables in the list below to a `Makefile.env` file to override the default values used in the  `Makefile`. You can check the variables configuration using `make info`.
 ```bash
-PROJECT_NAME=P3T template
-PROJECT_VERSION=0.0.1
-PROJECT_DESCRIPTION='Override default values of project variables in Makefile.env'
-PROJECT_LICENSE=MIT
-GITHUB_USER_NAME=bateman
-GITHUB_USER_EMAIL=nospam@email.org
-PROJECT_REPO=https://github.com/bateman/p3t.git
+PYTHON_VERSION=3.12.1
 PYENV_VIRTUALENV_NAME=venvp3t
 DOCKER_CONTAINER_NAME=p3t
 DOCKER_IMAGE_NAME=p3t
@@ -154,7 +150,7 @@ Run `make project/update` to update all the dependencies using `poetry`.
   - `make tag/patch` - e.g., 0.1.0 -> 0.1.1
   - `make tag/minor` - e.g., 0.1.1 -> 0.2.0
   - `make tag/major` - e.g., 0.2.0 -> 1.0.0
-* Run `make tag/push` to trigger the upload of a new release by excuting the GitHub Action `release.yml`.
+* Run `make tag/push` to trigger the upload of a new release by executing the GitHub Action `release.yml`.
 
 > [!WARNING]
 > Before uploading a new release, you need to add a `RELEASE_TOKEN` to your repository's 'Actions secrets and variables' settings page. The `RELEASE_TOKEN` is generated from your GitHub 'Developer Settings' page. Make sure to select the full `repo` scope when generating it.
@@ -166,10 +162,10 @@ The `*.tar.gz` and `*.whl` will be placed in the `BUILD` directory (by default `
 
 ## Documentation
 
-* Run `make docs/build` to build the project documentation using `mkdocstrings`. The documentation will be generated from your project files' comments in doctring format.
+* Run `make docs/build` to build the project documentation using `mkdocstrings`. The documentation will be generated from your project files' comments in docstring format.
 The documentation files will be stored in the `DOCS_SITE` directory (by default `site/`).
-* Run `make docs/server` to browse the built site locally, at http://127.0.0.1:8000/your-github-name/your-project-name/
-* Run `make docs/deploy` to publish the documentation site as GitHub pages. The content will be published to a separate branch, name `gh-pages`. Access the documentation online at https://your-github-name.github.io/your-project-name/
+* Run `make docs/serve` to browse the built site locally, at http://127.0.0.1:8000/your-github-name/your-project-name/
+* Run `make docs/deploy` to publish the documentation site as GitHub pages. The content will be published to a separate branch, named `gh-pages`. Access the documentation online at https://your-github-name.github.io/your-project-name/
 
 > [!NOTE]
 > After the first deployment to your GitHub repository, your repository Pages settings (Settings > Pages) will be automatically updated to point to the documentation site content stored in the `gh-pages` branch.
