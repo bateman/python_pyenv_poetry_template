@@ -58,7 +58,7 @@ Tag
  tag/push              Push the tag to origin - triggers the release action
 Documentation
  docs/build            Generate the project documentation
- docs/serve            Serve the project documentation
+ docs/serve            Serve the project documentation locally
  docs/deploy           Deploy the project documentation
 ```
 
