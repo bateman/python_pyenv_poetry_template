@@ -39,7 +39,7 @@ Project
  project/run           Run the project (pass arguments with ARGS="...")
  project/tests         Run the tests (pass arguments with ARGS="...")
  project/production    Install the project for production
- project/deps-export   Export the project's dependencies
+ project/deps-export   Export the project's dependencies to requirements*.txt files
  project/build         Build the project as a package
 Check
  check/precommit       Run the pre-commit checks
