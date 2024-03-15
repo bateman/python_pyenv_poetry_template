@@ -35,3 +35,11 @@ repos:
       - id: ruff
         args: [ --fix ]
       - id: ruff-format
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest
+        entry: pytest --cov=tests/
+        language: system
+        types: [python]
+        pass_filenames: false
