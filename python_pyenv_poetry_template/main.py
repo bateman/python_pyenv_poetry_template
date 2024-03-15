@@ -49,9 +49,9 @@ class OneClass:
         console = Console()
 
         if color is None:
-            r = random.randint(0, 255)  # nosec
-            g = random.randint(0, 255)  # nosec
-            b = random.randint(0, 255)  # nosec
+            r = random.randint(0, 255)  # noqa: S311
+            g = random.randint(0, 255)  # noqa: S311
+            b = random.randint(0, 255)  # noqa: S311
             color = f"rgb({r},{g},{b})"
         text = text or "\nHello, world!"
 
