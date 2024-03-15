@@ -20,7 +20,6 @@ tomlkit = "*"
 [tool.poetry.group.dev.dependencies]
 ruff = "*"
 mypy = "*"
-bandit = "*"
 pre-commit = "*"
 
 [tool.poetry.group.test.dependencies]
@@ -36,10 +35,6 @@ mkdocstrings-python = "*"
 [tool.mypy]
 ignore_missing_imports = true
 
-[tool.bandit]
-skips = [ "B104", "B610", "B611", "B702", "B703",]
-exclude_dirs = [ "tests/",]
-
 [tool.ruff]
 fix = true
 line-length = 88
@@ -48,7 +43,7 @@ indent-width = 4
 [tool.ruff.lint]
 fixable = ["ALL"]
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-extend-select = [ "I", "D",]
+extend-select = [ "I", "D", "S"]
 ignore = [ "D203", "D211", "D213", ]
 ignore-init-module-imports = true
 
