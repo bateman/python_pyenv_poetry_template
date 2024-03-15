@@ -72,24 +72,26 @@ This is a template repository, so first things first, you create a new GitHub re
 ```console
 $ make info
 
-System info:
+System:
   OS: Darwin
   Shell: /bin/bash - GNU bash, version 3.2.57(1)-release (arm64-apple-darwin23)
   Make: GNU Make 3.81
-  Git: git version 2.39.3 (Apple Git-145)
-Project info:
+  Git: git version 2.39.3 (Apple Git-146)
+Project:
   Project name: python_pyenv_poetry_template
   Project directory: /Users/fabio/Dev/git/python_pyenv_poetry_template
-  Project version: 0.1.0
+  Project author: Fabio Calefato (bateman <fcalefato@gmail.com>)
+  Project repository: https://github.com/bateman/python_pyenv_poetry_template
+  Project version: 0.4.4
   Project license: MIT
-  Project description: 'Override default values of project variables in Makefile.env'
-Python info:
+  Project description: 'A GitHub template for Python projects using Pyenv and Poetry'
+Python:
   Python version: 3.12.1
   Pyenv version: pyenv 2.3.36
   Pyenv root: /Users/fabio/.pyenv
-  Pyenv virtualenv name: venv-python_pyenv_poetry_template
-  Poetry version: Poetry (version 1.8.1)
-Docker info:
+  Pyenv virtualenv name: venvp3t
+  Poetry version: Poetry (version 1.8.2)
+Docker:
   Docker: Docker version 25.0.3, build 4debf41
   Docker Compose: Docker Compose version v2.24.6-desktop.1
   Docker image name: p3t
