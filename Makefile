@@ -66,6 +66,7 @@ COVERAGE := .coverage $(wildcard coverage.*)
 
 # Files
 PY_FILES := $(shell find . -type f -name '*.py')
+DOCS_FILES := $(shell find $(DOCS) -type f -name '*.md')
 PROJECT_INIT := .project-init
 DOCKER_FILES_TO_UPDATE := $(DOCKER_FILE) $(DOCKER_COMPOSE_FILE) entrypoint.sh
 PY_FILES_TO_UPDATE := $(SRC)/__main__.py $(TESTS)/test_main.py
@@ -438,7 +439,7 @@ tag/push: | dep/git  ## Push the tag to origin - triggers the release action
 
 .PHONY: docs/build
 docs/build: dep/poetry $(DOCS_STAMP)  ## Generate the project documentation
-$(DOCS_STAMP): $(DEPS_EXPORT_STAMP) mkdocs.yml
+$(DOCS_STAMP): $(DEPS_EXPORT_STAMP) $(DOCS_FILES) mkdocs.yml
 	@echo -e "$(CYAN)\nGenerating the project documentation...$(RESET)"
 	@$(POETRY) run mkdocs build
 	@echo -e "$(GREEN)Project documentation generated.$(RESET)"
@@ -453,4 +454,4 @@ docs/serve: dep/poetry $(DOCS_STAMP)  ## Serve the project documentation locally
 docs/deploy: dep/poetry $(DOCS_STAMP)  ## Deploy the project documentation
 	@echo -e "$(CYAN)\nDeploying the project documentation...$(RESET)"
 	@$(POETRY) run mkdocs gh-deploy
-	@echo -e "$(GREEN)Project documentation deployed at http://$(GITHUB_USER_NAME).github.io/$(PROJECT_NAME) $(RESET)"
+	@echo -e "$(GREEN)Project documentation deployed.$(RESET)"
