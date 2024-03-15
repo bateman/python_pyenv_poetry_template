@@ -233,7 +233,7 @@ $(INSTALL_STAMP): pyproject.toml
 		$(POETRY) install; \
 		$(POETRY) lock; \
 		$(POETRY) run pre-commit install; \
-		if [ ! -f $(PROJECT_INIT) ]; then \
+		if [ ! -f $(PROJECT_INIT) ] && [ "$(PROJECT_NAME)" != "python_pyenv_poetry_template" ]; then \
 			echo -e "$(CYAN)Updating project $(PROJECT_NAME) information...$(RESET)"; \
 			$(PYTHON) toml.py --name $(PROJECT_NAME) --ver $(PROJECT_VERSION) --desc $(PROJECT_DESCRIPTION) --repo $(PROJECT_REPO)  --lic $(PROJECT_LICENSE) ; \
 			echo -e "$(CYAN)Creating $(PROJECT_NAME) package module...$(RESET)"; \
