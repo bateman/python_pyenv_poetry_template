@@ -11,6 +11,7 @@ MAKE_VERSION := $(shell make --version | head -n 1 2> /dev/null)
 SED := $(shell command -v sed 2> /dev/null)
 SED_INPLACE := $(shell if $(SED) --version >/dev/null 2>&1; then echo "$(SED) -i"; else echo "$(SED) -i ''"; fi)
 AWK := $(shell command -v awk 2> /dev/null)
+GREP := $(shell command -v grep 2> /dev/null)
 POETRY := $(shell command -v poetry 2> /dev/null)
 PYENV := $(shell command -v pyenv 2> /dev/null)
 PYTHON := $(shell command -v python 2> /dev/null)
@@ -24,17 +25,17 @@ DOCKER_COMPOSE := $(shell if [ -n "$(DOCKER)" ]; then command -v docker-compose 
 DOCKER_COMPOSE_VERSION := $(shell if [ -n "$(DOCKER_COMPOSE)" ]; then $(DOCKER_COMPOSE) version 2> /dev/null; fi )
 
 # Project variables -- change as needed before running make install
-# override the defaults by setting the variables in a makefile.env file
+# override the defaults by setting the variables in a Makefile.env file
 -include Makefile.env
-PROJECT_NAME ?= $(shell basename $(CURDIR))
+PROJECT_NAME ?= $(shell $(GREP) 'name' pyproject.toml | $(SED) 's/name = //')
 # make sure the project name is lowercase and has no spaces
 PROJECT_NAME := $(shell echo $(PROJECT_NAME) | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
-PROJECT_REPO ?= $(shell url=$$($(GIT) config --get remote.origin.url); echo $${url%.git})
-GITHUB_USER_NAME ?= $(shell echo $(PROJECT_REPO) | $(AWK) -F/ 'NF>=4{print $$4}')
-GITHUB_USER_EMAIL ?= $(shell $(GIT) config --get user.email || echo '')
+PROJECT_REPO ?= $(shell $(GREP) 'repository' pyproject.toml | $(SED) 's/repository = //' || url=$$($(GIT) config --get remote.origin.url); echo $${url%.git})
+GITHUB_USER_NAME ?= $(shell $(AWK) -F'["<]' '/authors/ {sub(/[ \t]+$$/, "", $$2); print $$2}' pyproject.toml || $(GIT) config --get user.name || echo $(PROJECT_REPO) | $(AWK) -F/ 'NF>=4{print $$4}')
+GITHUB_USER_EMAIL ?= $(shell $(AWK) -F'[<>]' '/authors/ {print $$2}' pyproject.toml || $(GIT) config --get user.email || echo '')
 PROJECT_VERSION ?= $(shell $(POETRY) version -s 2>/dev/null || echo 0.1.0)
-PROJECT_DESCRIPTION ?= 'A short description of the project'
-PROJECT_LICENSE ?= MIT
+PROJECT_DESCRIPTION ?= '$(shell $(GREP) 'description' pyproject.toml | $(SED) 's/description = //')'
+PROJECT_LICENSE ?= $(shell $(GREP) 'license' pyproject.toml | $(SED) 's/license = //')
 PYTHON_VERSION ?= 3.12.1
 PYENV_VIRTUALENV_NAME ?= venv-$(shell echo "$(PROJECT_NAME)")
 PRECOMMIT_CONF ?= .pre-commit-config.yaml
@@ -443,7 +444,7 @@ $(DOCS_STAMP): $(DEPS_EXPORT_STAMP) mkdocs.yml
 	@touch $(DOCS_STAMP)
 
 .PHONY: docs/serve
-docs/serve: dep/poetry $(DOCS_STAMP)  ## Serve the project documentation
+docs/serve: dep/poetry $(DOCS_STAMP)  ## Serve the project documentation locally
 	@echo -e "$(CYAN)\nServing the project documentation...$(RESET)"
 	@$(POETRY) run mkdocs serve
 

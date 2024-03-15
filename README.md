@@ -96,15 +96,9 @@ Docker info:
   Docker container name: p3t
 ```
 4. If any of the needed tools are missing, it will be marked as '*not installed*'. Install them and re-run `make info` to ensure the tools are now correctly installed and in your PATH.
-5. Update the project variables values by editing the file `Makefile.env`. Below is the list of variable that you can override. If a variable is not provided, its default value will be used. Check the variable configuration using `make info`.
+5. Update the project variables values by editing `pyproject.toml`. In addition, you can add any of the variables in the list below to a `Makefile.env` file to override the default values used in the  `Makefile`. You can check the variables configuration using `make info`.
 ```bash
-PROJECT_NAME=P3T template
-PROJECT_VERSION=0.0.1
-PROJECT_DESCRIPTION='Override default values of project variables in Makefile.env'
-PROJECT_LICENSE=MIT
-GITHUB_USER_NAME=bateman
-GITHUB_USER_EMAIL=nospam@email.org
-PROJECT_REPO=https://github.com/bateman/p3t.git
+PYTHON_VERSION=3.12.1
 PYENV_VIRTUALENV_NAME=venvp3t
 DOCKER_CONTAINER_NAME=p3t
 DOCKER_IMAGE_NAME=p3t
