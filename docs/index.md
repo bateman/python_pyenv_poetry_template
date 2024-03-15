@@ -116,6 +116,7 @@ DOCKER_IMAGE_NAME=p3t
 ## Development
 
 The project uses the following development libraries:
+
 * `ruff`: for code linting and formatting.
 * `mypy`: for static type-checking.
 * `bandit`: for security analysis.
