@@ -20,7 +20,6 @@ GIT := $(shell command -v git 2> /dev/null)
 GIT_VERSION := $(shell $(GIT) --version 2> /dev/null || echo -e "\033[31mnot installed\033[0m")
 DOCKER := $(shell command -v docker 2> /dev/null)
 DOCKER_VERSION := $(shell if [ -n "$(DOCKER)" ]; then $(DOCKER) --version 2> /dev/null; fi)
-DOCKER_FILE := Dockerfile
 DOCKER_COMPOSE := $(shell if [ -n "$(DOCKER)" ]; then command -v docker-compose 2> /dev/null || echo "$(DOCKER) compose"; fi)
 DOCKER_COMPOSE_VERSION := $(shell if [ -n "$(DOCKER_COMPOSE)" ]; then $(DOCKER_COMPOSE) version 2> /dev/null; fi )
 
@@ -30,9 +29,9 @@ DOCKER_COMPOSE_VERSION := $(shell if [ -n "$(DOCKER_COMPOSE)" ]; then $(DOCKER_C
 PROJECT_NAME ?= $(shell $(GREP) 'name' pyproject.toml | $(SED) 's/name = //')
 # make sure the project name is lowercase and has no spaces
 PROJECT_NAME := $(shell echo $(PROJECT_NAME) | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
-PROJECT_REPO ?= $(shell $(GREP) 'repository' pyproject.toml | $(SED) 's/repository = //' || url=$$($(GIT) config --get remote.origin.url); echo $${url%.git})
-AUTHOR ?= $(shell $(AWK) -F'["<]' '/authors/ {sub(/[ \t]+$$/, "", $$2); print $$2}' pyproject.toml || $(GIT) config --get user.name)
-GITHUB_USER_NAME ?= $(shell echo $(PROJECT_REPO) | $(AWK) -F/ 'NF>=4{print $$4}')
+AUTHOR_NAME ?= $(shell $(AWK) -F'["<]' '/authors/ {sub(/[ \t]+$$/, "", $$2); print $$2}' pyproject.toml || $(GIT) config --get user.name)
+GITHUB_REPO ?= $(shell $(GREP) 'repository' pyproject.toml | $(SED) 's/repository = //' || url=$$($(GIT) config --get remote.origin.url); echo $${url%.git})
+GITHUB_USER_NAME ?= $(shell echo $(GITHUB_REPO) | $(AWK) -F/ 'NF>=4{print $$4}')
 GITHUB_USER_EMAIL ?= $(shell $(AWK) -F'[<>]' '/authors/ {print $$2}' pyproject.toml || $(GIT) config --get user.email || echo '')
 PROJECT_VERSION ?= $(shell $(POETRY) version -s 2>/dev/null || echo 0.1.0)
 PROJECT_DESCRIPTION ?= '$(shell $(GREP) 'description' pyproject.toml | $(SED) 's/description = //')'
@@ -40,6 +39,7 @@ PROJECT_LICENSE ?= $(shell $(GREP) 'license' pyproject.toml | $(SED) 's/license 
 PYTHON_VERSION ?= 3.12.1
 PYENV_VIRTUALENV_NAME ?= venv-$(shell echo "$(PROJECT_NAME)")
 PRECOMMIT_CONF ?= .pre-commit-config.yaml
+DOCKER_FILE ?= Dockerfile
 DOCKER_COMPOSE_FILE ?= docker-compose.yml
 DOCKER_IMAGE_NAME ?= $(PROJECT_NAME)
 DOCKER_CONTAINER_NAME ?= $(PROJECT_NAME)
@@ -104,8 +104,8 @@ info:  ## Show development environment info
 	@echo -e "$(MAGENTA)Project:$(RESET)"
 	@echo -e "  $(CYAN)Project name:$(RESET) $(PROJECT_NAME)"
 	@echo -e "  $(CYAN)Project directory:$(RESET) $(CURDIR)"
-	@echo -e "  $(CYAN)Project author:$(RESET) $(AUTHOR) ($(GITHUB_USER_NAME) <$(GITHUB_USER_EMAIL)>)"
-	@echo -e "  $(CYAN)Project repository:$(RESET) $(PROJECT_REPO)"
+	@echo -e "  $(CYAN)Project author:$(RESET) $(AUTHOR_NAME) ($(GITHUB_USER_NAME) <$(GITHUB_USER_EMAIL)>)"
+	@echo -e "  $(CYAN)Project repository:$(RESET) $(GITHUB_REPO)"
 	@echo -e "  $(CYAN)Project version:$(RESET) $(PROJECT_VERSION)"
 	@echo -e "  $(CYAN)Project license:$(RESET) $(PROJECT_LICENSE)"
 	@echo -e "  $(CYAN)Project description:$(RESET) $(PROJECT_DESCRIPTION)"
@@ -235,7 +235,7 @@ $(INSTALL_STAMP): pyproject.toml
 		$(POETRY) run pre-commit install; \
 		if [ ! -f $(PROJECT_INIT) ] && [ "$(PROJECT_NAME)" != "python_pyenv_poetry_template" ]; then \
 			echo -e "$(CYAN)Updating project $(PROJECT_NAME) information...$(RESET)"; \
-			$(PYTHON) toml.py --name $(PROJECT_NAME) --ver $(PROJECT_VERSION) --desc $(PROJECT_DESCRIPTION) --repo $(PROJECT_REPO)  --lic $(PROJECT_LICENSE) ; \
+			$(PYTHON) toml.py --name $(PROJECT_NAME) --ver $(PROJECT_VERSION) --desc $(PROJECT_DESCRIPTION) --repo $(GITHUB_REPO)  --lic $(PROJECT_LICENSE) ; \
 			echo -e "$(CYAN)Creating $(PROJECT_NAME) package module...$(RESET)"; \
 			mv python_pyenv_poetry_template/* $(SRC)/ ; \
 			rm -rf python_pyenv_poetry_template ; \
@@ -253,7 +253,7 @@ $(INSTALL_STAMP): pyproject.toml
 			$(SED_INPLACE) 's|site_url: https://github.com/bateman/python_pyenv_poetry_template|site_url: https:\/\/$(GITHUB_USER_NAME)\.github\.io\/$(PROJECT_NAME)|g' mkdocs.yml ; \
 			$(SED_INPLACE) 's|site_description: A Python Pyenv Poetry template project.|site_description: $(subst ",,$(subst ',,$(PROJECT_DESCRIPTION)))|g' mkdocs.yml ; \
 			$(SED_INPLACE) 's|site_author: Fabio Calefato <fcalefato@gmail.com>|site_author: $(GITHUB_USER_NAME) <$(GITHUB_USER_EMAIL)>|g' mkdocs.yml ; \
-			$(SED_INPLACE) 's|repo_url: https://github.com/bateman/python_pyenv_poetry_template|repo_url: $(PROJECT_REPO)|g' mkdocs.yml ; \
+			$(SED_INPLACE) 's|repo_url: https://github.com/bateman/python_pyenv_poetry_template|repo_url: $(GITHUB_REPO)|g' mkdocs.yml ; \
 			$(SED_INPLACE) 's|repo_name: bateman/python_pyenv_poetry_template|repo_name: $(GITHUB_USER_NAME)\/$(PROJECT_NAME)|g' mkdocs.yml ; \
 			echo -e "$(GREEN)Project $(PROJECT_NAME) initialized.$(RESET)"; \
 			touch $(PROJECT_INIT); \
