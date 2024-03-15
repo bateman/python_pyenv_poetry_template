@@ -31,7 +31,8 @@ PROJECT_NAME ?= $(shell $(GREP) 'name' pyproject.toml | $(SED) 's/name = //')
 # make sure the project name is lowercase and has no spaces
 PROJECT_NAME := $(shell echo $(PROJECT_NAME) | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
 PROJECT_REPO ?= $(shell $(GREP) 'repository' pyproject.toml | $(SED) 's/repository = //' || url=$$($(GIT) config --get remote.origin.url); echo $${url%.git})
-GITHUB_USER_NAME ?= $(shell $(AWK) -F'["<]' '/authors/ {sub(/[ \t]+$$/, "", $$2); print $$2}' pyproject.toml || $(GIT) config --get user.name || echo $(PROJECT_REPO) | $(AWK) -F/ 'NF>=4{print $$4}')
+AUTHOR ?= $(shell $(AWK) -F'["<]' '/authors/ {sub(/[ \t]+$$/, "", $$2); print $$2}' pyproject.toml || $(GIT) config --get user.name)
+GITHUB_USER_NAME ?= $(shell echo $(PROJECT_REPO) | $(AWK) -F/ 'NF>=4{print $$4}')
 GITHUB_USER_EMAIL ?= $(shell $(AWK) -F'[<>]' '/authors/ {print $$2}' pyproject.toml || $(GIT) config --get user.email || echo '')
 PROJECT_VERSION ?= $(shell $(POETRY) version -s 2>/dev/null || echo 0.1.0)
 PROJECT_DESCRIPTION ?= '$(shell $(GREP) 'description' pyproject.toml | $(SED) 's/description = //')'
@@ -102,7 +103,7 @@ info:  ## Show development environment info
 	@echo -e "$(MAGENTA)Project:$(RESET)"
 	@echo -e "  $(CYAN)Project name:$(RESET) $(PROJECT_NAME)"
 	@echo -e "  $(CYAN)Project directory:$(RESET) $(CURDIR)"
-	@echo -e "  $(CYAN)Project author:$(RESET) $(GITHUB_USER_NAME) <$(GITHUB_USER_EMAIL)>"
+	@echo -e "  $(CYAN)Project author:$(RESET) $(AUTHOR) ($(GITHUB_USER_NAME) <$(GITHUB_USER_EMAIL)>)"
 	@echo -e "  $(CYAN)Project repository:$(RESET) $(PROJECT_REPO)"
 	@echo -e "  $(CYAN)Project version:$(RESET) $(PROJECT_VERSION)"
 	@echo -e "  $(CYAN)Project license:$(RESET) $(PROJECT_LICENSE)"
@@ -289,7 +290,7 @@ $(PRODUCTION_STAMP): $(INSTALL_STAMP) $(UPDATE_STAMP)
 	@echo -e "$(GREEN)Project installed for production.$(RESET)"
 
 .PHONY: project/deps-export
-project/deps-export: dep/poetry $(DEPS_EXPORT_STAMP)  ## Export the project's dependencies
+project/deps-export: dep/poetry $(DEPS_EXPORT_STAMP)  ## Export the project's dependencies to requirements*.txt files
 $(DEPS_EXPORT_STAMP): pyproject.toml
 	@echo -e "$(CYAN)\nExporting the project dependencies...$(RESET)"
 	@$(POETRY) export -f requirements.txt --output requirements.txt --without-hashes --only main
