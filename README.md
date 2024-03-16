@@ -1,4 +1,6 @@
-# P3T - Python Pyenv Poetry Template <img src="https://raw.githubusercontent.com/bateman/python_pyenv_poetry_template/main/images/logo/logo-p3t-transparent-bg.png" width="80">
+<div align="center"><img src="https://raw.githubusercontent.com/bateman/python_pyenv_poetry_template/main/images/logo/logo-p3t-transparent-bg.png" width="110"></div>
+
+# Python Pyenv Poetry Template
 
 ![PyPI - Version](https://img.shields.io/pypi/v/python_pyenv_poetry_template?style=flat-square&color=%23007EC6)
 ![GitHub Release](https://img.shields.io/github/v/release/bateman/python_pyenv_poetry_template?style=flat-square)
