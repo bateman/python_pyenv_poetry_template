@@ -21,47 +21,48 @@ Run `make` to see the list of the available targets.
 $ make
 
 Usage:
- make [target]
+  make [target]
 
 Info
- help                  Show this help message
- info                  Show development environment info
+  help                  Show this help message
+  info                  Show development environment info
 System
- clean                 Clean the project - removes all cache dirs and stamp files
- reset                 Cleans plus removes the virtual environment (use ARGS="hard" to re-initialize the project)
- python                Check if Python is installed
- virtualenv            Check if virtualenv exists and activate it - create it if not
- poetry                Check if Poetry is installed
- poetry-update         Update Poetry
+  python                Check if Python is installed
+  virtualenv            Check if virtualenv exists and activate it - create it if not
+  poetry                Check if Poetry is installed
+  poetry-update         Update Poetry
 Project
- project/all           Install and build the project, generate the documentation
- project/install       Install the project for development
- project/update        Update the project
- project/run           Run the project (pass arguments with ARGS="...")
- project/tests         Run the tests (pass arguments with ARGS="...")
- project/production    Install the project for production
- project/deps-export   Export the project's dependencies to requirements*.txt files
- project/build         Build the project as a package
- project/publish       Manually publish the project to PyPI
+  project/install       Install the project for development
+  project/production    Install the project for production
+  project/update        Update the project
+  project/clean         Clean the project - removes all cache dirs and stamp files
+  project/reset         Cleans plus removes the virtual environment (use ARGS="hard" to re-initialize the project)
+  project/run           Run the project (pass arguments with ARGS="...")
+  project/tests         Run the tests (pass arguments with ARGS="...")
+  project/build         Build the project as a package
+  project/buildall      Build the project package and generate the documentation
+  project/publish       Publish the project to PyPI
+  project/publishall    Publish the project package to PyPI and the documentation to GitHub Pages
+  project/deps-export   Export the project's dependencies to requirements*.txt files
 Check
- check/precommit       Run the pre-commit checks
- check/format          Format the code
- check/lint            Lint the code
+  check/format          Format the code
+  check/lint            Lint the code
+  check/precommit       Run all pre-commit checks
 Docker
- docker/build          Build the Docker image
- docker/run            Run the Docker container
- docker/all            Build and run the Docker container
- docker/stop           Stop the Docker container
- docker/remove         Remove the Docker image, container, and volumes
+  docker/build          Build the Docker image
+  docker/run            Run the Docker container
+  docker/all            Build and run the Docker container
+  docker/stop           Stop the Docker container
+  docker/remove         Remove the Docker image, container, and volumes
 Tag
- tag/patch             Tag a new patch version release
- tag/minor             Tag a new minor version release
- tag/major             Tag a new major version release
- tag/push              Push the tag to origin - triggers the release action
+  tag/patch             Tag a new patch version release
+  tag/minor             Tag a new minor version release
+  tag/major             Tag a new major version release
+  tag/push              Push the tag to origin - triggers the release and docker actions
 Documentation
- docs/build            Generate the project documentation
- docs/serve            Serve the project documentation locally
- docs/publish          Manually publish the project documentation to GitHub Pages
+  docs/build            Generate the project documentation
+  docs/serve            Serve the project documentation locally
+  docs/publish          Publish the project documentation to GitHub Pages
 ```
 
 ## Installation
@@ -165,14 +166,26 @@ The `*.tar.gz` and `*.whl` will be placed in the `BUILD` directory (by default `
   - `make tag/major` - e.g., 0.2.0 -> 1.0.0
 * Run `make tag/push` to trigger the upload of a new release by executing the GitHub Action `release.yml`.
 
-> [!WARNING]
-> Before uploading a new release, you need to add a `RELEASE_TOKEN` to your repository's 'Actions secrets and variables' settings page. The `RELEASE_TOKEN` is generated from your GitHub 'Developer Settings' page. Make sure to select the full `repo` scope when generating it.
+### GitHub Actions
+
+As shown in the table below, there are four GitHub Actions workflow. Take note on the event triggering the run and the Secrets needed for a succesfull execution.
+
+| **Action name** | **Purpose**                                | **Runs on**                                    | **Secrets**                             |
+|:---------------:|--------------------------------------------|------------------------------------------------|-----------------------------------------|
+|  `release.yml`  | Release package to PyPI and GitHub 📦       | tag push                                       | -                                       |
+|   `docker.yml`  | Push image to DockerHub 🚀                  | tag push                                       | `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN` |
+|   `tests.yml`   | Run tests and upload coverage to Codecov 📊 | commit push on branches != `main`, manual             | `CODECOV_TOKEN`                         |
+|    `docs.yml`   | Upload documentation to GitHub Pages 📓     | commit push on `main` branch (path `docs/**`), manual | `RELEASE_TOKEN`                         |
+
+> [!CAUTION]
+> Follow this [guide](https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/#configuring-trusted-publishing) and configure PyPI’s trusted publishing implementation to connect to GitHub Actions CI/CD. Otherwise, the release workflow will fail.
 
 ## Publish to PyPI
 
 To manually publish your package to PyPI, run `make project/publish`. If necessary, this will build the project as a Python package and upload the generated `*.tar.gz` and `*.whl` files to PyPI.
 
-[!IMPORTANT] Before publishing to PyPI, make sure you have a valid PyPI account and API token. Then, you need manually configure `poetry` running the following command: `poetry config pypi-token.pypi <your-api-token>`.
+> [!IMPORTANT]
+> Before trying manually publish your package to PyPI, make sure you have a valid API token. Then, you need manually configure `poetry` running the following command: `poetry config pypi-token.pypi <your-api-token>`.
 
 ## Documentation
 
@@ -187,6 +200,9 @@ The documentation files will be stored in the `DOCS_SITE` directory (by default 
 > [!IMPORTANT]
 > You will have to edit the `mkdocs.yml` file to adapt it to your project's specifics. For example, it uses by default the `readthedocs` theme.
 
+> [!WARNING]
+> Before being able to succesfully publishing the project documentation to GitHub pages, you need to add a `RELEASE_TOKEN` to your repository's 'Actions secrets and variables' settings page. The `RELEASE_TOKEN` is generated from your GitHub 'Developer Settings' page. Make sure to select the full `repo` scope when generating it.
+
 ## Docker
 
 * To build the Docker container: `make docker/build`
@@ -196,7 +212,7 @@ The documentation files will be stored in the `DOCS_SITE` directory (by default 
 > [!TIP]
 > Before building the container, edit `Dockerfile` and change the name of the folder containing your Python module (by default `python_pyenv_poetry_template`).
 
-> [!IMPORTANT]
+> [!WARNING]
 > Pushing a new release to GitHub, will trigger the GitHub Action defined in `docker.yml`. To ensure correct execution, you first need to add the `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets to your repository's 'Actions secrets and variables' settings page.
 
 ## Contributing
