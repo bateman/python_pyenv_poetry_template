@@ -1,13 +1,16 @@
-name: Release
+name: Release package to PyPI and GitHub 📦
 
 on:
   push:
     tags:
       - '*'
 
+env:
+  PACKAGE_NAME: ''
+
 jobs:
-  release:
-    name: Release
+  build:
+    name: Build the package
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -24,30 +27,67 @@ jobs:
         uses: Gr1N/setup-poetry@v8
       - name: Install dependencies
         run: poetry install
-      - name: Build package
+      - name: Build a binary wheel and a source tarball
         run: poetry build
-      - name: Retrieve tag
-        id: tag
-        run: 'echo "version=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_OUTPUT'
-      - name: Retrieve repo name
-        id: reponame
+      - name: Store the distribution packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: python-package-distributions
+          path: dist/
+      - name: Retrieve package name
+        id: packagename
         run: >-
-          echo "name=$(echo ${{ github.repository }} | cut -d '/' -f 2)" >>
-          $GITHUB_OUTPUT
-      - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: '${{ secrets.RELEASE_TOKEN }}'
-        with:
-          name: '${{ steps.reponame.outputs.name }} ver. ${{ steps.tag.outputs.version }}'
-          generate_release_notes: null
-          files: >
-            "./dist/${{ steps.reponame.outputs.name }}-${{ steps.tag.outputs.version }}.tar.gz"
-      - name: Upload docs to GitHub Pages
-        uses: crazy-max/ghaction-github-pages@v4
-        with:
-          target_branch: gh-pages
-          build_dir: docs
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          echo "PACKAGE_NAME=$(echo ${{ github.repository }} | cut -d '/' -f 2)" >> $GITHUB_ENV
+
+  publish-to-pypi:
+    name: Publish distribution to PyPI
+    needs:
+    - build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/${{ env.PACKAGE_NAME }}
+    permissions:
+      id-token: write  # IMPORTANT: mandatory for trusted publishing
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v3
+      with:
+        name: python-package-distributions
+        path: dist/
+    - name: Publish distribution to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+
+  github-release:
+    name: Sign the Python packages with Sigstore and upload them to GitHub Release
+    needs:
+    - publish-to-pypi
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # IMPORTANT: mandatory for making GitHub Releases
+      id-token: write  # IMPORTANT: mandatory for sigstore
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v3
+      with:
+        name: python-package-distributions
+        path: dist/
+    - name: Sign the dists with Sigstore
+      uses: sigstore/gh-action-sigstore-python@v2.1.1
+      with:
+        inputs: >-
+          ./dist/*.tar.gz
+          ./dist/*.whl
+    - name: Create GitHub Release
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      run: >-
+        gh release create '${{ github.ref_name }}' --repo '${{ github.repository }}' --notes ""
+    - name: Upload artifact signatures to GitHub Release
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      # Upload to GitHub Release using the `gh` CLI.
+      # `dist/` contains the built packages, and the
+      # sigstore-produced signatures and certificates.
+      run: >-
+        gh release upload '${{ github.ref_name }}' dist/** --repo '${{ github.repository }}'
