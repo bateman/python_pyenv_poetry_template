@@ -1,4 +1,4 @@
-name: Upload documentation to GitHub Pages
+name: Upload documentation to GitHub Pages 📓
 
 on:
   push:
