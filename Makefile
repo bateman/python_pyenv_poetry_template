@@ -312,7 +312,7 @@ project/publishall: project/publish docs/publish  ## Publish the project package
 
 .PHONY: project/deps-export
 project/deps-export: dep/poetry $(DEPS_EXPORT_STAMP)  ## Export the project's dependencies to requirements*.txt files
-$(DEPS_EXPORT_STAMP): pyproject.toml
+$(DEPS_EXPORT_STAMP): pyproject.toml poetry.lock
 	@echo -e "$(CYAN)\nExporting the project dependencies...$(RESET)"
 	@$(POETRY) export -f requirements.txt --output requirements.txt --without-hashes --only main
 	@$(POETRY) export -f requirements.txt --output requirements-dev.txt --without-hashes --with dev --without docs
@@ -449,8 +449,8 @@ tag/push: | dep/git  ## Push the tag to origin - triggers the release and docker
 #-- Documentation
 
 .PHONY: docs/build
-docs/build: dep/poetry $(DOCS_STAMP)  ## Generate the project documentation
-$(DOCS_STAMP): $(DEPS_EXPORT_STAMP) $(DOCS_FILES) mkdocs.yml
+docs/build: dep/poetry $(DOCS_STAMP) $(DEPS_EXPORT_STAMP)  ## Generate the project documentation
+$(DOCS_STAMP): $(DOCS_FILES) mkdocs.yml
 	@echo -e "$(CYAN)\nGenerating the project documentation...$(RESET)"
 	@$(POETRY) run mkdocs build
 	@echo -e "$(GREEN)Project documentation generated.$(RESET)"
@@ -462,7 +462,7 @@ docs/serve: dep/poetry $(DOCS_STAMP)  ## Serve the project documentation locally
 	@$(POETRY) run mkdocs serve
 
 .PHONY: docs/publish
-docs/publish: dep/poetry $(DOCS_STAMP)  ## Publish the project documentation to GitHub Pages
+docs/publish: dep/poetry $(DOCS_STAMP)  ## Publish the project documentation to GitHub Pages (pass arguments with ARGS="...")
 	@echo -e "$(CYAN)\nPublishing the project documentation to GitHub Pages...$(RESET)"
-	@$(POETRY) run mkdocs gh-deploy
+	@$(POETRY) run mkdocs gh-deploy $(ARGS)
 	@echo -e "$(GREEN)Project documentation published.$(RESET)"
