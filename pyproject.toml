@@ -28,6 +28,7 @@ pytest-cov = "*"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "*"
+mkdocs-material = "*"
 mkdocstrings = "*"
 mkdocs-autorefs = "*"
 mkdocstrings-python = "*"

@@ -14,7 +14,7 @@ copyright: MIT License 2024
 
 # Configuration
 theme:
-  name: readthedocs
+  name: material
 
 plugins:
   - search
