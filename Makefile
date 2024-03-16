@@ -309,8 +309,8 @@ $(BUILD_STAMP): pyproject.toml
 	@touch $(BUILD_STAMP)
 
 .PHONY: project/publish
-project/publish: dep/poetry $(BUILD_STAMP)  ## Publish the project to PyPI
-	@echo -e "$(CYAN)\nPublishing the project...$(RESET)"
+project/publish: dep/poetry $(BUILD_STAMP)  ## Manually publish the project to PyPI
+	@echo -e "$(CYAN)\nPublishing the project to PyPI...$(RESET)"
 	@$(POETRY) publish
 	@if [ $$? -eq 0 ]; then \
 		echo -e "$(GREEN)Project published.$(RESET)"; \
@@ -457,8 +457,8 @@ docs/serve: dep/poetry $(DOCS_STAMP)  ## Serve the project documentation locally
 	@echo -e "$(CYAN)\nServing the project documentation...$(RESET)"
 	@$(POETRY) run mkdocs serve
 
-.PHONY: docs/deploy
-docs/deploy: dep/poetry $(DOCS_STAMP)  ## Deploy the project documentation to GitHub Pages
-	@echo -e "$(CYAN)\nDeploying the project documentation...$(RESET)"
+.PHONY: docs/publish
+docs/publish: dep/poetry $(DOCS_STAMP)  ## Manually publish the project documentation to GitHub Pages
+	@echo -e "$(CYAN)\nPublishing the project documentation to GitHub Pages...$(RESET)"
 	@$(POETRY) run mkdocs gh-deploy
-	@echo -e "$(GREEN)Project documentation deployed.$(RESET)"
+	@echo -e "$(GREEN)Project documentation published.$(RESET)"

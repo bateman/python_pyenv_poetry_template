@@ -41,7 +41,7 @@ Project
  project/production    Install the project for production
  project/deps-export   Export the project's dependencies to requirements*.txt files
  project/build         Build the project as a package
- project/publish       Publish the project to PyPI
+ project/publish       Manually publish the project to PyPI
 Check
  check/precommit       Run the pre-commit checks
  check/format          Format the code
@@ -60,7 +60,7 @@ Tag
 Documentation
  docs/build            Generate the project documentation
  docs/serve            Serve the project documentation locally
- docs/deploy           Deploy the project documentation to GitHub Pages
+ docs/publish          Manually publish the project documentation to GitHub Pages
 ```
 
 ## Installation
@@ -178,7 +178,7 @@ To manually publish your package to PyPI, run `make project/publish`. If necessa
 * Run `make docs/build` to build the project documentation using `mkdocstrings`. The documentation will be generated from your project files' comments in docstring format.
 The documentation files will be stored in the `DOCS_SITE` directory (by default `site/`).
 * Run `make docs/serve` to browse the built site locally, at http://127.0.0.1:8000/your-github-name/your-project-name/
-* Run `make docs/deploy` to publish the documentation site as GitHub pages. The content will be published to a separate branch, named `gh-pages`. Access the documentation online at https://your-github-name.github.io/your-project-name/
+* Run `make docs/publish` to publish the documentation site as GitHub pages. The content will be published to a separate branch, named `gh-pages`. Access the documentation online at https://your-github-name.github.io/your-project-name/
 
 > [!NOTE]
 > After the first deployment to your GitHub repository, your repository Pages settings (Settings > Pages) will be automatically updated to point to the documentation site content stored in the `gh-pages` branch.
