@@ -74,10 +74,10 @@ DOCS_FILES_TO_RESET := README.md $(DOCS)/index.md $(DOCS)/about.md
 
 # Colors
 RESET := \033[0m
-RED := \033[0;31m
+RED := \033[1;31m
 GREEN := \033[0;32m
 ORANGE := \033[0;33m
-MAGENTA := \033[0;35m
+MAGENTA := \033[1;35m
 CYAN := \033[0;36m
 
 # Intentionally left empty
@@ -89,13 +89,14 @@ ARGS ?=
 .PHONY: help
 help:  ## Show this help message
 	@echo -e "\n$(MAGENTA)$(PROJECT_NAME) v$(PROJECT_VERSION) Makefile$(RESET)"
-	@echo -e "\n$(MAGENTA)Usage:\n$(RESET) make $(CYAN)[target]$(RESET)\n"
+	@echo -e "\n$(MAGENTA)Usage:\n$(RESET)  make $(CYAN)[target]$(RESET)\n"
 	@grep -E '^[0-9a-zA-Z_-]+(/?[0-9a-zA-Z_-]*)*:.*?## .*$$|(^#--)' $(firstword $(MAKEFILE_LIST)) \
-	| $(AWK) 'BEGIN {FS = ":.*?## "}; {printf "\033[36m %-21s\033[0m %s\n", $$1, $$2}' \
-	| $(SED) -e 's/\[36m #-- /\[35m/'
+	| $(AWK) 'BEGIN {FS = ":.*?## "}; {printf "\033[36m  %-21s\033[0m %s\n", $$1, $$2}' \
+	| $(SED) -e 's/\[36m  #-- /\[1;35m/'
 
 .PHONY: info
 info:  ## Show development environment info
+	@echo -e "\n$(MAGENTA)$(PROJECT_NAME) v$(PROJECT_VERSION)$(RESET)"
 	@echo -e "$(MAGENTA)\nSystem:$(RESET)"
 	@echo -e "  $(CYAN)OS:$(RESET) $(shell uname -s)"
 	@echo -e "  $(CYAN)Shell:$(RESET) $(SHELL) - $(shell $(SHELL) --version | head -n 1)"
@@ -103,12 +104,12 @@ info:  ## Show development environment info
 	@echo -e "  $(CYAN)Git:$(RESET) $(GIT_VERSION)"
 	@echo -e "$(MAGENTA)Project:$(RESET)"
 	@echo -e "  $(CYAN)Project name:$(RESET) $(PROJECT_NAME)"
-	@echo -e "  $(CYAN)Project directory:$(RESET) $(CURDIR)"
+	@echo -e "  $(CYAN)Project description:$(RESET) $(PROJECT_DESCRIPTION)"
 	@echo -e "  $(CYAN)Project author:$(RESET) $(AUTHOR_NAME) ($(GITHUB_USER_NAME) <$(GITHUB_USER_EMAIL)>)"
-	@echo -e "  $(CYAN)Project repository:$(RESET) $(GITHUB_REPO)"
 	@echo -e "  $(CYAN)Project version:$(RESET) $(PROJECT_VERSION)"
 	@echo -e "  $(CYAN)Project license:$(RESET) $(PROJECT_LICENSE)"
-	@echo -e "  $(CYAN)Project description:$(RESET) $(PROJECT_DESCRIPTION)"
+	@echo -e "  $(CYAN)Project repository:$(RESET) $(GITHUB_REPO)"
+	@echo -e "  $(CYAN)Project directory:$(RESET) $(CURDIR)"
 	@echo -e "$(MAGENTA)Python:$(RESET)"
 	@echo -e "  $(CYAN)Python version:$(RESET) $(PYTHON_VERSION)"
 	@echo -e "  $(CYAN)Pyenv version:$(RESET) $(shell $(PYENV) --version || echo "$(RED)not installed $(RESET)")"
