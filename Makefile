@@ -89,7 +89,7 @@ ARGS ?=
 .PHONY: help
 help:  ## Show this help message
 	@echo -e "\n$(MAGENTA)$(PROJECT_NAME) v$(PROJECT_VERSION) Makefile$(RESET)"
-	@echo -e "\n$(MAGENTA)Usage:\n$(RESET)  make $(CYAN)[target]$(RESET)\n"
+	@echo -e "\n$(MAGENTA)Usage:\n$(RESET)  make $(CYAN)[target] [ARGS=\"...\"]$(RESET)\n"
 	@grep -E '^[0-9a-zA-Z_-]+(/?[0-9a-zA-Z_-]*)*:.*?## .*$$|(^#--)' $(firstword $(MAKEFILE_LIST)) \
 	| $(AWK) 'BEGIN {FS = ":.*?## "}; {printf "\033[36m  %-21s\033[0m %s\n", $$1, $$2}' \
 	| $(SED) -e 's/\[36m  #-- /\[1;35m/'
@@ -279,11 +279,11 @@ project/reset:  ## Cleans plus removes the virtual environment (use ARGS="hard" 
 	esac
 
 .PHONY: project/run
-project/run: dep/python $(INSTALL_STAMP)  ## Run the project (pass arguments with ARGS="...")
+project/run: dep/python $(INSTALL_STAMP)  ## Run the project
 	@$(PYTHON) -m $(SRC) $(ARGS)
 
 .PHONY: project/tests
-project/tests: dep/poetry $(INSTALL_STAMP)  ## Run the tests (pass arguments with ARGS="...")
+project/tests: dep/poetry $(INSTALL_STAMP)  ## Run the tests
 	@echo -e "$(CYAN)\nRunning the tests...$(RESET)"
 	@$(POETRY) run pytest --cov $(TESTS) $(ARGS)
 
@@ -339,38 +339,6 @@ check/precommit: $(INSTALL_STAMP) $(PRECOMMIT_CONF)  ## Run all pre-commit check
 	@echo -e "$(CYAN)\nRunning the pre-commit checks...$(RESET)"
 	@$(POETRY) run pre-commit run --all-files
 	@echo -e "$(GREEN)Pre-commit checks completed.$(RESET)"
-
-#-- Docker
-
-.PHONY: docker/build
-docker/build: dep/docker dep/docker-compose $(INSTALL_STAMP) $(DEPS_EXPORT_STAMP) $(DOCKER_BUILD_STAMP)  ## Build the Docker image
-$(DOCKER_BUILD_STAMP): $(DOCKER_FILE) $(DOCKER_COMPOSE_FILE)
-	@echo -e "$(CYAN)\nBuilding the Docker image...$(RESET)"
-	@DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME) DOCKER_CONTAINER_NAME=$(DOCKER_CONTAINER_NAME) $(DOCKER_COMPOSE) build
-	@echo -e "$(GREEN)Docker image built.$(RESET)"
-	@touch $(DOCKER_BUILD_STAMP)
-
-.PHONY: docker/run
-docker/run: dep/docker $(DOCKER_BUILD_STAMP)  ## Run the Docker container
-	@echo -e "$(CYAN)\nRunning the Docker container...$(RESET)"
-	@DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME) DOCKER_CONTAINER_NAME=$(DOCKER_CONTAINER_NAME) ARGS="$(ARGS)" $(DOCKER_COMPOSE) up
-	@echo -e "$(GREEN)Docker container executed.$(RESET)"
-
-.PHONY: docker/all
-docker/all: docker/build docker/run  ## Build and run the Docker container
-
-.PHONY: docker/stop
-docker/stop: | dep/docker dep/docker-compose  ## Stop the Docker container
-	@echo -e "$(CYAN)\nStopping the Docker container...$(RESET)"
-	@DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME) DOCKER_CONTAINER_NAME=$(DOCKER_CONTAINER_NAME) $(DOCKER_COMPOSE) down
-	@echo -e "$(GREEN)Docker container stopped.$(RESET)"
-
-.PHONY: docker/remove
-docker/remove: | dep/docker dep/docker-compose  ## Remove the Docker image, container, and volumes
-	@echo -e "$(CYAN)\nRemoving the Docker image...$(RESET)"
-	@DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME) DOCKER_CONTAINER_NAME=$(DOCKER_CONTAINER_NAME) $(DOCKER_COMPOSE) down -v --rmi all
-	@rm -f $(DOCKER_BUILD_STAMP)
-	@echo -e "$(GREEN)Docker image removed.$(RESET)"
 
 #-- Tag
 
@@ -446,6 +414,38 @@ tag/push: | dep/git  ## Push the tag to origin - triggers the release and docker
 		echo -e "$(GREEN)Release $(TAG) pushed.$(RESET)"; \
 	fi
 
+#-- Docker
+
+.PHONY: docker/build
+docker/build: dep/docker dep/docker-compose $(INSTALL_STAMP) $(DEPS_EXPORT_STAMP) $(DOCKER_BUILD_STAMP)  ## Build the Docker image
+$(DOCKER_BUILD_STAMP): $(DOCKER_FILE) $(DOCKER_COMPOSE_FILE)
+	@echo -e "$(CYAN)\nBuilding the Docker image...$(RESET)"
+	@DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME) DOCKER_CONTAINER_NAME=$(DOCKER_CONTAINER_NAME) $(DOCKER_COMPOSE) build
+	@echo -e "$(GREEN)Docker image built.$(RESET)"
+	@touch $(DOCKER_BUILD_STAMP)
+
+.PHONY: docker/run
+docker/run: dep/docker $(DOCKER_BUILD_STAMP)  ## Run the Docker container
+	@echo -e "$(CYAN)\nRunning the Docker container...$(RESET)"
+	@DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME) DOCKER_CONTAINER_NAME=$(DOCKER_CONTAINER_NAME) ARGS="$(ARGS)" $(DOCKER_COMPOSE) up
+	@echo -e "$(GREEN)Docker container executed.$(RESET)"
+
+.PHONY: docker/all
+docker/all: docker/build docker/run  ## Build and run the Docker container
+
+.PHONY: docker/stop
+docker/stop: | dep/docker dep/docker-compose  ## Stop the Docker container
+	@echo -e "$(CYAN)\nStopping the Docker container...$(RESET)"
+	@DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME) DOCKER_CONTAINER_NAME=$(DOCKER_CONTAINER_NAME) $(DOCKER_COMPOSE) down
+	@echo -e "$(GREEN)Docker container stopped.$(RESET)"
+
+.PHONY: docker/remove
+docker/remove: | dep/docker dep/docker-compose  ## Remove the Docker image, container, and volumes
+	@echo -e "$(CYAN)\nRemoving the Docker image...$(RESET)"
+	@DOCKER_IMAGE_NAME=$(DOCKER_IMAGE_NAME) DOCKER_CONTAINER_NAME=$(DOCKER_CONTAINER_NAME) $(DOCKER_COMPOSE) down -v --rmi all
+	@rm -f $(DOCKER_BUILD_STAMP)
+	@echo -e "$(GREEN)Docker image removed.$(RESET)"
+
 #-- Documentation
 
 .PHONY: docs/build
@@ -462,7 +462,7 @@ docs/serve: dep/poetry $(DOCS_STAMP)  ## Serve the project documentation locally
 	@$(POETRY) run mkdocs serve
 
 .PHONY: docs/publish
-docs/publish: dep/poetry $(DOCS_STAMP)  ## Publish the project documentation to GitHub Pages (pass arguments with ARGS="...")
+docs/publish: dep/poetry $(DOCS_STAMP)  ## Publish the project documentation to GitHub Pages (use ARGS="--force" to force the deployment)
 	@echo -e "$(CYAN)\nPublishing the project documentation to GitHub Pages...$(RESET)"
 	@$(POETRY) run mkdocs gh-deploy $(ARGS)
 	@echo -e "$(GREEN)Project documentation published.$(RESET)"
