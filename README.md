@@ -165,9 +165,6 @@ The `*.tar.gz` and `*.whl` will be placed in the `BUILD` directory (by default `
   - `make tag/major` - e.g., 0.2.0 -> 1.0.0
 * Run `make tag/push` to trigger the upload of a new release by executing the GitHub Action `release.yml`.
 
-> [!WARNING]
-> Before uploading a new release, you need to add a `RELEASE_TOKEN` to your repository's 'Actions secrets and variables' settings page. The `RELEASE_TOKEN` is generated from your GitHub 'Developer Settings' page. Make sure to select the full `repo` scope when generating it.
-
 ## Publish to PyPI
 
 To manually publish your package to PyPI, run `make project/publish`. If necessary, this will build the project as a Python package and upload the generated `*.tar.gz` and `*.whl` files to PyPI.
@@ -186,6 +183,9 @@ The documentation files will be stored in the `DOCS_SITE` directory (by default 
 
 > [!IMPORTANT]
 > You will have to edit the `mkdocs.yml` file to adapt it to your project's specifics. For example, it uses by default the `readthedocs` theme.
+
+> [!WARNING]
+> Before being able to succesfully publishing the project documentation to GitHub pages, you need to add a `RELEASE_TOKEN` to your repository's 'Actions secrets and variables' settings page. The `RELEASE_TOKEN` is generated from your GitHub 'Developer Settings' page. Make sure to select the full `repo` scope when generating it.
 
 ## Docker
 
