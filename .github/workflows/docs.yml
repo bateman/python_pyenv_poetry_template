@@ -10,15 +10,28 @@ on:
 
 jobs:
   docs:
-    name: Publish documentation
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Upload docs
+      - name: Extract Python version
+        id: get-python-version
+        run: |
+            echo "PYTHON_VERSION=$(grep 'PYTHON_VERSION' Makefile.env | sed 's/PYTHON_VERSION=//')" >> $GITHUB_ENV
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install Poetry
+        uses: Gr1N/setup-poetry@v8
+      - name: Install dependencies
+        run: poetry install
+      - name: Build a binary wheel and a source tarball
+        run: poetry build
+      - name: Publish documentation
         uses: crazy-max/ghaction-github-pages@v4
         with:
           target_branch: gh-pages
           build_dir: docs
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
