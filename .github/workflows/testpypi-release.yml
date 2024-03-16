@@ -1,0 +1,59 @@
+name: Manually publish package to TestPyPI 📦
+
+on:
+  workflow_dispatch:
+
+env:
+  PACKAGE_NAME: ''
+
+jobs:
+  build:
+    name: Build the package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Extract Python version
+        id: get-python-version
+        run: |
+            echo "PYTHON_VERSION=$(grep 'PYTHON_VERSION' Makefile.env | sed 's/PYTHON_VERSION=//')" >> $GITHUB_ENV
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install Poetry
+        uses: Gr1N/setup-poetry@v8
+      - name: Install dependencies
+        run: poetry install
+      - name: Build a binary wheel and a source tarball
+        run: poetry build
+      - name: Store the distribution packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: python-package-distributions
+          path: dist/
+      - name: Retrieve package name
+        id: packagename
+        run: >-
+          echo "PACKAGE_NAME=$(echo ${{ github.repository }} | cut -d '/' -f 2)" >> $GITHUB_ENV
+
+  publish-to-testpypi:
+    name: Publish distribution to TestPyPI
+    needs:
+    - build
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/${{ env.PACKAGE_NAME }}
+    permissions:
+      id-token: write  # IMPORTANT: mandatory for trusted publishing
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v3
+      with:
+        name: python-package-distributions
+        path: dist/
+    - name: Publish distribution to TestPyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://test.pypi.org/legacy/
