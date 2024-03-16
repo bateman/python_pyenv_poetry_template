@@ -158,33 +158,6 @@ dep/docker-compose:
 
 #-- System
 
-.PHONY: clean
-clean:  ## Clean the project - removes all cache dirs and stamp files
-	@echo -e "$(ORANGE)\nCleaning the project...$(RESET)"
-	@find . -type d -name "__pycache__" | xargs rm -rf {};
-	@rm -rf $(STAMP_FILES) $(CACHE_DIRS) $(BUILD) $(DOCS_SITE) $(COVERAGE) || true
-	@echo -e "$(GREEN)Project cleaned.$(RESET)"
-
-.PHONY: reset
-reset:  ## Cleans plus removes the virtual environment (use ARGS="hard" to re-initialize the project)
-	@echo -e "$(RED)\nAre you sure you want to proceed with the reset (this involves wiping also the virual environment)? [y/N]: $(RESET)"
-	@read -r answer; \
-	case $$answer in \
-		[Yy]* ) \
-			$(MAKE) clean; \
-			echo -e "$(ORANGE)Resetting the project...$(RESET)"; \
-			rm -f .python-version > /dev/null || true ; \
-			$(GIT) checkout poetry.lock > /dev/null || true ; \
-			$(PYENV) virtualenv-delete -f $(PYENV_VIRTUALENV_NAME) ; \
-			if [ "$(ARGS)" = "hard" ]; then \
-				rm -f $(PROJECT_INIT) > /dev/null || true ; \
-			fi; \
-			echo -e "$(GREEN)Project reset.$(RESET)" ;; \
-		* ) \
-			echo -e "$(ORANGE)Project reset aborted.$(RESET)"; \
-			exit 0 ;; \
-	esac
-
 .PHONY: python
 python: | dep/pyenv  ## Check if Python is installed
 	@if ! $(PYENV) versions | grep $(PYTHON_VERSION) > /dev/null ; then \
@@ -219,9 +192,6 @@ poetry-update: | dep/poetry  ## Update Poetry
 	@echo -e "$(GREEN)Poetry upgraded.$(RESET)"
 
 #-- Project
-
-.PHONY: project/all
-project/all: project/install project/build docs/build  ## Install and build the project, generate the documentation
 
 .PHONY: project/install
 project/install: dep/poetry $(INSTALL_STAMP)  ## Install the project for development
@@ -265,6 +235,14 @@ $(INSTALL_STAMP): pyproject.toml
 		touch $(INSTALL_STAMP); \
 	fi
 
+.PHONY: project/production
+project/production: dep/poetry $(PRODUCTION_STAMP)  ## Install the project for production
+$(PRODUCTION_STAMP): $(INSTALL_STAMP) $(UPDATE_STAMP)
+	@echo -e "$(CYAN)\Install project for production...$(RESET)"
+	@$(POETRY) install --only main --no-interaction
+	@touch $(PRODUCTION_STAMP)
+	@echo -e "$(GREEN)Project installed for production.$(RESET)"
+
 .PHONY: project/update
 project/update: | dep/poetry project/install  ## Update the project
 	@echo -e "$(CYAN)\nUpdating the project...$(RESET)"
@@ -272,6 +250,33 @@ project/update: | dep/poetry project/install  ## Update the project
 	$(POETRY) lock
 	@$(POETRY) run pre-commit autoupdate
 	@echo -e "$(GREEN)Project updated.$(RESET)"
+
+.PHONY: project/clean
+project/clean:  ## Clean the project - removes all cache dirs and stamp files
+	@echo -e "$(ORANGE)\nCleaning the project...$(RESET)"
+	@find . -type d -name "__pycache__" | xargs rm -rf {};
+	@rm -rf $(STAMP_FILES) $(CACHE_DIRS) $(BUILD) $(DOCS_SITE) $(COVERAGE) || true
+	@echo -e "$(GREEN)Project cleaned.$(RESET)"
+
+.PHONY: project/reset
+project/reset:  ## Cleans plus removes the virtual environment (use ARGS="hard" to re-initialize the project)
+	@echo -e "$(RED)\nAre you sure you want to proceed with the reset (this involves wiping also the virual environment)? [y/N]: $(RESET)"
+	@read -r answer; \
+	case $$answer in \
+		[Yy]* ) \
+			$(MAKE) clean; \
+			echo -e "$(ORANGE)Resetting the project...$(RESET)"; \
+			rm -f .python-version > /dev/null || true ; \
+			$(GIT) checkout poetry.lock > /dev/null || true ; \
+			$(PYENV) virtualenv-delete -f $(PYENV_VIRTUALENV_NAME) ; \
+			if [ "$(ARGS)" = "hard" ]; then \
+				rm -f $(PROJECT_INIT) > /dev/null || true ; \
+			fi; \
+			echo -e "$(GREEN)Project reset.$(RESET)" ;; \
+		* ) \
+			echo -e "$(ORANGE)Project reset aborted.$(RESET)"; \
+			exit 0 ;; \
+	esac
 
 .PHONY: project/run
 project/run: dep/python $(INSTALL_STAMP)  ## Run the project (pass arguments with ARGS="...")
@@ -282,13 +287,28 @@ project/tests: dep/poetry $(INSTALL_STAMP)  ## Run the tests (pass arguments wit
 	@echo -e "$(CYAN)\nRunning the tests...$(RESET)"
 	@$(POETRY) run pytest --cov $(TESTS) $(ARGS)
 
-.PHONY: project/production
-project/production: dep/poetry $(PRODUCTION_STAMP)  ## Install the project for production
-$(PRODUCTION_STAMP): $(INSTALL_STAMP) $(UPDATE_STAMP)
-	@echo -e "$(CYAN)\Install project for production...$(RESET)"
-	@$(POETRY) install --only main --no-interaction
-	@touch $(PRODUCTION_STAMP)
-	@echo -e "$(GREEN)Project installed for production.$(RESET)"
+.PHONY: project/build
+project/build: dep/poetry $(BUILD_STAMP)  ## Build the project as a package
+$(BUILD_STAMP): pyproject.toml
+	@echo -e "$(CYAN)\nBuilding the project...$(RESET)"
+	@rm -rf $(BUILD)
+	@$(POETRY) build
+	@echo -e "$(GREEN)Project built.$(RESET)"
+	@touch $(BUILD_STAMP)
+
+.PHONY: project/buildall
+project/buildall: project/build docs/build  ## Build the project package and generate the documentation
+
+.PHONY: project/publish
+project/publish: dep/poetry $(BUILD_STAMP)  ## Publish the project to PyPI
+	@echo -e "$(CYAN)\nPublishing the project to PyPI...$(RESET)"
+	@$(POETRY) publish
+	@if [ $$? -eq 0 ]; then \
+		echo -e "$(GREEN)Project published.$(RESET)"; \
+	fi
+
+.PHONY: project/publishall
+project/publishall: project/publish docs/publish  ## Publish the project package to PyPI and the documentation to GitHub Pages
 
 .PHONY: project/deps-export
 project/deps-export: dep/poetry $(DEPS_EXPORT_STAMP)  ## Export the project's dependencies to requirements*.txt files
@@ -300,30 +320,7 @@ $(DEPS_EXPORT_STAMP): pyproject.toml
 	@echo -e "$(GREEN)Dependencies exported.$(RESET)"
 	@touch $(DEPS_EXPORT_STAMP)
 
-.PHONY: project/build
-project/build: dep/poetry $(BUILD_STAMP)  ## Build the project as a package
-$(BUILD_STAMP): pyproject.toml
-	@echo -e "$(CYAN)\nBuilding the project...$(RESET)"
-	@rm -rf $(BUILD)
-	@$(POETRY) build
-	@echo -e "$(GREEN)Project built.$(RESET)"
-	@touch $(BUILD_STAMP)
-
-.PHONY: project/publish
-project/publish: dep/poetry $(BUILD_STAMP)  ## Manually publish the project to PyPI
-	@echo -e "$(CYAN)\nPublishing the project to PyPI...$(RESET)"
-	@$(POETRY) publish
-	@if [ $$? -eq 0 ]; then \
-		echo -e "$(GREEN)Project published.$(RESET)"; \
-	fi
-
 #-- Check
-
-.PHONY: check/precommit
-check/precommit: $(INSTALL_STAMP) $(PRECOMMIT_CONF)  ## Run the pre-commit checks
-	@echo -e "$(CYAN)\nRunning the pre-commit checks...$(RESET)"
-	@$(POETRY) run pre-commit run --all-files
-	@echo -e "$(GREEN)Pre-commit checks completed.$(RESET)"
 
 .PHONY: check/format
 check/format: $(INSTALL_STAMP)  ## Format the code
@@ -336,6 +333,12 @@ check/lint: $(INSTALL_STAMP)  ## Lint the code
 	@echo -e "$(CYAN)\nLinting the code...$(RESET)"
 	@ruff check $(PY_FILES)
 	@echo -e "$(GREEN)Code linted.$(RESET)"
+
+.PHONY: check/precommit
+check/precommit: $(INSTALL_STAMP) $(PRECOMMIT_CONF)  ## Run all pre-commit checks
+	@echo -e "$(CYAN)\nRunning the pre-commit checks...$(RESET)"
+	@$(POETRY) run pre-commit run --all-files
+	@echo -e "$(GREEN)Pre-commit checks completed.$(RESET)"
 
 #-- Docker
 
@@ -431,7 +434,7 @@ tag/major: | tag  staging  ## Tag a new major version release
 	fi
 
 .PHONY: tag/push
-tag/push: | dep/git  ## Push the tag to origin - triggers the release action
+tag/push: | dep/git  ## Push the tag to origin - triggers the release and docker actions
 	@$(eval TAG := $(shell $(GIT) describe --tags --abbrev=0))
 	@$(eval REMOTE_TAGS := $(shell $(GIT) ls-remote --tags origin | $(AWK) '{print $$2}'))
 	@if echo $(REMOTE_TAGS) | grep -q $(TAG); then \
@@ -459,7 +462,7 @@ docs/serve: dep/poetry $(DOCS_STAMP)  ## Serve the project documentation locally
 	@$(POETRY) run mkdocs serve
 
 .PHONY: docs/publish
-docs/publish: dep/poetry $(DOCS_STAMP)  ## Manually publish the project documentation to GitHub Pages
+docs/publish: dep/poetry $(DOCS_STAMP)  ## Publish the project documentation to GitHub Pages
 	@echo -e "$(CYAN)\nPublishing the project documentation to GitHub Pages...$(RESET)"
 	@$(POETRY) run mkdocs gh-deploy
 	@echo -e "$(GREEN)Project documentation published.$(RESET)"
