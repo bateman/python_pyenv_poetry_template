@@ -62,7 +62,7 @@ Tag
 Documentation
   docs/build            Generate the project documentation
   docs/serve            Serve the project documentation locally
-  docs/publish          Publish the project documentation to GitHub Pages
+  docs/publish          Publish the project documentation to GitHub Pages (pass arguments with ARGS="...")
 ```
 
 ## Installation
@@ -213,7 +213,7 @@ The documentation files will be stored in the `DOCS_SITE` directory (by default 
 > Before building the container, edit `Dockerfile` and change the name of the folder containing your Python module (by default `python_pyenv_poetry_template`).
 
 > [!WARNING]
-> Pushing a new tag to GitHub, will trigger the GitHub Action defined in `docker.yml`. To ensure correct execution, you first need to add the `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets to your repository's 'Actions secrets and variables' settings page.
+> Pushing a new tag to GitHub will trigger the GitHub Action defined in `docker.yml`. To ensure correct execution, you first need to add the `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets to your repository's 'Actions secrets and variables' settings page.
 
 ## Contributing
 
