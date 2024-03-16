@@ -22,10 +22,16 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install Poetry
+        uses: Gr1N/setup-poetry@v8
+      - name: Install dependencies
+        run: poetry install
+      - name: Build documentation
+        run: poetry run mkdocs build --verbose --clean
       - name: Publish documentation
         uses: crazy-max/ghaction-github-pages@v4
         with:
           target_branch: gh-pages
-          build_dir: docs
+          build_dir: site
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
