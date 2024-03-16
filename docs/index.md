@@ -218,6 +218,7 @@ The documentation files will be stored in the `DOCS_SITE` directory (by default 
 ## Contributing
 
 Contributions are welcome! Follow these steps:
+
 1. Fork the repository.
 2. Create a new branch: `git checkout -b feature-name`
 3. Make your changes and commit: `git commit -m 'Add feature'`
