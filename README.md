@@ -41,6 +41,7 @@ Project
  project/production    Install the project for production
  project/deps-export   Export the project's dependencies to requirements*.txt files
  project/build         Build the project as a package
+ project/publish       Publish the project to PyPI
 Check
  check/precommit       Run the pre-commit checks
  check/format          Format the code
@@ -149,6 +150,11 @@ The project uses the following development libraries:
 
 Run `make project/update` to update all the dependencies using `poetry`.
 
+## Build
+
+Run `make project/build` to build the project as a Python package.
+The `*.tar.gz` and `*.whl` will be placed in the `BUILD` directory (by default `dist/`).
+
 ## Release
 
 * Add your pending changes to the staging, commit, and push them to the origin.
@@ -161,10 +167,11 @@ Run `make project/update` to update all the dependencies using `poetry`.
 > [!WARNING]
 > Before uploading a new release, you need to add a `RELEASE_TOKEN` to your repository's 'Actions secrets and variables' settings page. The `RELEASE_TOKEN` is generated from your GitHub 'Developer Settings' page. Make sure to select the full `repo` scope when generating it.
 
-## Build
+## Publish to PyPI
 
-Run `make project/build` to build the project as a Python package.
-The `*.tar.gz` and `*.whl` will be placed in the `BUILD` directory (by default `dist/`).
+To manually publish your package to PyPI, run `make project/publish`. If necessary, this will build the project as a Python package and upload the generated `*.tar.gz` and `*.whl` files to PyPI.
+
+[!IMPORTANT] Before publishing to PyPI, make sure you have a valid PyPI account and API token. Then, you need manually configure `poetry` running the following command: `poetry config pypi-token.pypi <your-api-token>`.
 
 ## Documentation
 

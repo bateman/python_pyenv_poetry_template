@@ -308,6 +308,14 @@ $(BUILD_STAMP): pyproject.toml
 	@echo -e "$(GREEN)Project built.$(RESET)"
 	@touch $(BUILD_STAMP)
 
+.PHONY: project/publish
+project/publish: dep/poetry $(BUILD_STAMP)  ## Publish the project to PyPI
+	@echo -e "$(CYAN)\nPublishing the project...$(RESET)"
+	@$(POETRY) publish
+	@if [ $$? -eq 0 ]; then \
+		echo -e "$(GREEN)Project published.$(RESET)"; \
+	fi
+
 #-- Check
 
 .PHONY: check/precommit
