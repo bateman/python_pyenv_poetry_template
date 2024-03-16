@@ -1,4 +1,6 @@
-# P3T - Python Pyenv Poetry Template <img src="https://raw.githubusercontent.com/bateman/python_pyenv_poetry_template/main/images/logo/logo-p3t-transparent-bg.png" width="80">
+<div align="center"><img src="https://raw.githubusercontent.com/bateman/python_pyenv_poetry_template/main/images/logo/logo-p3t-transparent-bg.png" width="110"></div>
+
+# Python Pyenv Poetry Template
 
 ![PyPI - Version](https://img.shields.io/pypi/v/python_pyenv_poetry_template?style=flat-square&color=%23007EC6)
 ![GitHub Release](https://img.shields.io/github/v/release/bateman/python_pyenv_poetry_template?style=flat-square)
@@ -21,7 +23,7 @@ Run `make` to see the list of the available targets.
 $ make
 
 Usage:
-  make [target]
+  make [target] [ARGS="..."]
 
 Info
   help                  Show this help message
@@ -37,8 +39,8 @@ Project
   project/update        Update the project
   project/clean         Clean the project - removes all cache dirs and stamp files
   project/reset         Cleans plus removes the virtual environment (use ARGS="hard" to re-initialize the project)
-  project/run           Run the project (pass arguments with ARGS="...")
-  project/tests         Run the tests (pass arguments with ARGS="...")
+  project/run           Run the project
+  project/tests         Run the tests
   project/build         Build the project as a package
   project/buildall      Build the project package and generate the documentation
   project/publish       Publish the project to PyPI
@@ -48,21 +50,21 @@ Check
   check/format          Format the code
   check/lint            Lint the code
   check/precommit       Run all pre-commit checks
+Tag
+  tag/patch             Tag a new patch version release
+  tag/minor             Tag a new minor version release
+  tag/major             Tag a new major version release
+  tag/push              Push the tag to origin - triggers the release and docker actions
 Docker
   docker/build          Build the Docker image
   docker/run            Run the Docker container
   docker/all            Build and run the Docker container
   docker/stop           Stop the Docker container
   docker/remove         Remove the Docker image, container, and volumes
-Tag
-  tag/patch             Tag a new patch version release
-  tag/minor             Tag a new minor version release
-  tag/major             Tag a new major version release
-  tag/push              Push the tag to origin - triggers the release and docker actions
 Documentation
   docs/build            Generate the project documentation
   docs/serve            Serve the project documentation locally
-  docs/publish          Publish the project documentation to GitHub Pages (pass arguments with ARGS="...")
+  docs/publish          Publish the project documentation to GitHub Pages (use ARGS="--force" to force the deployment)
 ```
 
 ## Installation
