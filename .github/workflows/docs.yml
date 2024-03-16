@@ -22,12 +22,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      - name: Install Poetry
-        uses: Gr1N/setup-poetry@v8
-      - name: Install dependencies
-        run: poetry install
+      - name: Install mkdocs dependencies  # This avoids installing all the other unecessary dependencies
+        run: pip install -r requirements-docs.txt
       - name: Build documentation
-        run: poetry run mkdocs build --verbose --clean
+        run: mkdocs build --verbose --clean
       - name: Publish documentation
         uses: crazy-max/ghaction-github-pages@v4
         with:
