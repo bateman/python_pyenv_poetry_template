@@ -74,42 +74,42 @@ This is a template repository, so first things first, you create a new GitHub re
 1. Clone the repository: `git clone https://github.com/<your-github-name>/<your-project-name>.git `
 2. Navigate to the project directory: `cd <your-project-name>`
 3. Check the status of the dev environment: `make info` will list the tools currently installed and the default value of project vars, as in the example below:
-```console
-$ make info
 
-System:
-  OS: Darwin
-  Shell: /bin/bash - GNU bash, version 3.2.57(1)-release (arm64-apple-darwin23)
-  Make: GNU Make 3.81
-  Git: git version 2.39.3 (Apple Git-146)
-Project:
-  Project name: python_pyenv_poetry_template
-  Project directory: /Users/fabio/Dev/git/python_pyenv_poetry_template
-  Project author: Fabio Calefato (bateman <fcalefato@gmail.com>)
-  Project repository: https://github.com/bateman/python_pyenv_poetry_template
-  Project version: 0.4.4
-  Project license: MIT
-  Project description: 'A GitHub template for Python projects using Pyenv and Poetry'
-Python:
-  Python version: 3.12.1
-  Pyenv version: pyenv 2.3.36
-  Pyenv root: /Users/fabio/.pyenv
-  Pyenv virtualenv name: venvp3t
-  Poetry version: Poetry (version 1.8.2)
-Docker:
-  Docker: Docker version 25.0.3, build 4debf41
-  Docker Compose: Docker Compose version v2.24.6-desktop.1
-  Docker image name: p3t
-  Docker container name: p3t
-```
+        $ make info
+
+        System:
+          OS: Darwin
+          Shell: /bin/bash - GNU bash, version 3.2.57(1)-release (arm64-apple-darwin23)
+          Make: GNU Make 3.81
+          Git: git version 2.39.3 (Apple Git-146)
+        Project:
+          Project name: python_pyenv_poetry_template
+          Project directory: /Users/fabio/Dev/git/python_pyenv_poetry_template
+          Project author: Fabio Calefato (bateman <fcalefato@gmail.com>)
+          Project repository: https://github.com/bateman/python_pyenv_poetry_template
+          Project version: 0.4.4
+          Project license: MIT
+          Project description: 'A GitHub template for Python projects using Pyenv and Poetry'
+        Python:
+          Python version: 3.12.1
+          Pyenv version: pyenv 2.3.36
+          Pyenv root: /Users/fabio/.pyenv
+          Pyenv virtualenv name: venvp3t
+          Poetry version: Poetry (version 1.8.2)
+        Docker:
+          Docker: Docker version 25.0.3, build 4debf41
+          Docker Compose: Docker Compose version v2.24.6-desktop.1
+          Docker image name: p3t
+          Docker container name: p3t
+
 4. If any of the needed tools are missing, it will be marked as '*not installed*'. Install them and re-run `make info` to ensure the tools are now correctly installed and in your PATH.
 5. Update the project variables values by editing `pyproject.toml`. In addition, you can add any of the variables in the list below to a `Makefile.env` file to override the default values used in the  `Makefile`. You can check the variables configuration using `make info`.
-```bash
-PYTHON_VERSION=3.12.1
-PYENV_VIRTUALENV_NAME=venvp3t
-DOCKER_CONTAINER_NAME=p3t
-DOCKER_IMAGE_NAME=p3t
-```
+
+        PYTHON_VERSION=3.12.1
+        PYENV_VIRTUALENV_NAME=venvp3t
+        DOCKER_CONTAINER_NAME=p3t
+        DOCKER_IMAGE_NAME=p3t
+
 6. To create the virtual environment, run `make virtualenv`. Note that this will also check for the requested Python version; if not available, it will ask you to use `pyenv` to install it.
 7. To complete the installation for development purposes, run `make project/install` -- this will install all development dependencies. Otherwise, for production purposes only, run `make project/production`.
 
@@ -229,4 +229,4 @@ Contributions are welcome! Follow these steps:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](license.md) file for details.
