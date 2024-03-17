@@ -32,6 +32,7 @@ mkdocs-material = "*"
 mkdocstrings = "*"
 mkdocs-autorefs = "*"
 mkdocstrings-python = "*"
+markdown-callouts = "^0.4.0"
 
 [tool.mypy]
 ignore_missing_imports = true
