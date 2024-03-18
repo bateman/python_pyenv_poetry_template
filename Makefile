@@ -202,7 +202,7 @@ $(INSTALL_STAMP): pyproject.toml
 		echo -e "$(CYAN)\nInstalling project $(PROJECT_NAME)...$(RESET)"; \
 		mkdir -p $(SRC) $(TESTS) $(DOCS) $(BUILD) || true ; \
 		$(POETRY) install; \
-		$(POETRY) lock; \
+		$(POETRY) lock --no-update; \
 		$(POETRY) run pre-commit install; \
 		if [ ! -f $(PROJECT_INIT) ] && [ "$(PROJECT_NAME)" != "python_pyenv_poetry_template" ]; then \
 			echo -e "$(CYAN)Updating project $(PROJECT_NAME) information...$(RESET)"; \
@@ -247,7 +247,7 @@ $(PRODUCTION_STAMP): $(INSTALL_STAMP) $(UPDATE_STAMP)
 project/update: | dep/poetry project/install  ## Update the project
 	@echo -e "$(CYAN)\nUpdating the project...$(RESET)"
 	@$(POETRY) update $(ARGS)
-	$(POETRY) lock
+	@$(POETRY) lock
 	@$(POETRY) run pre-commit autoupdate
 	@echo -e "$(GREEN)Project updated.$(RESET)"
 
