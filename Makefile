@@ -188,7 +188,7 @@ poetry: | dep/poetry  ## Check if Poetry is installed
 .PHONY: poetry-update
 poetry-update: | dep/poetry  ## Update Poetry
 	@echo -e "$(CYAN)\nUpgrading Poetry...$(RESET)"
-	@$(POETRY) self update
+	@$(POETRY) self update $(ARGS)
 	@echo -e "$(GREEN)Poetry upgraded.$(RESET)"
 
 #-- Project
@@ -239,14 +239,14 @@ $(INSTALL_STAMP): pyproject.toml
 project/production: dep/poetry $(PRODUCTION_STAMP)  ## Install the project for production
 $(PRODUCTION_STAMP): $(INSTALL_STAMP) $(UPDATE_STAMP)
 	@echo -e "$(CYAN)\Install project for production...$(RESET)"
-	@$(POETRY) install --only main --no-interaction
+	@$(POETRY) install --only main --no-interaction $(ARGS)
 	@touch $(PRODUCTION_STAMP)
 	@echo -e "$(GREEN)Project installed for production.$(RESET)"
 
 .PHONY: project/update
 project/update: | dep/poetry project/install  ## Update the project
 	@echo -e "$(CYAN)\nUpdating the project...$(RESET)"
-	@$(POETRY) update
+	@$(POETRY) update $(ARGS)
 	$(POETRY) lock
 	@$(POETRY) run pre-commit autoupdate
 	@echo -e "$(GREEN)Project updated.$(RESET)"
@@ -292,7 +292,7 @@ project/build: dep/poetry $(BUILD_STAMP)  ## Build the project as a package
 $(BUILD_STAMP): pyproject.toml
 	@echo -e "$(CYAN)\nBuilding the project...$(RESET)"
 	@rm -rf $(BUILD)
-	@$(POETRY) build
+	@$(POETRY) build $(ARGS)
 	@echo -e "$(GREEN)Project built.$(RESET)"
 	@touch $(BUILD_STAMP)
 
@@ -302,7 +302,7 @@ project/buildall: project/build docs/build  ## Build the project package and gen
 .PHONY: project/publish
 project/publish: dep/poetry $(BUILD_STAMP)  ## Publish the project to PyPI
 	@echo -e "$(CYAN)\nPublishing the project to PyPI...$(RESET)"
-	@$(POETRY) publish
+	@$(POETRY) publish $(ARGS)
 	@if [ $$? -eq 0 ]; then \
 		echo -e "$(GREEN)Project published.$(RESET)"; \
 	fi
@@ -452,14 +452,14 @@ docker/remove: | dep/docker dep/docker-compose  ## Remove the Docker image, cont
 docs/build: dep/poetry $(DOCS_STAMP) $(DEPS_EXPORT_STAMP)  ## Generate the project documentation
 $(DOCS_STAMP): $(DOCS_FILES) mkdocs.yml
 	@echo -e "$(CYAN)\nGenerating the project documentation...$(RESET)"
-	@$(POETRY) run mkdocs build
+	@$(POETRY) run mkdocs build $(ARGS)
 	@echo -e "$(GREEN)Project documentation generated.$(RESET)"
 	@touch $(DOCS_STAMP)
 
 .PHONY: docs/serve
 docs/serve: dep/poetry $(DOCS_STAMP)  ## Serve the project documentation locally
 	@echo -e "$(CYAN)\nServing the project documentation...$(RESET)"
-	@$(POETRY) run mkdocs serve
+	@$(POETRY) run mkdocs serve $(ARGS)
 
 .PHONY: docs/publish
 docs/publish: dep/poetry $(DOCS_STAMP)  ## Publish the project documentation to GitHub Pages (use ARGS="--force" to force the deployment)
