@@ -340,7 +340,7 @@ check/precommit: $(INSTALL_STAMP) $(PRECOMMIT_CONF)  ## Run all pre-commit check
 	@$(POETRY) run pre-commit run --all-files
 	@echo -e "$(GREEN)Pre-commit checks completed.$(RESET)"
 
-#-- Tag
+#-- Release
 
 .PHONY: tag
 tag: | dep/git
@@ -362,47 +362,33 @@ staging: | dep/git
 	echo -e "$(CYAN)\nChecking the staging area...$(RESET)"; \
 	echo -e "  $(CYAN)Staging area empty:$(RESET) $$(cat $(STAGING_STAMP))"
 
-.PHONY: tag/patch
-tag/patch: | tag staging  ## Tag a new patch version release
+.PHONY: release/version
+release/version: | tag staging  ## Tag a new release version
 	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
 	if [ "$$NEEDS_RELEASE" = "true" ]; then \
+		case "$(ARGS)" in \
+			"patch"|"minor"|"major"|"prepatch"|"preminor"|"premajor"|"prerelease"|"--next-phase") \
+				echo -e "$(CYAN)\nCreating a new version...$(RESET)"; \
+				;; \
+			*) \
+				echo -e "$(RED)Invalid version argument.$(RESET)"; \
+				echo -e "$(RED)\nUsage: make release/version ARGS=\"patch|minor|major|prepatch|preminor|premajor|prerelease|--next-phase\"$(RESET)"; \
+				exit 1; \
+				;; \
+		esac; \
 		$(eval TAG := $(shell $(GIT) describe --tags --abbrev=0)) \
-		$(eval NEW_TAG := $(shell $(POETRY) version patch > /dev/null && $(POETRY) version -s)) \
+		$(eval NEW_TAG := $(shell $(POETRY) version $(ARGS) > /dev/null && $(POETRY) version -s)) \
 		$(GIT) add pyproject.toml; \
 		$(GIT) commit -m "Bump version to $(NEW_TAG)"; \
 		echo -e "$(CYAN)\nTagging a new patch version... [$(TAG)->$(NEW_TAG)]$(RESET)"; \
 		$(GIT) tag $(NEW_TAG); \
 		echo -e "$(GREEN)New patch version tagged.$(RESET)"; \
+	else \
+		echo -e "$(ORANGE)\nNo new release needed.$(RESET)"; \
 	fi
 
-.PHONY: tag/minor
-tag/minor: | tag staging  ## Tag a new minor version release
-	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
-	if [ "$$NEEDS_RELEASE" = "true" ]; then \
-		$(eval TAG := $(shell $(GIT) describe --tags --abbrev=0)) \
-		$(eval NEW_TAG := $(shell $(POETRY) version minor > /dev/null && $(POETRY) version -s)) \
-		$(GIT) add pyproject.toml; \
-		$(GIT) commit -m "Bump version to $(NEW_TAG)"; \
-		echo -e "$(CYAN)\nTagging a new minor version... [$(TAG)->$(NEW_TAG)]$(RESET)"; \
-		$(GIT) tag $(NEW_TAG); \
-		echo -e "$(GREEN)New minor version tagged.$(RESET)"; \
-	fi
-
-.PHONY: tag/major
-tag/major: | tag  staging  ## Tag a new major version release
-	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
-	if [ "$$NEEDS_RELEASE" = "true" ]; then \
-		$(eval TAG := $(shell $(GIT) describe --tags --abbrev=0)) \
-		$(eval NEW_TAG := $(shell $(POETRY) version major > /dev/null && $(POETRY) version -s)) \
-		$(GIT) add pyproject.toml; \
-		$(GIT) commit -m "Bump version to $(NEW_TAG)"; \
-		echo -e "$(CYAN)\nTagging a new major version... [$(TAG)->$(NEW_TAG)]$(RESET)"; \
-		$(GIT) tag $(NEW_TAG); \
-		echo -e "$(GREEN)New major version tagged.$(RESET)"; \
-	fi
-
-.PHONY: tag/push
-tag/push: | dep/git  ## Push the tag to origin - triggers the release and docker actions
+.PHONY: release/publish
+release/publish: | dep/git  ## Push the tagged version to origin - triggers the release and docker actions
 	@$(eval TAG := $(shell $(GIT) describe --tags --abbrev=0))
 	@$(eval REMOTE_TAGS := $(shell $(GIT) ls-remote --tags origin | $(AWK) '{print $$2}'))
 	@if echo $(REMOTE_TAGS) | grep -q $(TAG); then \
