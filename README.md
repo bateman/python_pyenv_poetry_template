@@ -50,11 +50,9 @@ Check
   check/format          Format the code
   check/lint            Lint the code
   check/precommit       Run all pre-commit checks
-Tag
-  tag/patch             Tag a new patch version release
-  tag/minor             Tag a new minor version release
-  tag/major             Tag a new major version release
-  tag/push              Push the tag to origin - triggers the release and docker actions
+Release
+  release/version       Tag a new release version
+  release/publish       Push the tagged version to origin - triggers the release and docker actions
 Docker
   docker/build          Build the Docker image
   docker/run            Run the Docker container
