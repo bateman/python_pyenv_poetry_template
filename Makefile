@@ -66,7 +66,7 @@ COVERAGE := .coverage $(wildcard coverage.*)
 
 # Files
 PY_FILES := $(shell find . -type f -name '*.py')
-DOCS_FILES := $(shell find $(DOCS) -type f -name '*.md')
+DOCS_FILES := $(shell find $(DOCS) -type f -name '*.md') README.md
 PROJECT_INIT := .project-init
 DOCKER_FILES_TO_UPDATE := $(DOCKER_FILE) $(DOCKER_COMPOSE_FILE) entrypoint.sh
 PY_FILES_TO_UPDATE := $(SRC)/__main__.py $(TESTS)/test_main.py
@@ -76,7 +76,7 @@ DOCS_FILES_TO_RESET := README.md $(DOCS)/index.md $(DOCS)/about.md
 RESET := \033[0m
 RED := \033[1;31m
 GREEN := \033[0;32m
-ORANGE := \033[0;33m
+YELLOW := \033[0;33m
 MAGENTA := \033[1;35m
 CYAN := \033[0;36m
 
@@ -172,7 +172,7 @@ python: | dep/pyenv  ## Check if Python is installed
 .PHONY: virtualenv
 virtualenv: | python  ## Check if virtualenv exists and activate it - create it if not
 	@if ! $(PYENV) virtualenvs | grep $(PYENV_VIRTUALENV_NAME) > /dev/null ; then \
-		echo -e "$(ORANGE)\nLocal virtualenv not found. Creating it...$(RESET)"; \
+		echo -e "$(YELLOW)\nLocal virtualenv not found. Creating it...$(RESET)"; \
 		$(PYENV) virtualenv $(PYTHON_VERSION) $(PYENV_VIRTUALENV_NAME) || exit 1; \
 		echo -e "$(GREEN)Virtualenv created.$(RESET)"; \
 	else \
@@ -229,7 +229,7 @@ $(INSTALL_STAMP): pyproject.toml
 			echo -e "$(GREEN)Project $(PROJECT_NAME) initialized.$(RESET)"; \
 			touch $(PROJECT_INIT); \
 		else \
-			echo -e "$(ORANGE)Project $(PROJECT_NAME) already initialized.$(RESET)"; \
+			echo -e "$(YELLOW)Project $(PROJECT_NAME) already initialized.$(RESET)"; \
 		fi; \
 		echo -e "$(GREEN)Project $(PROJECT_NAME) installed for development.$(RESET)"; \
 		touch $(INSTALL_STAMP); \
@@ -253,7 +253,7 @@ project/update: | dep/poetry project/install  ## Update the project
 
 .PHONY: project/clean
 project/clean:  ## Clean the project - removes all cache dirs and stamp files
-	@echo -e "$(ORANGE)\nCleaning the project...$(RESET)"
+	@echo -e "$(YELLOW)\nCleaning the project...$(RESET)"
 	@find . -type d -name "__pycache__" | xargs rm -rf {};
 	@rm -rf $(STAMP_FILES) $(CACHE_DIRS) $(BUILD) $(DOCS_SITE) $(COVERAGE) || true
 	@echo -e "$(GREEN)Project cleaned.$(RESET)"
@@ -265,7 +265,7 @@ project/reset:  ## Cleans plus removes the virtual environment (use ARGS="hard" 
 	case $$answer in \
 		[Yy]* ) \
 			$(MAKE) clean; \
-			echo -e "$(ORANGE)Resetting the project...$(RESET)"; \
+			echo -e "$(YELLOW)Resetting the project...$(RESET)"; \
 			rm -f .python-version > /dev/null || true ; \
 			$(GIT) checkout poetry.lock > /dev/null || true ; \
 			$(PYENV) virtualenv-delete -f $(PYENV_VIRTUALENV_NAME) ; \
@@ -274,7 +274,7 @@ project/reset:  ## Cleans plus removes the virtual environment (use ARGS="hard" 
 			fi; \
 			echo -e "$(GREEN)Project reset.$(RESET)" ;; \
 		* ) \
-			echo -e "$(ORANGE)Project reset aborted.$(RESET)"; \
+			echo -e "$(YELLOW)Project reset aborted.$(RESET)"; \
 			exit 0 ;; \
 	esac
 
@@ -285,7 +285,7 @@ project/run: dep/python $(INSTALL_STAMP)  ## Run the project
 .PHONY: project/tests
 project/tests: dep/poetry $(INSTALL_STAMP)  ## Run the tests
 	@echo -e "$(CYAN)\nRunning the tests...$(RESET)"
-	@$(POETRY) run pytest --cov $(TESTS) $(ARGS)
+	@$(POETRY) run pytest --cov=$(SRC) $(TESTS) $(ARGS)
 
 .PHONY: project/build
 project/build: dep/poetry $(BUILD_STAMP)  ## Build the project as a package
@@ -384,7 +384,7 @@ release/version: | tag staging  ## Tag a new release version
 		$(GIT) tag $(NEW_TAG); \
 		echo -e "$(GREEN)New patch version tagged.$(RESET)"; \
 	else \
-		echo -e "$(ORANGE)\nNo new release needed.$(RESET)"; \
+		echo -e "$(YELLOW)\nNo new release needed.$(RESET)"; \
 	fi
 
 .PHONY: release/publish
@@ -392,7 +392,7 @@ release/publish: | dep/git  ## Push the tagged version to origin - triggers the 
 	@$(eval TAG := $(shell $(GIT) describe --tags --abbrev=0))
 	@$(eval REMOTE_TAGS := $(shell $(GIT) ls-remote --tags origin | $(AWK) '{print $$2}'))
 	@if echo $(REMOTE_TAGS) | grep -q $(TAG); then \
-		echo -e "$(ORANGE)\nNothing to push: tag $(TAG) already exists on origin.$(RESET)"; \
+		echo -e "$(YELLOW)\nNothing to push: tag $(TAG) already exists on origin.$(RESET)"; \
 	else \
 		echo -e "$(CYAN)\nPushing new release $(TAG)...$(RESET)"; \
 		$(GIT) push origin; \
@@ -438,6 +438,10 @@ docker/remove: | dep/docker dep/docker-compose  ## Remove the Docker image, cont
 docs/build: dep/poetry $(DOCS_STAMP) $(DEPS_EXPORT_STAMP)  ## Generate the project documentation
 $(DOCS_STAMP): $(DOCS_FILES) mkdocs.yml
 	@echo -e "$(CYAN)\nGenerating the project documentation...$(RESET)"
+	@if ! cmp -s README.md $(DOCS)/index.md; then \
+		echo -e "$(YELLOW)Syncing README.md with $(DOCS)/index.md$(RESET)"; \
+		cp README.md $(DOCS)/index.md; \
+	fi
 	@$(POETRY) run mkdocs build $(ARGS)
 	@echo -e "$(GREEN)Project documentation generated.$(RESET)"
 	@touch $(DOCS_STAMP)
