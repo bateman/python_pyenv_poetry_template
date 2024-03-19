@@ -73,8 +73,6 @@ This is a template repository, so first things first, you create a new GitHub re
 2. Navigate to the project directory: `cd <your-project-name>`
 3. Check the status of the dev environment: `make info` will list the tools currently installed and the default value of project vars, as in the example below:
 
-        $ make info
-
         System:
           OS: Darwin
           Shell: /bin/bash - GNU bash, version 3.2.57(1)-release (arm64-apple-darwin23)
@@ -82,12 +80,12 @@ This is a template repository, so first things first, you create a new GitHub re
           Git: git version 2.39.3 (Apple Git-146)
         Project:
           Project name: python_pyenv_poetry_template
-          Project directory: /Users/fabio/Dev/git/python_pyenv_poetry_template
-          Project author: Fabio Calefato (bateman <fcalefato@gmail.com>)
-          Project repository: https://github.com/bateman/python_pyenv_poetry_template
-          Project version: 0.4.4
-          Project license: MIT
           Project description: 'A GitHub template for Python projects using Pyenv and Poetry'
+          Project author: Fabio Calefato (bateman <fcalefato@gmail.com>)
+          Project version: 0.9.0
+          Project license: MIT
+          Project repository: https://github.com/bateman/python_pyenv_poetry_template
+          Project directory: /Users/fabio/Dev/git/python_pyenv_poetry_template
         Python:
           Python version: 3.12.1
           Pyenv version: pyenv 2.3.36
@@ -125,9 +123,8 @@ This is a template repository, so first things first, you create a new GitHub re
 
 The project uses the following development libraries:
 
-* `ruff`: for code linting and formatting.
+* `ruff`: for code linting, formatting, and security analysis.
 * `mypy`: for static type-checking.
-* `bandit`: for security analysis.
 * `pre-commit`: for automating all the checks above before committing.
 
 > [!TIP]
@@ -137,16 +134,22 @@ The project uses the following development libraries:
 ## Execution
 
 * To run the project: `make project/run`
-* To run the tests: `make project/tests`
 
 > [!TIP]
 > Pass parameters using the ARGS variable (e.g., `make project/run ARGS="--text Ciao --color red"`).
 
+## Testing
+
+* To run the tests: `make project/tests`
+
+> [!TIP]
+> Pass parameters using the ARGS variable (e.g., `make project/tests ARGS="--cov-report=xml"`).
+
 > [!NOTE]
 > Tests are executed using `pytest`. Test coverage is calculated using the plugin `pytest-cov`.
 
-> [!IMPORTANT]
-> Pushing new commits to GitHub, will trigger the GitHub Action defined in `test.yml`, which will try to upload the coverage report to [Codecov](https://about.codecov.io/). To ensure correct execution, first log in to Codecov and enable the coverage report for your repository; this will generate a `CODECOV_TOKEN`. Then, add the `CODECOV_TOKEN` to your repository's 'Actions secrets and variables' settings page.
+> [!WARNING]
+> Pushing new commits to GitHub, will trigger the GitHub Action defined in `tests.yml`, which will upload the coverage report to [Codecov](https://about.codecov.io/). To ensure correct execution, first log in to Codecov and enable the coverage report for your repository; this will generate a `CODECOV_TOKEN`. Then, add the `CODECOV_TOKEN` to your repository's 'Actions secrets and variables' settings page.
 
 ## Update
 
@@ -157,25 +160,39 @@ Run `make project/update` to update all the dependencies using `poetry`.
 Run `make project/build` to build the project as a Python package.
 The `*.tar.gz` and `*.whl` will be placed in the `BUILD` directory (by default `dist/`).
 
+> [!TIP]
+> Run `make project/buildall` to build both the project's wheel and tarball, as well as the documentation site.
+
 ## Release
 
-* Add your pending changes to the staging, commit, and push them to the origin.
-* Apply a semver tag to your repository by updating the current project version (note that this will update `pyproject.toml` accordingly):
-  - `make tag/patch` - e.g., 0.1.0 -> 0.1.1
-  - `make tag/minor` - e.g., 0.1.1 -> 0.2.0
-  - `make tag/major` - e.g., 0.2.0 -> 1.0.0
-* Run `make tag/push` to trigger the upload of a new release by executing the GitHub Action `release.yml`.
+* Run `make release/version ARGS="<semvertag>"` to bump the version of the project and write the new version back to `pyproject.toml`, where `<semvertag>` is one of the following rules: `patch`, `minor`, `major`, `prepatch`, `preminor`, `premajor`, `prerelease`.
 
-### GitHub Actions
+  The table below illustrates the effect of these rules with concrete examples.
+
+  | **Rule**     | **Before** | **After** |
+  |--------------|-----------:|----------:|
+  | `major`      |    1.3.0   |   2.0.0   |
+  | `minor`      |    2.1.4   |   2.2.0   |
+  | `patch`      |    4.1.1   |   4.1.2   |
+  | `premajor`   |    1.0.2   |  2.0.0a0  |
+  | `preminor`   |    1.0.2   |  1.1.0a0  |
+  | `prepatch`   |    1.0.2   |  1.0.3a0  |
+  | `prerelease` |    1.0.2   |  1.0.3a0  |
+  | `prerelease` |   1.0.3a0  |  1.0.3a1  |
+  | `prerelease` |   1.0.3b0  |  1.0.3b1  |
+
+* Run `make release/publish` to trigger, respectively, the upload of a new release to GitHub and a Docker image to DockerHub by executing the GitHub Actions `release.yml` and `docker.yml`, as detailed next.
+
+## GitHub Actions
 
 As shown in the table below, there are four GitHub Actions workflow. Take note on the event triggering the run and the Secrets needed for a succesfull execution.
 
-| **Action name** | **Purpose**                                | **Runs on**                                    | **Secrets**                             |
-|:---------------:|--------------------------------------------|------------------------------------------------|-----------------------------------------|
-|  `release.yml`  | Release package to PyPI and GitHub 📦       | tag push                                       | -                                       |
-|   `docker.yml`  | Push image to DockerHub 🚀                  | tag push                                       | `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN` |
-|   `tests.yml`   | Run tests and upload coverage to Codecov 📊 | commit push on branches != `main`, manual             | `CODECOV_TOKEN`                         |
-|    `docs.yml`   | Upload documentation to GitHub Pages 📓     | commit push on `main` branch (path `docs/**`), manual | `RELEASE_TOKEN`                         |
+| **Action name** | **Purpose**                                 | **Runs on**                                            | **Secrets**                             |
+|:---------------:|---------------------------------------------|--------------------------------------------------------|-----------------------------------------|
+|  `release.yml`  | Release package to PyPI and GitHub 📦       | tag push                                               | -                                       |
+|   `docker.yml`  | Push image to DockerHub 🚀                  | tag push                                               | `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN` |
+|   `tests.yml`   | Run tests and upload coverage to Codecov 📊 | commit push on branches != `main`, manual              | `CODECOV_TOKEN`                         |
+|    `docs.yml`   | Upload documentation to GitHub Pages 📓     | commit push on `docs/**` path of `main` branch, manual | `RELEASE_TOKEN`                         |
 
 > [!CAUTION]
 > Follow this [guide](https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/#configuring-trusted-publishing) and configure PyPI’s trusted publishing implementation to connect to GitHub Actions CI/CD. Otherwise, the release workflow will fail.
@@ -184,24 +201,27 @@ As shown in the table below, there are four GitHub Actions workflow. Take note o
 
 To manually publish your package to PyPI, run `make project/publish`. If necessary, this will build the project as a Python package and upload the generated `*.tar.gz` and `*.whl` files to PyPI.
 
-> [!IMPORTANT]
+> [!TIP]
+> Run `make project/publishall` to manually publish the package to PyPI and the documentation site to GitHub Pages.
+
+> [!WARNING]
 > Before trying manually publish your package to PyPI, make sure you have a valid API token. Then, you need manually configure `poetry` running the following command: `poetry config pypi-token.pypi <your-api-token>`.
 
 ## Documentation
 
-* Run `make docs/build` to build the project documentation using `mkdocstrings`. The documentation will be generated from your project files' comments in docstring format.
+* Run `make docs/build` to build the project documentation using `mkdocs`. The documentation will be generated from your project files' comments in docstring format, thanks to the `mkdocstrings` plugin.
 The documentation files will be stored in the `DOCS_SITE` directory (by default `site/`).
 * Run `make docs/serve` to browse the built site locally, at http://127.0.0.1:8000/your-github-name/your-project-name/
 * Run `make docs/publish` to publish the documentation site as GitHub pages. The content will be published to a separate branch, named `gh-pages`. Access the documentation online at https://your-github-name.github.io/your-project-name/
 
+> [!TIP]
+> You can edit the `mkdocs.yml` file to adapt it to your project's specifics. For example, you can change the `material` theme or adjust the logo and colors. Refer to this [guide](https://squidfunk.github.io/mkdocs-material/setup/) for more.
+
 > [!NOTE]
 > After the first deployment to your GitHub repository, your repository Pages settings (Settings > Pages) will be automatically updated to point to the documentation site content stored in the `gh-pages` branch.
 
-> [!IMPORTANT]
-> You will have to edit the `mkdocs.yml` file to adapt it to your project's specifics. For example, it uses by default the `readthedocs` theme.
-
 > [!WARNING]
-> Before being able to succesfully publishing the project documentation to GitHub pages, you need to add a `RELEASE_TOKEN` to your repository's 'Actions secrets and variables' settings page. The `RELEASE_TOKEN` is generated from your GitHub 'Developer Settings' page. Make sure to select the full `repo` scope when generating it.
+> Before being able to succesfully publishing the project documentation to GitHub Pages, you need to add a `RELEASE_TOKEN` to your repository's 'Actions secrets and variables' settings page. The `RELEASE_TOKEN` is generated from your GitHub 'Developer Settings' page. Make sure to select the full `repo` scope when generating it.
 
 ## Docker
 
@@ -209,8 +229,8 @@ The documentation files will be stored in the `DOCS_SITE` directory (by default 
 * To start the Docker container and run the application: `make docker/run`
 * To build and run: `make docker/all`
 
-> [!TIP]
-> Before building the container, edit `Dockerfile` and change the name of the folder containing your Python module (by default `python_pyenv_poetry_template`).
+> [!NOTE]
+> Before building the container, you can edit `Makefile.env` and change the name of the image and or container (by default they will match the name of your project).
 
 > [!WARNING]
 > Pushing a new tag to GitHub will trigger the GitHub Action defined in `docker.yml`. To ensure correct execution, you first need to add the `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets to your repository's 'Actions secrets and variables' settings page.
@@ -227,4 +247,4 @@ Contributions are welcome! Follow these steps:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](license.md) file for details.
+This project is licensed under the MIT License.
