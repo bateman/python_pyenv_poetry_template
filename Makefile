@@ -69,7 +69,7 @@ PY_FILES := $(shell find . -type f -name '*.py')
 DOCS_FILES := $(shell find $(DOCS) -type f -name '*.md') README.md
 PROJECT_INIT := .project-init
 DOCKER_FILES_TO_UPDATE := $(DOCKER_FILE) $(DOCKER_COMPOSE_FILE) entrypoint.sh
-PY_FILES_TO_UPDATE := $(SRC)/__main__.py $(TESTS)/test_main.py
+PY_FILES_TO_UPDATE := $(SRC)/__main__.py $(SRC)/logger/__init__.py $(TESTS)/test_main.py
 DOCS_FILES_TO_RESET := README.md $(DOCS)/index.md $(DOCS)/about.md
 
 # Colors
@@ -449,7 +449,7 @@ $(DOCS_STAMP): $(DOCS_FILES) mkdocs.yml
 .PHONY: docs/serve
 docs/serve: dep/poetry $(DOCS_STAMP)  ## Serve the project documentation locally
 	@echo -e "$(CYAN)\nServing the project documentation...$(RESET)"
-	@$(POETRY) run mkdocs serve $(ARGS)
+	@$(POETRY) run mkdocs serve --watch $(SRC) $(ARGS)
 
 .PHONY: docs/publish
 docs/publish: dep/poetry $(DOCS_STAMP)  ## Publish the project documentation to GitHub Pages (use ARGS="--force" to force the deployment)
