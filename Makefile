@@ -69,7 +69,7 @@ PY_FILES := $(shell find . -type f -name '*.py')
 DOCS_FILES := $(shell find $(DOCS) -type f -name '*.md') README.md
 PROJECT_INIT := .project-init
 DOCKER_FILES_TO_UPDATE := $(DOCKER_FILE) $(DOCKER_COMPOSE_FILE) entrypoint.sh
-PY_FILES_TO_UPDATE := $(SRC)/__main__.py $(SRC)/logger/__init__.py $(TESTS)/test_main.py
+PY_FILES_TO_UPDATE := $(SRC)/main.py $(SRC)/__main__.py $(SRC)/logger/__init__.py $(TESTS)/test_main.py
 DOCS_FILES_TO_RESET := README.md $(DOCS)/index.md $(DOCS)/about.md
 
 # Colors
@@ -195,7 +195,7 @@ poetry-update: | dep/poetry  ## Update Poetry
 
 .PHONY: project/install
 project/install: dep/poetry $(INSTALL_STAMP)  ## Install the project for development
-$(INSTALL_STAMP): pyproject.toml
+$(INSTALL_STAMP): pyproject.toml .pre-commit-config.yaml
 	@if [ ! -f .python-version ]; then \
 		echo -e "$(RED)\nVirtual environment missing. Please run 'make virtualenv' first.$(RESET)"; \
 	else \
