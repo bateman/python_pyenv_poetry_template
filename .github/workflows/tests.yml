@@ -24,7 +24,7 @@ jobs:
       - name: Install Poetry
         uses: Gr1N/setup-poetry@v8
       - name: Install dependencies
-        run: make project/install
+        run: poetry install
       - name: Run pytest
         run: make project/tests ARGS="--cov-report=json"
       - name: Upload coverage reports to Codecov
