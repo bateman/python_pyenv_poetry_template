@@ -48,7 +48,7 @@ indent-width = 4
 fixable = ["ALL"]
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 extend-select = [ "I", "D", "S"]
-ignore = [ "D203", "D211", "D213", "D406", "D407", ]
+ignore = [ "D203", "D211", "D213", "D406", "D407", "D413"]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
