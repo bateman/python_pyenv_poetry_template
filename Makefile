@@ -363,7 +363,7 @@ staging: | dep/git
 	echo -e "  $(CYAN)Staging area empty:$(RESET) $$(cat $(STAGING_STAMP))"
 
 .PHONY: release/version
-release/version: | tag staging  ## Tag a new release version
+release/version: | tag staging  ## Tag a new release version - use ARGS="..." to specify the version
 	@NEEDS_RELEASE=$$(cat $(RELEASE_STAMP)); \
 	if [ "$$NEEDS_RELEASE" = "true" ]; then \
 		case "$(ARGS)" in \
