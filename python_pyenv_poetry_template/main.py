@@ -6,6 +6,8 @@ from typing import Optional, Tuple
 
 from rich.console import Console
 
+from python_pyenv_poetry_template.logger import logger
+
 
 class OneClass:
     """The main class of your application package.
@@ -15,15 +17,11 @@ class OneClass:
 
     """
 
+    """An instance of rich console."""
     console = None
 
-    def __init__(self) -> None:
-        """Initialize the main class of your application package.
-
-        This method is called when an instance of the main class is created.
-        You can use this method to perform any necessary setup for your application.
-
-        """
+    def __init__(self) -> None:  # noqa: D107
+        logger.debug("Initializing OneClass.")
         self.console = Console()
 
     def print(
@@ -34,16 +32,11 @@ class OneClass:
         """Print a message in a specified color or in a random color if no color is specified.
 
         Args:
-        ----
             text (Optional[str]): The message to print. Defaults to "Hello, world!".
             color (Optional[str]): The color to print the message in.
                                    This should be a string specifying a color recognized by the `rich` library,
                                    or an RGB color in the format "rgb(r,g,b)" where r, g, and b are integers between 0 and 255.
                                    If this argument is not provided, a mid-grey color rgb(128,128,128) will be generated.
-
-        Returns:
-        -------
-            None
 
         """
         console = Console()
@@ -64,7 +57,14 @@ def run() -> None:
     This function is called when your application is run as a package.
     You can use this function to perform the main tasks of your application.
 
+    Example:
+    ``` bash
+    python -m python_pyenv_poetry_template -t "Ciao" -c "red"
+    python -m python_pyenv_poetry_template --text "Mondo" --color "green"
+    python -m python_pyenv_poetry_template -t "Ciao mondo"
+    ```
     """
+    logger.info("Running the main module.")
     text, color = parse_args()
 
     oc = OneClass()
@@ -74,11 +74,11 @@ def run() -> None:
 def parse_args() -> Tuple[str, str]:
     """Parse command line arguments.
 
-    Returns
-    -------
-        Tuple[str, str]: The text and color to print.
+    Returns:
+        Tuple[str, str]: The text to print in color.
 
     """
+    logger.debug("Parsing command line arguments.")
     parser = argparse.ArgumentParser(description="Prints any text in color.")
     parser.add_argument("-t", "--text", type=str, help="The text to print.")
     parser.add_argument(
