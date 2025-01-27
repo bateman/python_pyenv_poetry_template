@@ -1,6 +1,6 @@
 babel==2.14.0 ; python_version >= "3.12" and python_version < "4.0"
 certifi==2024.7.4 ; python_version >= "3.12" and python_version < "4.0"
-charset-normalizer==3.3.2 ; python_version >= "3.12" and python_version < "4.0"
+charset-normalizer==3.4.1 ; python_version >= "3.12" and python_version < "4.0"
 click==8.1.8 ; python_version >= "3.12" and python_version < "4.0"
 colorama==0.4.6 ; python_version >= "3.12" and python_version < "4.0"
 ghp-import==2.1.0 ; python_version >= "3.12" and python_version < "4.0"
