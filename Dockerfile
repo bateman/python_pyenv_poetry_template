@@ -1,5 +1,5 @@
 # Base image
-FROM python:3.13-rc-slim-bookworm
+FROM python:3.15-rc-slim-bookworm
 
 # Label docker image
 LABEL maintainer="Fabio Calefato <fcalefato@gmail.com>"
